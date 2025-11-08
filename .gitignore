@@ -1,0 +1,35 @@
+# Zola build output
+public/
+output/
+
+# Zola cache
+.cache/
+.zola-cache/
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.log
+
+# Node (if using frontend tooling)
+node_modules/
+dist/
+
+# Temporary files
+*.tmp
+*.bak
+*.old
+

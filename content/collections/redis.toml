@@ -1,0 +1,19 @@
+[[collection]]
+type = "entry"
+link = "https://redis.io"
+title = "官方文档"
+
+[[collection]]
+type = "entry"
+link = "https://redis.io/docs/latest/commands/"
+title = "命令查询"
+
+[[collection]]
+type = "entry"
+link = "https://github.com/redis/redis"
+title = "项目仓库"
+
+[[collection]]
+type = "entry"
+link = "http://invece.org/"
+title = "作者博客"
