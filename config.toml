@@ -5,7 +5,7 @@
 #
 #=========================================================================================
 
-base_url = "https://brilliant-arithmetic-24fbe8.netlify.app"
+base_url = "https://rainyctl.cc" # has to be configured for css/theme
 title = "半山听雨"
 description = "rainyctl blog"
 default_language = "zh-CN"
