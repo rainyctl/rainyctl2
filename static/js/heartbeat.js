@@ -42,7 +42,7 @@ function render() {
         height: 11,
         gutter: 4,
       },
-      range: 6,
+      range: 5,
       scale: {
         color: {
           type: "linear",
