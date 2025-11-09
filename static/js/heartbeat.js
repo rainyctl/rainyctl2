@@ -13,16 +13,22 @@ const CN_MONTHS = [
   "十二月",
 ];
 
+let cal;
+
 function render() {
   if (!CalHeatmap) {
     console.warn("CalHeatmap not loaded");
     return;
   }
+  if (cal) {
+    cal.destroy();
+  }
 
-  const cal = new CalHeatmap({});
+  cal = new CalHeatmap({});
   cal.paint(
     {
       itemSelector: "#heartbeat",
+      animationDuration: 0,
       domain: {
         type: "month",
         gutter: 4,
@@ -74,7 +80,7 @@ function render() {
           return item.coffee;
         },
       },
-      theme: "dark",
+      theme: sessionStorage.getItem("theme") || "light",
     },
     [
       [
@@ -98,3 +104,15 @@ function render() {
 }
 
 render();
+
+// watch for dark/light mode changes from theme script
+const observer = new MutationObserver(() => {
+  const theme = document.body.classList.contains("dark") ? "dark" : "light";
+  console.log("theme changed to", theme, "→ rerender");
+  render();
+});
+
+observer.observe(document.body, {
+  attributes: true,
+  attributeFilter: ["class"],
+});
