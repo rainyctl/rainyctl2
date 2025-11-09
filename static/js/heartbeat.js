@@ -42,7 +42,7 @@ function render() {
         height: 11,
         gutter: 4,
       },
-      range: 5,
+      range: window.innerWidth < 468 ? 4 : window.innerWidth < 768 ? 6 : 8,
       scale: {
         color: {
           type: "linear",
@@ -92,15 +92,7 @@ function render() {
           },
         },
       ],
-      [
-        CalendarLabel,
-        {
-          width: 30,
-          textAlign: "start",
-          text: () => ["一", "", "三", "", "五", "", "日"],
-          padding: [25, 0, 0, 0],
-        },
-      ],
+      ,
     ],
   );
 }
