@@ -28,7 +28,7 @@ function render() {
         gutter: 4,
         label: {
           text: (ts) => {
-            const m = new Date(ts).getMonth();
+            const m = new Date(ts).getUTCMonth();
             return CN_MONTHS[m];
           },
           textAlign: "start",
@@ -82,13 +82,13 @@ function render() {
         {
           enabled: true,
           text: (ts, value) => {
-            if (!value) return null;
             const str = new Date(ts).toLocaleDateString("zh-CN", {
               year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
+              month: "short",
+              day: "numeric",
             });
-            return `${str} ☕ x ${value}`;
+            if (!value) return str;
+            return `${str} (☕ x ${value})`;
           },
         },
       ],
