@@ -13,6 +13,8 @@ const CN_MONTHS = [
   "十二月",
 ];
 
+const CN_DAY_OF_WEEK = ["一", "二", "三", "四", "五", "六", "日"];
+
 let cal;
 
 function render() {
@@ -57,24 +59,14 @@ function render() {
         },
       },
       date: {
-        start: new Date("2025-11-08"),
+        start: Date.UTC(2025, 10, 8), // 2025-11-08
         highlight: [new Date()],
       },
       data: {
         source: "/data/heartbeat.json",
         type: "json",
         x: (item) => {
-          // use current timezone with time
-          const [y, m, d] = item.date.split("-").map(Number);
-          const now = new Date();
-          return new Date(
-            y,
-            m - 1,
-            d,
-            now.getHours(),
-            now.getMinutes(),
-            now.getSeconds(),
-          );
+          return item.date; // '2025-11-08' as utc
         },
         y: (item) => {
           return item.coffee;
@@ -88,13 +80,15 @@ function render() {
         {
           enabled: true,
           text: (ts, value) => {
-            const str = new Date(ts).toLocaleDateString("zh-CN", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            });
-            if (!value) return str;
-            return `${str} (☕ x ${value})`;
+            const dd = new Date(ts);
+            const y = dd.getFullYear();
+            const m = dd.getUTCMonth();
+            const d = dd.getUTCDate();
+            const w = dd.getDay();
+            const dayOfWeek = CN_DAY_OF_WEEK[w];
+            const st = `${y}年${m + 1}月${d}日 [${dayOfWeek}]`;
+            if (!value) return st;
+            return `${st} (☕  x ${value})`;
           },
         },
       ],
