@@ -50,7 +50,7 @@ sections = [
 blog_section_path = "/posts"
 
 back_link_text = "回望" # Text of the back button
-force_theme = false # false | "light" | "dark"
+force_theme = "light" # false | "light" | "dark"
 
 footer_copyright = "© 2025 rainyctl"
 footer_credits = true # Whether to show "Built with zola and serene" in footer
@@ -61,3 +61,4 @@ not_found_recover_text = "« 复初 »"
 reaction = false # Whether to enable anonymous emoji reactions (Note: You need to set up a working api endpoint to enable this feature)
 reaction_align = "right" # "left" | "center" | "right"
 reaction_endpoint = "https://example.com/api/reaction"
+
