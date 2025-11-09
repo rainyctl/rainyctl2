@@ -74,7 +74,7 @@ function render() {
           return item.coffee;
         },
       },
-      theme: "light",
+      theme: "dark",
     },
     [
       [
@@ -82,7 +82,6 @@ function render() {
         {
           enabled: true,
           text: (ts, value) => {
-            console.log(ts, value);
             if (!value) return null;
             const str = new Date(ts).toLocaleDateString("zh-CN", {
               year: "numeric",

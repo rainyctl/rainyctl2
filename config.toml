@@ -50,7 +50,8 @@ sections = [
 blog_section_path = "/posts"
 
 back_link_text = "回望" # Text of the back button
-force_theme = "light" # false | "light" | "dark"
+# force_theme = "false" # false | "light" | "dark"
+force_theme = false
 
 footer_copyright = "© 2025 rainyctl"
 footer_credits = true # Whether to show "Built with zola and serene" in footer
