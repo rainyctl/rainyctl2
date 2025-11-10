@@ -17,3 +17,8 @@ title = "项目仓库"
 type = "entry"
 link = "http://invece.org/"
 title = "作者博客"
+
+[[collection]]
+type = "entry"
+link = "https://www.bilibili.com/video/BV13R4y1v7sP/?share_source=copy_web&vd_source=e448949c555f04421f47ebdf8e204919"
+title = "阳哥Redis7"
