@@ -131,7 +131,7 @@ public:
         return {left, right};
     }
 private:
-    int findLeft(vector<int> &nums, int target) {
+    int findLeft(vector<int>& nums, int target) {
         int res = -1;
         int left = 0, right = nums.size()-1;
         while (left <= right) {
@@ -149,7 +149,7 @@ private:
         return res;
     }
 
-    int findRight(vector<int> &nums, int target) {
+    int findRight(vector<int>& nums, int target) {
         int res = -1;
         int left = 0, right = nums.size()-1;
         while (left <= right) {
@@ -165,6 +165,49 @@ private:
             }
         }
         return res;
+    }
+};
+
+// time: O(log n)
+// space: O(1)
+```
+
+[#69. Sqrt(x)](https://leetcode.com/problems/sqrtx/description/)
+
+这次我们需要向下取整，也即是找下边界`right`。
+
+```
+... [ right ]  |  [ left ] ...
+       < t           ≥ t
+```
+
+相等的情况（如果存在）经常需要单独处理，所以具体一点是这样的。
+
+```
+... [ right ]  mid  [ left ] ...
+       < t      =     > t
+```
+
+```cpp
+// for x < 2, sqrt(x) equals x itself
+// for x >=2, search range is [1, x/2] (inclusive)
+class Solution {
+public:
+    int mySqrt(int x) {
+        if (x < 2) return x;
+
+        int left = 1, right = x/2;
+        while (left <= right) {
+            long mid = (left + right) / 2;
+            long sqrt = mid * mid;
+            if (sqrt == x)
+                return mid;
+            else if (sqrt > x)
+                right = mid - 1;
+            else
+                left = mid + 1;
+        }
+        return right;
     }
 };
 
