@@ -214,3 +214,159 @@ public:
 // time: O(log n)
 // space: O(1)
 ```
+
+[#367. Valid Perfect Square](https://leetcode.com/problems/valid-perfect-square/description/)
+
+这题与`sqrt(x)`基本相同。
+
+```cpp
+class Solution {
+public:
+    bool isPerfectSquare(int num) {
+        if (num < 2) return true;
+
+        int left = 1, right = num/2;
+        while (left <= right) {
+            long mid = (left + right)/2;
+            long sqrt = mid * mid;
+            if (sqrt == num)
+                return true;
+            else if (sqrt > num)
+                right = mid - 1;
+            else
+                left = mid + 1;
+        }
+        return false;
+    }
+};
+
+// time: O(log n)
+// space: O(1)
+```
+
+### 移除元素
+
+[#27. Remove Element](https://leetcode.com/problems/remove-element/)
+
+这里用到了`双指针`。 双指针是一种常用的遍历与操作序列的技巧，通过同时维护两个下标或指针在数组或链表上移动，以更高效的解决问题。常见于去重、分区、反转、查找区间等场景。根据用途不同，又可分为`快慢指针`(一个遍历，一个构建或判断) 和`左右指针`(从两端向中间收缩)两种常见形式。
+
+```cpp
+// i: next position for valid element
+// j: next element to check
+class Solution {
+public:
+    int removeElement(vector<int>& nums, int val) {
+        int i = 0;
+        for (int j = 0; j < nums.size(); j++) {
+            if (nums[j] != val)nums[i++] = nums[j];
+        }
+        return i;
+    }
+}
+
+// time: O(n)
+// space: O(1)
+```
+
+[#26. Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/)
+
+这次用快慢指针来做本地去重，两个指针根据应用场景含义发生了变化，但是大致处理结构相同。
+
+```cpp
+// i: last unique element
+// j: next element to check
+class Solution {
+public:
+    int removeDuplicates(vector<int>& nums) {
+        int i = 0;
+        for (int j = 1; j < nums.size(); j++) {
+            if (nums[j] != nums[i]) nums[++i] = nums[j];
+        }
+        return i + 1;
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
+
+[#283. Move Zeros](https://leetcode.com/problems/move-zeroes/description/)
+
+同样的技巧，可以观察到操作后元素的相对位置是保持不变的，将剩余元素置零即可。
+
+```cpp
+// i: next position for valid element
+// j: next element to check
+class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+       int i = 0;
+       for (int j = 0; j < nums.size(); j++) {
+        if (nums[j] != 0) nums[i++] = nums[j];
+       }
+       for (; i < nums.size(); i++) nums[i] = 0;
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
+
+[#844. Backspace String Compare](https://leetcode.com/problems/backspace-string-compare/description/)
+
+`逆向双指针`结合`跳过逻辑`：
+
+这里指针不是从前往后扫描，而是从后往前。这在处理删除、退格、合并排序结果、字符串等对齐场景非常常见。
+
+同时代码中通过跳过逻辑(skip logic)，用计数器来跳过被退格的字符。这种控制结构本质上是在双指针基础上加上了`状态机`逻辑，常见于带有“无效区段”或“需过滤元素”的问题。
+
+代码层面我们也可以把它总结为`双指针`加`嵌套跳过循环`(two pointers with inner skip loop)。这种写法有几个特点：
+
+1. 外层 `while (i >= 0 || j >= 0)` 同步推进两个指针。
+2. 内层 `while` 用于跳过特定状态（这里是退格后的字符）。
+3. 退出内层循环后，比较两边的有效字符。
+
+```cpp
+class Solution {
+public:
+    bool backspaceCompare(string s, string t) {
+        int i = s.size() - 1, skipI = 0;
+        int j = t.size() - 1, skipJ = 0;
+
+        while (i >= 0 || j >=0) {
+            // find next valid character in s
+            while (i >= 0) {
+                if (s[i] == '#') {
+                    skipI++; i--;
+                } else if (skipI) {
+                    i--; skipI--;
+                } else break;
+            }
+            // find next valid character in t
+            while (j >= 0) {
+                if (t[j] == '#') {
+                    skipJ++; j--;
+                } else if (skipJ) {
+                    j--; skipJ--;
+                } else break;
+            }
+
+            // compare current character
+            if (i >=0 && j >= 0 && s[i] != t[j]) return false;
+            // if one string is exhausted but the other isn't
+            if ((i >= 0) != (j >= 0)) return false;
+            // now either both i and j point to the same character, or both are out of bounds
+
+            // move both points to the next position
+            i--; j--;
+        }
+
+        return true;
+    }
+};
+
+// time: O(m + n) where m = len(s), n = len(t)
+// space: O(1)
+```
+
+算法层面没有显示判断`i < 0 && j < 0`返回`true`的情况，但逻辑上是隐式判断了。只要有一个指针还在范围内，就继续循环。 当两个指针都小于 0（即 `i < 0 && j < 0`）时，循环退出并返回`true`。
