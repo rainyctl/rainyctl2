@@ -2,6 +2,7 @@
 title = "算道浅行"
 description = "刷遍题"
 date = 2025-11-09
+updated = 2025-11-12
 
 [taxonomies]
 tags = ["algorithm"]
@@ -574,4 +575,53 @@ public:
 
 // time: O(n)
 // space: O(1)
+```
+
+[#76. Minimum Window Substring](https://leetcode.com/problems/minimum-window-substring/description/)
+
+`滑动窗口`配合计数：
+1. `right` 扩张窗口加入字符，统计匹配数量 `matched`；
+2. 当 `matched == need.size()` 说明窗口已包含全部字符；
+3. 然后尝试收缩 `left` 以最短化， 每次收缩时更新最短区间；
+3. 若窗口不再满足条件，继续右扩。
+
+```cpp
+class Solution {
+public:
+    string minWindow(string s, string t) {
+        if (s.empty() || t.empty()) return "";
+
+        unordered_map<char, int> need, window;
+        for (char c : t) need[c]++;
+
+        int left = 0, matched = 0;
+        int minLen = INT_MAX, minStart = 0;
+
+        for (int right = 0; right < s.size(); right++) {
+            // expand from right
+            char c = s[right];
+            window[c]++;
+            if (need.count(c) && need[c] == window[c])
+                matched++;
+            while (matched == need.size()) {
+                int len = right - left + 1;
+                if (len < minLen) {
+                    minLen = len;
+                    minStart = left;
+                }
+
+                // shrink from left
+                char c = s[left];
+                window[c]--;
+                if (need.count(c) && need[c] > window[c])
+                    matched--;
+                left++;
+            }
+        }
+        return minLen == INT_MAX ? "" : s.substr(minStart, minLen);
+    }
+};
+
+// time: O(m + n), where m = len(s), n = len(t)
+// space: O(m + n)
 ```
