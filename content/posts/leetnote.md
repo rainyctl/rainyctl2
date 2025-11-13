@@ -15,7 +15,7 @@ toc = true
 题还是得时常刷刷。时间一久，许多思路就淡了，手感也会生疏。
 
 这次重新来一遍，参照的是[《代码随想录》](https://programmercarl.com/ke/bishi.html)的顺序。
-之前那次是按照题号一路刷下来，虽然也学到了不少，但是体系松散，难以融会贯通。有些题只是记住了解法，却不太能灵活应用，理解还不够。
+之前那次是按照题号一路刷下来，虽然也学到了不少，但是体系松散，难以融会贯通。有些题只是记住了解法，却不太能灵活应用。
 
 于是想再刷一遍，理清思路，补全结构，也让手感回来一些。
 
@@ -465,4 +465,113 @@ public:
 
 // time: O(n^2)
 // space: O(n^2)
+```
+
+[#54. Spiral Matrix](https://leetcode.com/problems/spiral-matrix/description/)
+
+与上一题基本相同，这次不是写而是读，也是要时常注意边界条件（是否会越界）。
+
+```cpp
+class Solution {
+public:
+    vector<int> spiralOrder(vector<vector<int>>& matrix) {
+        if (matrix.empty() || matrix[0].empty()) return {};
+
+        vector<int> res;
+        int top = 0, bottom = matrix.size()-1;
+        int left = 0, right = matrix[0].size()-1;
+
+        while (top <= bottom && left <= right) {
+            // 1. top row, left -> right
+            for (int j = left; j <= right; j++)
+                res.push_back(matrix[top][j]);
+            top++;
+
+            // 2. right column, top -> bottom
+            for (int i = top; i <= bottom; i++)
+                res.push_back(matrix[i][right]);
+            right--;
+
+            // 3. bottom row, right -> left
+            if (top <= bottom) {
+                for (int j = right; j >= left; j--)
+                    res.push_back(matrix[bottom][j]);
+                bottom--;
+            }
+
+            // 4. left column, bottom -> top
+            if (left <= right) {
+                for (int i = bottom; i >= top; i--)
+                    res.push_back(matrix[i][left]);
+                left++;
+            }
+        }
+        return res;
+    }
+};
+```
+
+### 长度最小的字数组
+
+[#209. Minimum Size Subarray Sum](https://leetcode.com/problems/minimum-size-subarray-sum/)
+
+`滑动窗口`(`sliding window`)是数组与字符串题里常用的思想之一。滑动窗口维护一个动态区间`[left, right]`，
+不断地扩展右边界来满足条件，再收缩左边界来优化结果。
+
+常见于在连续序列中，寻找满足某种条件的最短/最长/固定长度区间。 `left`和`right`单调向前移动，因此大多能做到`O(n)`的时间复杂度。
+
+```cpp
+class Solution {
+public:
+    int minSubArrayLen(int target, vector<int>& nums) {
+        int len = INT_MAX;
+        int left = 0;
+        int sum = 0;
+        for (int right = 0; right < nums.size(); right++) {
+            sum += nums[right];
+            while (sum >= target) {
+                len = min(len, right - left + 1);
+                sum -= nums[left++];
+            }
+        }
+        return len == INT_MAX ? 0 : len;
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
+
+[#904. Fruit Into Baskets](https://leetcode.com/problems/fruit-into-baskets/description/)
+
+同样是`滑动窗口`的移动方式：
+1. 右指针 `right` 一格一格前进 → 扩大窗口；
+2. 左指针 `left` 有时连续前进多步 → 缩小窗口以恢复合法状态；
+3. 每次扩张后都要判断“当前窗口是否合法”；
+    - 不合法则继续收缩；
+    - 合法则计算/更新答案。
+
+```cpp
+class Solution {
+public:
+    int totalFruit(vector<int>& fruits) {
+        unordered_map<int, int> count;
+        int left = 0;
+        int sum = 0;
+
+        for (int right = 0; right < fruits.size(); right++) {
+            count[fruits[right]]++; // expand the window by adding current fruit
+            while (count.size() > 2) { // shrink from left until window is valid
+                if (--count[fruits[left]] == 0)
+                    count.erase(fruits[left]);
+                left++;
+            }
+            sum = max(sum, right - left + 1); // update result after window becomes valid
+        }
+        return sum;
+    }
+};
+
+// time: O(n)
+// space: O(1)
 ```
