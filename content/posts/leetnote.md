@@ -9,6 +9,7 @@ tags = ["algorithm"]
 
 [extra]
 toc = true
+math = true
 +++
 
 ## 引言
@@ -624,4 +625,82 @@ public:
 
 // time: O(m + n), where m = len(s), n = len(t)
 // space: O(m + n)
+```
+
+### 区间和
+
+[#58. 区间和 - KamaCoder](https://kamacoder.com/problempage.php?pid=1070)
+
+`前缀和`(`Prefix Sum` or `presum`)是一种通过“累计”预处理来实现快速区间求和的技巧。
+
+对于数组 $nums=[a_0, a_1, a_2, \ldots, a_{n-1}]$
+定义`前缀和数组` $p[i]$ 表示前`i`个数的总和。
+
+即：
+- `p[0] = 0`
+- `p[1] = nums[0]`
+- `p[2] = nums[0] + nums[1]`
+- `p[3] = nums[0] + nums[1] + nums[2]`
+- `p[i] = nums[0] + nums[1] + ... + nums[i-1]`
+
+于是任意闭合区间`[l, r]`的和就可以写为：`sum(l, r) = p[r+1] - p[l]`。
+
+前缀和有两种常见的写法（是否在前面多加一个零）。上述是第一种写法，区间求和公式比较自然。
+特别在`l = 0`时`sum(0, r) = p[r+1] - p[0] = p[r+1]`。
+
+而如果是第二种写法我们不在前面多加一个零, 此时`p[0] = nums[0]`。求和时就需要对`l = 0`单独判断了: `sum(l, r) = (l == 0 ? p[r] : p[r] - p[l-1])`。
+
+```cpp
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int main() {
+    int n, num, psum = 0; // presum so far
+    cin >> n;
+    vector<long long> p(n+1, 0); // presum array
+
+    for (int i = 0; i < n; i++) {
+        cin >> num;
+        psum += num;
+        p[i+1] = psum;
+    }
+    int a, b;
+    while (cin >> a && cin >> b)
+        cout << p[b+1] - p[a] << endl;
+}
+
+// time: O(n)
+// space: O(n)
+```
+
+[#303. Range Sum Query - Immutable](https://leetcode.com/problems/range-sum-query-immutable/description/)
+
+同样也用`前缀和数组`。
+
+```cpp
+class NumArray {
+public:
+    NumArray(vector<int>& nums) {
+        prefix.resize(nums.size()+1, 0);
+        for (int i = 0; i < nums.size(); i++)
+            prefix[i+1] = prefix[i] + nums[i];
+    }
+    
+    int sumRange(int left, int right) {
+        return prefix[right+1] - prefix[left];
+    }
+private:
+    vector<int> prefix;
+};
+
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray* obj = new NumArray(nums);
+ * int param_1 = obj->sumRange(left,right);
+ */
+
+// time: O(n)
+// space: O(n) = construct prefix sum array O(n) + range sum query O(1)
 ```
