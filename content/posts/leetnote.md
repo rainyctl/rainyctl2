@@ -762,3 +762,62 @@ int main() {
 // time: O(m x n)
 // space: O(m + n)
 ```
+
+## 链表
+
+链表是一种由节点顺次连接而成的线性结构，每个节点保存数据和指向下一个节点的指针，因此不需要连续内存。它的主要优点是插入、删除某个已知位置的节点可以在 O(1) 时间完成，结构灵活、内存利用弹性高。缺点是无法随机访问，访问任意位置都必须从头依次遍历，缓存局部性差、整体速度通常不如数组。
+
+链表常用于需要频繁插入删除的场景，比如实现队列、LRU 缓存内部的双向链、或操作系统中的任务调度队列。
+
+```cpp
+// node in a singly linked list
+struct ListNode {
+    int val;
+    ListNode* next;
+    ListNode() : val{}, next{nullptr} {}
+    ListNode(int x) : val{x}, next{nullptr} {}
+    ListNode(int x, ListNode* next) : val{x}, next{next} {}
+}
+```
+
+### 移除链表元素
+
+[#203. Remove Linked List Elements](https://leetcode.com/problems/remove-linked-list-elements/description/)
+
+在删除链表节点时，如果删除的是头节点，需要单独处理 `head` 的更新。
+如果删除的是中间节点，只需让前驱节点 `prev->next = cur->next`。为了避免对头节点特判，我们通常在 `head` 前加一个 `dummy` 节点，把所有删除操作统一成“删除某节点的下一节点”，这是链表中常用的技巧。
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeElements(ListNode* head, int val) {
+        ListNode dummy;
+        dummy.next = head;
+        ListNode* cur = &dummy;
+
+        while (cur->next) {
+            if (cur->next->val == val) {
+                cur->next = cur->next->next;
+            } else {
+                cur = cur->next;
+            }
+        }
+        return dummy.next;
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
+
+LeetCode 环境下一般会省略 `delete`，真实工程需显式释放被删除的节点。
