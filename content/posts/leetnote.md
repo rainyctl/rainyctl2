@@ -821,3 +821,202 @@ public:
 ```
 
 LeetCode 环境下一般会省略 `delete`，真实工程需显式释放被删除的节点。
+
+### 设计链表
+
+[#707. Design Linked List](https://leetcode.com/problems/design-linked-list/description/)
+
+插入或删除一个节点都必须先找到它的前驱节点。引入 `dummy node` 后，链表的头节点也拥有“前驱”，从而统一了所有位置的操作逻辑。`size` 则用于 `O(1)` 判断越界，使边界处理更简单可靠。以下是单链表的实现，省略了析构函数。
+
+```cpp
+class MyLinkedList {
+private:
+    struct ListNode {
+        int val;
+        ListNode* next;
+        ListNode(int val) : val{val}, next{nullptr} {}
+    };
+    ListNode* dummy;
+    int size;
+public:
+    MyLinkedList() {
+        dummy = new ListNode(0);
+        size = 0;
+    }
+    
+    // time: O(n)
+    int get(int index) {
+        if (index < 0 || index >= size) return -1;
+        ListNode* cur = dummy->next;
+        while (index--) cur = cur->next;
+        return cur->val;
+    }
+    
+    // time: O(1)
+    void addAtHead(int val) {
+        addAtIndex(0, val);
+    }
+    
+    // time: O(n)
+    void addAtTail(int val) {
+        addAtIndex(size, val);
+    }
+    
+    // time: O(n)
+    void addAtIndex(int index, int val) {
+        // valid index range [0, size]
+        // when index == 0: insert before head
+        // when index == size: append at tail
+        if (index < 0 || index > size) return;
+
+        ListNode* prev = dummy;
+        while (index--) prev = prev->next;
+
+        ListNode* node = new ListNode(val);
+        // insert before current node
+        node->next = prev->next; 
+        prev->next = node;
+        size++;
+    }
+    
+    // time: O(n)
+    void deleteAtIndex(int index) {
+        // valid index range [0 size)
+        if (index < 0 || index >= size) return;
+
+        ListNode* prev = dummy;
+        while (index--) prev = prev->next;
+
+        ListNode* cur = prev->next;
+        prev->next = cur->next;
+        delete cur;
+        size--;
+    }
+};
+
+/**
+ * Your MyLinkedList object will be instantiated and called as such:
+ * MyLinkedList* obj = new MyLinkedList();
+ * int param_1 = obj->get(index);
+ * obj->addAtHead(val);
+ * obj->addAtTail(val);
+ * obj->addAtIndex(index,val);
+ * obj->deleteAtIndex(index);
+ */
+```
+
+### 翻转链表
+
+```
+# Reverse Linked List (A → B → C → D → NULL)
+----------------------------------------------------
+NULL   A → B → C → D → NULL
+^      ^
+prev   cur
+
+----------------------------------------------------
+NULL ← A    B → C → D → NULL
+       ^    ^
+       prev cur
+
+----------------------------------------------------
+NULL ← A ← B    C → D → NULL
+           ^    ^
+           prev cur
+
+----------------------------------------------------
+NULL ← A ← B ← C    D → NULL
+               ^    ^
+               prev cur
+
+----------------------------------------------------
+NULL ← A ← B ← C ← D      NULL
+                   ^      ^
+                   prev   curr
+               (new head) (stop)
+```
+
+反转链表时，我们用 `prev` 指向已经反转好的前一节点，用 `cur` 指向当前处理的节点。每一步先保存 `cur` 的下一个节点避免链表断开，然后让 `cur->next` 指向 `prev` 完成指针反转，接着把 `prev` 移到 `cur`，`cur` 再移动到原来的下一个节点。这样 `prev` 不断向右推进、链表指针不断从右向左翻转，直到 `cur` 变为 `NULL`，此时 `prev` 就是整个链表反转后的新头节点。
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode *prev = nullptr;
+        while (head) {
+            ListNode* next = head->next;
+            head->next = prev;
+            prev = head;
+            head = next;
+        }
+        return prev;
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
+
+### 两两交换链表中的节点
+
+[#24. Swap Nodes in Pairs](https://leetcode.com/problems/swap-nodes-in-pairs/description/)
+
+```
+prev → first → second → next
+```
+
+1. 让 `first` 指向 `second` 之后的节点: `first → next`
+2. 把 `second` 放到 `first` 前面: `second → first`
+3. 把交换好的这一对接回链表: `prev → second`
+
+```
+curr → second → first → next
+```
+
+然后把 `prev` 前进到 `first`，继续下一对处理。先操作第一步以防链表结构断掉。
+
+由于交换操作需要访问每一对节点的前驱，因此同样要使用 `dummy` 节点，使头节点也拥有统一的前驱。`prev` 始终指向已完成交换部分的最后一个节点，用来连接下一对将要交换的节点。
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        ListNode* dummy = new ListNode();
+        dummy->next = head;
+        ListNode* prev = dummy;
+
+        while (prev->next && prev->next->next) {
+            ListNode* first = prev->next;
+            ListNode* second = first->next;
+            first->next = second->next;
+            second->next = first;
+            prev->next = second;
+            prev = first;
+        }
+        return dummy->next;
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
