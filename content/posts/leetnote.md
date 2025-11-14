@@ -704,3 +704,61 @@ private:
 // time: O(n)
 // space: O(n) = construct prefix sum array O(n) + range sum query O(1)
 ```
+
+### 开发商购买土地
+
+[#44. 开发商购买土地 - KamaCoder](https://kamacoder.com/problempage.php?pid=1044)
+
+虽然没有直接构造二维`前缀和数组`，但本题依然体现了`前缀和`的思想。
+通过提前计算每行、每列的总和，在两个方向上各自求一次`前缀和`，从而避免了重复累加，降低了复杂度。
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <climits>
+#include <cstdlib>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    int m, n;
+    cin >> m; // row
+    cin >> n; // column
+    long long sum = 0; // total sum
+
+    vector<long long> rowSum(m, 0); // sum of each row
+    vector<long long> colSum(n, 0); // sum of each column
+    int num;
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            cin >> num;
+            sum += num;
+            rowSum[i] += num;
+            colSum[j] += num;
+        }
+    }
+
+    long long diff = INT_MAX;
+    long long psum = 0; // presum
+    // cut horizontally
+    for (int i = 0; i < m; i++) {
+        psum += rowSum[i]; // area of company a
+        long long other = sum - psum; // area of company b
+        diff = min(diff, llabs(psum - other));
+    }
+
+    // cut vertically
+    psum = 0; // reset
+    for (int j = 0; j < n; j++) {
+        psum += colSum[j]; // area of company a
+        long long other = sum - psum; // area of company b
+        diff = min(diff, llabs(psum - other));
+    }
+
+    cout << diff << endl;
+}
+
+// time: O(m x n)
+// space: O(m + n)
+```
