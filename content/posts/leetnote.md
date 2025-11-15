@@ -1077,3 +1077,113 @@ public:
 // time: O(n)
 // space: O(1)
 ```
+
+### 链表相交
+
+[#160. Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/description/)
+
+`双指针交换走法`, 两人走一样长的路，必在交点相遇。
+
+```
+A: a1 → a2 → a3 → c1 → c2
+B: b1 → b2 → b3 → b4 → c1 → c2
+```
+
+让两个指针：
+- A 走完后去 B
+- B 走完后去 A
+
+最终路径：
+```
+pA: A → C → B
+pB: B → C → A
+```
+
+两者走过的总长度都是`a + b + c` 若有交点则必在 c1 同步到达。
+若无交点， 则都会走到 `nullptr`。
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode* curA = headA;
+        ListNode* curB = headB;
+        while (curA != curB) {
+            curA = curA ? curA->next : headB;
+            curB = curB ? curB->next : headA;
+        }
+        return curA;
+    }
+};
+
+// time: O(m + n), where m = len(a), n = len(b)
+// space: O(1)
+```
+
+### 环形链表II
+
+[#142. Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/description/)
+
+`Floyd判圈` (`弗洛伊德判环算法`或`Floyd Cycle Detection Algorithm`)
+
+
+阶段一：用两个指针（`slow`、`fast`）检测链表是否有环：
+- `slow` 每次走 1 步
+- `fast` 每次走 2 步
+    - 如果链表中没有环: `fast` 会先走到 `nullptr`，不会相遇
+    - 如果链表中有环: `fast` 必然会追上 `slow`，最终两者会相遇
+
+阶段二：寻找环入口
+- 让一个指针从 `head` 出发
+- 另一指针从相遇点出发
+- 两者都每次走 1 步
+- 最终相遇的位置就是环的入口
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *detectCycle(ListNode *head) {
+        ListNode* fast = head;
+        ListNode* slow = head;
+
+        // ensure fast can safely move two steps
+        while (fast && fast->next) {
+            fast = fast->next->next;
+            slow = slow->next;
+            if (fast == slow) break;
+        }
+
+        if (!fast || !fast->next) {
+            return nullptr;
+        }
+
+        slow = head;
+        while (slow != fast) {
+            slow = slow->next;
+            fast = fast->next;
+        }
+        return slow;
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
+
+从 `slow` 的角度，它始终以 1 步/次向前移动。无环时 `slow` 最多走完整个链表一次；有环时 `slow` 到达环入口后在环内最多再走一圈就会被 `fast` 追上，而环长也不超过链表长度。因此 `slow` 的总步数始终在链表节点数量级内，整体时间复杂度为 `O(n)`。
