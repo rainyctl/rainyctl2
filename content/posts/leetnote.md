@@ -2,7 +2,7 @@
 title = "算道浅行"
 description = "刷遍题"
 date = 2025-11-09
-updated = 2025-11-12
+updated = 2025-11-14
 
 [taxonomies]
 tags = ["algorithm"]
@@ -373,7 +373,9 @@ public:
 
 算法层面没有显示判断`i < 0 && j < 0`返回`true`的情况，但逻辑上是隐式判断了。只要有一个指针还在范围内，就继续循环。 当两个指针都小于 0（即 `i < 0 && j < 0`）时，循环退出并返回`true`。
 
-[#997. Square of a Sorted Array](https://leetcode.com/problems/squares-of-a-sorted-array/description/)
+### 有序数组的平方
+
+[#977. Square of a Sorted Array](https://leetcode.com/problems/squares-of-a-sorted-array/description/)
 
 双指针从两端向中间靠拢：平方后负数会变大，因此平方后最大值一定在两端。
 
@@ -401,116 +403,6 @@ public:
 
 // time: O(n)
 // space: O(n)
-```
-
-### 螺旋矩阵II
-
-[#59. Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/description/)
-
-一道模拟过程的题目。模拟生成矩阵的过程时，可以很自然地分成四个方向依次遍历。
-每一轮循环填充一层“外圈”。在开始每轮循环前，要先想清楚当前的边界是否仍然有效。
-
-每一轮的填充顺序为：
-1. 从左到右，填充当前最上方一行；
-2. 从上到下，填充当前最右侧一列；
-3. 从右到左，填充当前最下方一行；
-4. 从下到上，填充当前最左侧一列。
-
-当进入循环时，我们已经确保 `left <= right` 且 `top <= bottom`，
-因此第 1、2 步总是在边界内可以安全执行。
-但在执行完它们后，我们更新了边界：`top++`, `right--`。
-此时再进入第 3、4 步前，就需要重新检查是否仍在有效范围内。
-这一步实际上是为了避免在 `n` 为奇数时中心点被重复填充或越界。
-
-对于二维矩阵，通常约定：
-- `i` 表示行索引，从上到下增加；
-- `j` 表示列索引，从左到右增加。
-
-```cpp
-class Solution {
-public:
-    vector<vector<int>> generateMatrix(int n) {
-        vector<vector<int>> res(n, vector<int>(n));
-
-        int left = 0, right = n - 1;
-        int top = 0, bottom = n - 1;
-        int num = 1;
-        
-        while (left <= right && top <= bottom) {
-            // 1. fill top row (left -> right)
-            for (int j = left; j <= right; j++)
-                res[top][j] = num++;
-            top++;
-
-            // 2. fill right column (top -> bottom) 
-            for (int i = top; i <= bottom; i++)
-                res[i][right] = num++;
-            right--;
-
-            // 3. fill bottom row (right -> left), if still within bounds
-            if (top <= bottom) {
-                for (int j = right; j >= left; j--)
-                    res[bottom][j] = num++;
-                bottom--;
-            }
-            
-            // 4. fill left column (bottom -> top), if still within bounds
-            if (left <= right) {
-                for (int i = bottom; i >= top; i--)
-                    res[i][left] = num++;
-                left++;
-            }
-        }
-        return res;
-    }
-};
-
-// time: O(n^2)
-// space: O(n^2)
-```
-
-[#54. Spiral Matrix](https://leetcode.com/problems/spiral-matrix/description/)
-
-与上一题基本相同，这次不是写而是读，也是要时常注意边界条件（是否会越界）。
-
-```cpp
-class Solution {
-public:
-    vector<int> spiralOrder(vector<vector<int>>& matrix) {
-        if (matrix.empty() || matrix[0].empty()) return {};
-
-        vector<int> res;
-        int top = 0, bottom = matrix.size()-1;
-        int left = 0, right = matrix[0].size()-1;
-
-        while (top <= bottom && left <= right) {
-            // 1. top row, left -> right
-            for (int j = left; j <= right; j++)
-                res.push_back(matrix[top][j]);
-            top++;
-
-            // 2. right column, top -> bottom
-            for (int i = top; i <= bottom; i++)
-                res.push_back(matrix[i][right]);
-            right--;
-
-            // 3. bottom row, right -> left
-            if (top <= bottom) {
-                for (int j = right; j >= left; j--)
-                    res.push_back(matrix[bottom][j]);
-                bottom--;
-            }
-
-            // 4. left column, bottom -> top
-            if (left <= right) {
-                for (int i = bottom; i >= top; i--)
-                    res.push_back(matrix[i][left]);
-                left++;
-            }
-        }
-        return res;
-    }
-};
 ```
 
 ### 长度最小的字数组
@@ -625,6 +517,116 @@ public:
 
 // time: O(m + n), where m = len(s), n = len(t)
 // space: O(m + n)
+```
+
+### 螺旋矩阵II
+
+[#59. Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/description/)
+
+一道模拟过程的题目。模拟生成矩阵的过程时，可以很自然地分成四个方向依次遍历。
+每一轮循环填充一层“外圈”。在开始每轮循环前，要先想清楚当前的边界是否仍然有效。
+
+每一轮的填充顺序为：
+1. 从左到右，填充当前最上方一行；
+2. 从上到下，填充当前最右侧一列；
+3. 从右到左，填充当前最下方一行；
+4. 从下到上，填充当前最左侧一列。
+
+当进入循环时，我们已经确保 `left <= right` 且 `top <= bottom`，
+因此第 1、2 步总是在边界内可以安全执行。
+但在执行完它们后，我们更新了边界：`top++`, `right--`。
+此时再进入第 3、4 步前，就需要重新检查是否仍在有效范围内。
+这一步实际上是为了避免在 `n` 为奇数时中心点被重复填充或越界。
+
+对于二维矩阵，通常约定：
+- `i` 表示行索引，从上到下增加；
+- `j` 表示列索引，从左到右增加。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> generateMatrix(int n) {
+        vector<vector<int>> res(n, vector<int>(n));
+
+        int left = 0, right = n - 1;
+        int top = 0, bottom = n - 1;
+        int num = 1;
+        
+        while (left <= right && top <= bottom) {
+            // 1. fill top row (left -> right)
+            for (int j = left; j <= right; j++)
+                res[top][j] = num++;
+            top++;
+
+            // 2. fill right column (top -> bottom) 
+            for (int i = top; i <= bottom; i++)
+                res[i][right] = num++;
+            right--;
+
+            // 3. fill bottom row (right -> left), if still within bounds
+            if (top <= bottom) {
+                for (int j = right; j >= left; j--)
+                    res[bottom][j] = num++;
+                bottom--;
+            }
+            
+            // 4. fill left column (bottom -> top), if still within bounds
+            if (left <= right) {
+                for (int i = bottom; i >= top; i--)
+                    res[i][left] = num++;
+                left++;
+            }
+        }
+        return res;
+    }
+};
+
+// time: O(n^2)
+// space: O(n^2)
+```
+
+[#54. Spiral Matrix](https://leetcode.com/problems/spiral-matrix/description/)
+
+与上一题基本相同，这次不是写而是读，也是要时常注意边界条件（是否会越界）。
+
+```cpp
+class Solution {
+public:
+    vector<int> spiralOrder(vector<vector<int>>& matrix) {
+        if (matrix.empty() || matrix[0].empty()) return {};
+
+        vector<int> res;
+        int top = 0, bottom = matrix.size()-1;
+        int left = 0, right = matrix[0].size()-1;
+
+        while (top <= bottom && left <= right) {
+            // 1. top row, left -> right
+            for (int j = left; j <= right; j++)
+                res.push_back(matrix[top][j]);
+            top++;
+
+            // 2. right column, top -> bottom
+            for (int i = top; i <= bottom; i++)
+                res.push_back(matrix[i][right]);
+            right--;
+
+            // 3. bottom row, right -> left
+            if (top <= bottom) {
+                for (int j = right; j >= left; j--)
+                    res.push_back(matrix[bottom][j]);
+                bottom--;
+            }
+
+            // 4. left column, bottom -> top
+            if (left <= right) {
+                for (int i = bottom; i >= top; i--)
+                    res.push_back(matrix[i][left]);
+                left++;
+            }
+        }
+        return res;
+    }
+};
 ```
 
 ### 区间和
@@ -1013,6 +1015,61 @@ public:
             prev->next = second;
             prev = first;
         }
+        return dummy->next;
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
+
+### 删除链表的倒数第N个节点
+
+[#19. Remove Nth Node From End of List](https://leetcode.com/problems/remove-nth-node-from-end-of-list/description/)
+
+采用 `dummy` 节点 + `快慢指针`。让 `fast` 先走 `n` 步，形成间隔；然后让 `fast` 和 `slow` 一起走，当 `fast` 到达链表末尾时，`slow` 刚好停在目标节点的前一个位置。此时将 `slow->next` 指向下下个节点即可完成删除。使用 `dummy` 能统一处理删除头节点等情况，使逻辑更加简洁稳定。
+
+```
+dummy → 1 → 2 → 3 → 4 → 5, n = 2
+^slow
+^fast
+
+1) fast moves n steps:
+dummy → 1 → 2 → 3 → 4 → 5
+^slow       ^fast
+
+2) fast and slow move together until fast hits the end:
+dummy → 1 → 2 → 3 → 4 → 5
+                ^slow   ^fast
+
+3) slow->next is the target, skip it:
+dummy → 1 → 2 → 3 → 5
+```
+
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode* dummy = new ListNode();
+        dummy->next = head;
+        ListNode* slow = dummy;
+        ListNode* fast = dummy;
+        while (n--) fast = fast->next;
+        while (fast->next) {
+            fast = fast->next;
+            slow = slow->next;
+        }
+        slow->next = slow->next->next;
         return dummy->next;
     }
 };
