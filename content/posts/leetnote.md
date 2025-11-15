@@ -2,7 +2,7 @@
 title = "算道浅行"
 description = "刷遍题"
 date = 2025-11-09
-updated = 2025-11-14
+updated = 2025-11-15
 
 [taxonomies]
 tags = ["algorithm"]
@@ -1187,3 +1187,60 @@ public:
 ```
 
 从 `slow` 的角度，它始终以 1 步/次向前移动。无环时 `slow` 最多走完整个链表一次；有环时 `slow` 到达环入口后在环内最多再走一圈就会被 `fast` 追上，而环长也不超过链表长度。因此 `slow` 的总步数始终在链表节点数量级内，整体时间复杂度为 `O(n)`。
+
+## 哈希表
+
+`哈希表`利用`哈希函数`把 `key` 映射到数组的某个位置，只要分布足够均匀，插入、删除、查找通常都能做到**平均** `O(1)`。
+
+核心做法就是先把 `key` 哈希成一个下标，再用这个下标快速定位到对应的桶(`bucket`)，如果发生冲突则通过链表或开放寻址处理。只要负载因子不过高、冲突不集中，整体性能依然接近常数级，因此哈希表也成为工程和算法中使用最广泛的基础结构之一，C++ 的 `unordered_map` / `unordered_set` 就是典型实现。
+
+| 操作         | 平均复杂度   | 最坏复杂度 | 说明            |
+| ---------- | ------- | ----- | ------------- |
+| 插入         | O(1)    | O(n)  | rehash 或大量冲突时 |
+| 查找         | O(1)    | O(n)  | 所有元素落在一个桶里    |
+| 删除         | O(1)    | O(n)  | 同查找一样         |
+| 扩容（rehash） | armotized O(1) | O(n)  | 需要重分布全部 key   |
+
+```cpp
+// hash set
+// stores unique elements. provides O(1) average-time lookup
+unordered_set<int> set = {1, 2, 3, 5, 8};
+
+// hash map
+// key value mapping implemented with a hash table
+unordered_map<string, int> freq = {
+    {"key1", 1},
+    {"key2", 3},
+    {"key3", 2}
+};
+
+// perfect hash (array counting)
+// when the key space is small and continuous (e.g. 'a' to 'z')
+// an array can be used as a perfect hash table
+// no collisions, fastest lookup
+int cnt[26] = {0};
+```
+
+### 有效的字母异位词
+
+[#242. Valid Anagram](https://leetcode.com/problems/valid-anagram/description/)
+
+判断两个字符串是否由相同字符频次组成。最优方法是用大小为 26 的计数数组做频率差值，通过一次遍历解决，时间 `O(n)`、空间 `O(1)`。若字符集未知，则用哈希表。排序是最简单但不是最优的通用解法。
+
+```cpp
+class Solution {
+public:
+    bool isAnagram(string s, string t) {
+        int cnt[26] = {0};
+        for (char ch : s) cnt[ch - 'a']++;
+        for (char ch : t) cnt[ch - 'a']--;
+        for (int val : cnt) {
+            if (val != 0) return false;
+        }
+        return true;
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
