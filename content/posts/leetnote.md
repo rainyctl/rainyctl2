@@ -1244,3 +1244,70 @@ public:
 // time: O(n)
 // space: O(1)
 ```
+
+[#49. Group Anagrams](https://leetcode.com/problems/group-anagrams/description/)
+
+```cpp
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        unordered_map<string, vector<string>> groups;
+
+        for (auto& s : strs) {
+            int cnt[26] = {0};
+            for (char ch : s) cnt[ch-'a']++;
+            // build key
+            string key;
+            for (int i = 0; i < 26; i++) {
+                key += '#';
+                key += to_string(cnt[i]);
+            }
+            groups[key].push_back(s);
+        }
+
+        vector<vector<string>> res;
+        for (auto& entry : groups)
+            res.push_back(std::move(entry.second));
+        return res;
+    }
+};
+
+// time: O(n x k) where k = average length of strs
+// space: O(n x k)
+```
+
+采用固定格式的 `key`（如带分隔符的 26 项编码 `#1#0#3#0#0#...`）更稳定也更安全：结构固定、无歧义，不会因为省略 0 而让 `key` 长度不一致，避免 C++ 的隐式转换问题，方便调试和扩展到更多字符集，同时在哈希表中能得到更均匀的分布。
+
+[#438. Find All Anagrams in a String](https://leetcode.com/problems/find-all-anagrams-in-a-string/description/)
+
+```cpp
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        if (s.size() < p.size()) return {};
+
+        int need[26] = {0};
+        int window[26] = {0};
+        for (char c : p) need[c-'a']++;
+        int m = p.size();
+        vector<int> res;
+        for (int r = 0; r < s.size(); r++) {
+            window[s[r]-'a']++;
+            if (r >= m) window[s[r-m]-'a']--;
+
+            if (r >= m-1) {
+                bool same = true;
+                for (int i = 0; i < 26; i++)
+                    if (need[i] != window[i]) same = false;
+                if (same) res.push_back(r-m+1);
+            }
+        }
+        return res;
+    }
+};
+
+// time: O(|s| + |t|) => O(|s|) since |t| <= |s|
+// space: O(1)
+```
+
+算法对字符串 `s` 做一次滑动窗口遍历。 每一步只更新固定大小（26）的频次数组，检查相等也是常数时间。 因此总时间复杂度为 `O(|s|)`。
