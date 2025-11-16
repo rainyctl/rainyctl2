@@ -1407,3 +1407,186 @@ public:
 // time: O(n)
 // space: O(n)
 ```
+
+### 四数相加II
+
+[#454. 4Sum II](https://leetcode.com/problems/4sum-ii/description/)
+
+数组长度 n ≤ 200 时，四重循环是 n⁴ ≈ 1.6e9，必然超时。
+常用优化是把四个数组拆成两组：先枚举 A+B 的所有和并计数，再在 C+D 中查找对应的相反数。这样把 O(n⁴) 降为 O(n²)，n²=4×10⁴，轻松通过。这是典型的 k-sum 降维技巧。
+
+```cpp
+class Solution {
+public:
+    int fourSumCount(vector<int>& nums1, vector<int>& nums2, vector<int>& nums3, vector<int>& nums4) {
+        unordered_map<int, int> sum; // key: sum -> value: frequency
+        for (int num1 : nums1)
+            for (int num2 : nums2)
+                sum[num1+num2]++;
+        
+        int res = 0;
+        for (int num3 : nums3) {
+            for (int num4 : nums4) {
+                int need = 0 - (num3 + num4);
+                if (sum.count(need))
+                    res += sum[need];
+            }
+        }
+        return res;
+    }
+};
+
+// time: O(n^2)
+// space: O(n^2)
+```
+
+### 赎金信
+
+[#383. Ransom Note](https://leetcode.com/problems/ransom-note/description/)
+
+```cpp
+class Solution {
+public:
+    bool canConstruct(string ransomNote, string magazine) {
+        if (ransomNote.size() > magazine.size()) return false;
+        int cnt[26] = {0};
+        for (char ch : magazine) cnt[ch-'a']++;
+        for (char ch : ransomNote) {
+            if (cnt[ch-'a']-- < 1) return false;
+        }
+        return true;
+    }
+};
+
+// time: O(m + n) where m = len(s1), n = len(s2)
+// space: O(1)
+```
+
+### 三数之和
+
+[#15. 3Sum](https://leetcode.com/problems/3sum/description/)
+
+3Sum 的核心是「排序 + 去重 + 双指针」。排序确保数组有序，可以自然地跳过重复元素。固定第一个数后，在右侧通过双指针根据 sum 的大小移动指针，以线性时间找到所有二元组。哈希查补数在 3Sum 中也能使用，但相比双指针较难控制去重，并且无法利用有序性减少搜索空间，因此属于次优策略。
+
+**双指针做法：**
+```cpp
+// two pointers (optimal)
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        vector<vector<int>> res;
+        sort(nums.begin(), nums.end());
+        for (int i = 0; i < nums.size() - 2; i++) {
+            // skip duplicate first element
+            if (i > 0 && nums[i] == nums[i-1]) continue;
+            int left = i + 1;
+            int right = nums.size() - 1;
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
+                if (sum == 0) {
+                    res.push_back({nums[i], nums[left], nums[right]});
+                    // skip duplicate left
+                    while (left < right && nums[left] == nums[left+1]) left++;
+                    // skip duplicate right
+                    while (left < right && nums[right] == nums[right-1]) right--;
+                    left++; right--;
+                } else if (sum > 0) {
+                    right--; // too big
+                } else {
+                    left++; // too small
+                }
+            }
+        }
+        return res;
+    }
+};
+
+// time: O(n^2)
+// space: O(1)
+```
+
+**哈希表做法（不推荐）：**
+
+```cpp
+// hash set (sub-optimal)
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        vector<vector<int>> res;
+        for (int i = 0; i < nums.size() - 2; i++) {
+            // skip duplicate
+            if (i > 0 && nums[i] == nums[i-1]) continue;
+            twoSum(i, nums, res);
+        }
+        return res;
+    }
+private:
+    void twoSum(int i, vector<int>& nums, vector<vector<int>>& res) {
+        unordered_set<int> seen;
+        int n = nums.size();
+        for (int j = i + 1; j < n; j++) {
+            int need = 0 - nums[i] - nums[j];
+            if (seen.count(need)) {
+                res.push_back({nums[i], need, nums[j],});
+                // skip duplicate
+                while (j + 1 < n && nums[j] == nums[j+1]) j++;
+            }
+            seen.insert(nums[j]);
+        }
+    }
+};
+// time: O(n^2) but much slower in practice
+// space: O(n^2)
+```
+
+### 四数之和
+
+[#18. 4Sum](https://leetcode.com/problems/4sum/description/)
+
+承接之前的三数之和「排序 + 去重 + 双指针」，加上了一重循环。此时哈希表已经不合适了。
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> fourSum(vector<int>& nums, int target) {
+        if (nums.size() < 4) return {};
+        int n = nums.size();
+        vector<vector<int>> res;
+        sort(nums.begin(), nums.end());
+
+        for (int i = 0; i < n - 3; i++) {
+            // skip duplicate
+            if (i > 0 && nums[i] == nums[i-1]) continue;
+            for (int j = i + 1; j < n - 2; j++) {
+                // skip duplicate
+                if (j > i + 1 && nums[j] == nums[j-1]) continue;
+                int left = j + 1;
+                int right = n - 1;
+                while (left < right) {
+                    long long sum = static_cast<long long>(nums[i])
+                                    + nums[j]
+                                    + nums[left]
+                                    + nums[right];
+                    if (sum == target) {
+                        res.push_back({nums[i], nums[j], nums[left], nums[right]});
+                        // skip duplicate left and right
+                        while (left < right && nums[left] == nums[left+1]) left++;
+                        while (left < right && nums[right] == nums[right-1]) right--;
+                        left++; right--;
+                    } else if (sum > target) {
+                        right--; // too big
+                    } else {
+                        left++; // too small
+                    }
+                }
+            }
+        }
+        return res;
+    }
+};
+
+// time: O(n^3)
+// space: O(1)
+```
+
