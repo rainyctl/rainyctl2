@@ -1311,3 +1311,99 @@ public:
 ```
 
 算法对字符串 `s` 做一次滑动窗口遍历。 每一步只更新固定大小（26）的频次数组，检查相等也是常数时间。 因此总时间复杂度为 `O(|s|)`。
+
+### 两个数组的交集
+
+[#349. Intersection of Two Arrays](https://leetcode.com/problems/intersection-of-two-arrays/description/)
+
+```cpp
+class Solution {
+public:
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        unordered_set<int> set(nums1.begin(), nums1.end());
+        unordered_set<int> res; // unique elements
+        for (int num : nums2)
+            if (set.count(num)) res.insert(num);
+        return vector<int>(res.begin(), res.end());
+    }
+}
+
+// time: O(m + n) where m = len(nums1), n = len(nums2)
+// space: O(m + n)
+```
+
+[#350. Intersection of Two Arrays II](https://leetcode.com/problems/intersection-of-two-arrays-ii/description/)
+
+```cpp
+class Solution {
+public:
+    vector<int> intersect(vector<int>& nums1, vector<int>& nums2) {
+        unordered_map<int, int> cnt;
+        for (int num : nums1) cnt[num]++;
+        vector<int> res;
+        for (int num : nums2) {
+            if (cnt.count(num) && cnt[num] > 0) {
+                cnt[num]--;
+                res.push_back(num);
+            }
+        }
+        return res;
+    }
+};
+
+// time: O(m + n) where m = len(nums1), n = len(nums2)
+// space: O(m + n)
+```
+
+### 快乐数
+
+[#202. Happy Number](https://leetcode.com/problems/happy-number/description/)
+```cpp
+class Solution {
+public:
+    bool isHappy(int n) {
+        unordered_set<int> seen;
+        while (n != 1 && !seen.count(n)) {
+            seen.insert(n);
+            n = nextNum(n);
+        }
+        return n == 1;
+    }
+private:
+    int nextNum(int n) {
+        int sum = 0;
+        while (n) {
+            int d = n % 10;
+            sum += d * d;
+            n /= 10;
+        }
+        return sum;
+    }
+};
+
+// time: O(log n) need some math
+// space: O(log n)
+```
+
+### 两数之和
+
+[#1. Two Sum](https://leetcode.com/problems/two-sum/description/)
+
+```cpp
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        unordered_map<int, int> map; // value -> index
+        for (int i = 0; i < nums.size(); i++) {
+            int need = target - nums[i];
+            if (map.count(need))
+                return {map[need], i};
+            map[nums[i]] = i;
+        }
+        return {};
+    }
+};
+
+// time: O(n)
+// space: O(n)
+```
