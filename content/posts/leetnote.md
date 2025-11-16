@@ -2,7 +2,7 @@
 title = "算道浅行"
 description = "刷遍题"
 date = 2025-11-09
-updated = 2025-11-15
+updated = 2025-11-16
 
 [taxonomies]
 tags = ["algorithm"]
@@ -1590,3 +1590,126 @@ public:
 // space: O(1)
 ```
 
+## 字符串
+
+```cpp
+string s = "hello";
+```
+
+### 反转字符串
+
+[#344. Reverse String](https://leetcode.com/problems/reverse-string/description/)
+
+```cpp
+class Solution {
+public:
+    void reverseString(vector<char>& s) {
+        int l = 0, r = s.size() - 1;
+        while (l < r) {
+            swap(s[l], s[r]);
+            l++; r--;
+        }
+    }
+};
+
+// time: O(n) 
+// space: O(1)
+```
+
+### 反转字符串II
+
+[#541. Reverse String II](https://leetcode.com/problems/reverse-string-ii/description/)
+
+```cpp
+class Solution {
+public:
+    string reverseStr(string s, int k) {
+        int n = s.size();
+        for (int i = 0; i < n; i += 2*k) {
+            int left = i;
+            int right = min(i + k - 1, n - 1);
+            reverse(s.begin() + left, s.begin() + right + 1);
+        }
+        return s;
+    }
+}
+
+// time: O(n) 
+// space: O(1)
+```
+
+### 替换数字
+
+[#54. 替换数字 - KamaCoder](https://kamacoder.com/problempage.php?pid=1064)
+
+`std::string ` 底层是动态数组，当容量不够时会重新分配更大的缓冲区，并把已有内容全部拷贝过去。
+如果不断追加而又没有提前预留空间，就会发生多次扩容和拷贝，从而导致最坏情况下的 `O(n²)` 行为。
+
+```cpp
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+int main() {
+    string s;
+    cin >> s;
+    int cnt = 0; // number of digits
+    for (char ch : s)
+        if (isdigit(ch)) cnt++;
+    string res;
+    // pre-allocate enough space to avoid repeated reallocations
+    res.reserve(s.size() + cnt*5);
+    for (char ch : s)
+        if (isdigit(ch)) res += "number";
+        else res += ch;
+    cout << res << endl;
+}
+
+// time: O(n)
+// space: O(n)
+```
+
+### 翻转字符串里的单词
+
+[#151. Reverse Words in a String](https://leetcode.com/problems/reverse-words-in-a-string/description/)
+
+原地解法(`O(1)`空间):
+
+1. 原字符串:  "  the sky  is blue  "
+2. 去掉首尾空格: "the sky  is blue"
+3. 整体反转:   "eulb si  yks eht"
+4. 对每个单词单独反转："blue is sky the"
+
+```cpp
+class Solution {
+public:
+    string reverseWords(string s) {
+        // trim leading and trailing spaces
+        int left = 0, right = s.size() - 1;
+        while (left <= right && s[left] == ' ') left++;
+        while (left <= right && s[right] == ' ') right--;
+        if (left > right) return "";
+
+        // reverse [left, right]
+        reverse(s.begin() + left, s.begin() + right + 1);
+        int i = left;
+        int write = 0; // write position
+        while (i <= right) {
+            while (i <= right && s[i] == ' ') i++;
+            // find word [i, j)
+            int j = i;
+            while (j <= right && s[j] != ' ') j++;
+            // reverse word [i, j)
+            reverse(s.begin() + i, s.begin() + j);
+            // copy to write position
+            if (write > 0) s[write++] = ' ';
+            while (i < j) s[write++] = s[i++];
+        }
+        return s.substr(0, write);
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
