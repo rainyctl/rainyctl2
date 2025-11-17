@@ -1713,3 +1713,78 @@ public:
 // time: O(n)
 // space: O(1)
 ```
+
+### 右旋字符串
+
+[#55. 右旋字符串 -  KamaCoder](https://kamacoder.com/problempage.php?pid=1065)
+
+`三次反转法`: 符串的旋转，本质都是把字符串分成两段，然后交换顺序。
+
+适用于：
+- 左旋 k（把前 k 个字符移到后面）
+- 右旋 k（把后 k 个字符移到前面）
+
+时间复杂度 O(n)，空间 O(1)。
+
+```
+== 左旋 k ==
+
+原始：
+a b c d e f g
+
+1. reverse whole
+g f e d c b a
+
+2. reverse the first n-k elements
+g f e d c | b a
+↓ ↓ ↓ ↓ ↓
+c d e f g | b a
+
+3. reverse the last k elements
+c d e f g | b a
+            ↓ ↓
+c d e f g | a b
+```
+
+```
+== 右旋 k ==
+
+原始：
+a b c d e f g
+
+1. reverse whole
+g f e d c b a
+
+2. reverse the first k elements
+g f | e d c b a
+↓ ↓
+f g | e d c b a
+
+3. reverse the last n-k elements
+f g | e d c b a
+      ↓ ↓ ↓ ↓ ↓
+f g | a b c d e
+```
+
+```cpp
+// rotate right
+#include <string>
+#include <iostream>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    int k;
+    string s;
+    cin >> k;
+    cin >> s;
+    reverse(s.begin(), s.end());
+    reverse(s.begin(), s.begin()+k);
+    reverse(s.begin()+k, s.end());
+    cout << s << endl;
+}
+
+// time: O(n)
+// space: O(1)
+```
