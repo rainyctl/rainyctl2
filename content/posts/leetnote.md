@@ -1788,3 +1788,116 @@ int main() {
 // time: O(n)
 // space: O(1)
 ```
+
+### 实现strStr()
+
+[#28. Find the Index of the First Occurrence in a String](https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/description/)
+
+瞻仰一下 `KMP`, 建议看看相关视频讲解。（[代码随想录 - KMP 理论](https://www.bilibili.com/video/BV1PD4y1o7nd/))
+
+`KMP` 是一种高效的子串匹配算法（substring search）。
+普通暴力算法每次失败都会让文本串回退，导致时间复杂度 `O(n x m)`。
+`KMP` 利用模式串自身的信息，使匹配只向前，做到线性时间 `O(n + m)`。
+
+**核心思想**：失败时不回退文本串，而是利用 LPS 表回退模式串的位置，继续匹配。
+
+**前缀**：从第一个字符开始，但不能包含最后一个字符的所有连续子串。
+
+```
+例："ababa" 的前缀(prefix)有：
+     a 
+     ab 
+     aba 
+     abab 
+```
+
+**后缀**: 以最后一个字符结束，但不能包含第一个字符的所有连续子串。
+
+```
+例："ababa" 的后缀(suffix)有：
+      baba 
+       aba 
+        ba 
+         a 
+```
+
+**LPS**: Longest Prefix Suffix 即"最长前后缀"是 KMP 的核心概念。
+
+```
+lps[i] 表示：
+pattern[0..i] 这个子串中，最长的 “相等前缀 = 相等后缀” 的长度。
+```
+
+例： pattern = "aabaa"
+
+| i | 子串      | 最长相等前后缀 | lps[i] |
+| - | ------- | ------- | ------ |
+| 0 | "a"     | 无       | 0      |
+| 1 | "aa"    | "a"     | 1      |
+| 2 | "aab"   | 无       | 0      |
+| 3 | "aaba"  | "a"     | 1      |
+| 4 | "aabaa" | "aa"    | 2      |
+
+
+```
+lps = [0, 1, 0, 1, 2]
+```
+
+**实现**
+
+构建 LPS（前缀表）和搜索阶段使用 LPS 的方式，是完全相同的逻辑。
+它们遵循同一个 loop invariant（循环不变式）：
+`j` 始终表示当前已经匹配的“最长前后缀长度”也同时指向“下一次应该尝试匹配的位置”。
+
+在 LPS 构建阶段： `i` 表示正在分析的模式串下标。
+扫描 `pattern` 本身，用来计算 `pattern[0..i]` 的最长前后缀。
+
+在搜索阶段：`i` 表示正在比较的文本串下标。
+扫描 `haystack`，是 `KMP` 的主驱动。
+无论在哪个阶段，`i` 永远只前进不后退。
+所有回退都由 `j` 与 LPS 表完成。
+
+
+```cpp
+class Solution {
+public:
+    int strStr(string haystack, string needle) {
+        if (needle.empty()) return 0;
+        int m = haystack.size();
+        int n = needle.size();
+        vector<int> lsp(n, 0);
+        buildLSP(needle, lsp);
+
+        int j = 0; // pointer on pattern (needle)
+        for (int i = 0; i < m; i++) {
+            // fallback using lsp table when mismatch occurs
+            while (j > 0 && needle[j] != haystack[i]) 
+                j = lsp[j-1];
+            // match current character
+            if (needle[j] == haystack[i])
+                j++;
+            if (j == n)
+                return i - n + 1;
+        }
+        return -1;
+    }
+private:
+    // build longest prefix suffix table
+    void buildLSP(string& pattern, vector<int>& lsp) {
+        int n = pattern.size();
+        int j = 0; // length of current longest prefix-suffix
+        lsp[0] = 0; // first element is always 0
+        for (int i = 1; i < n; i++) {
+            // while mismatch, fallback j using the lsp table
+            while (j > 0 && pattern[j] != pattern[i])
+                j = lsp[j-1];
+            if (pattern[j] == pattern[i])
+                j++;
+            lsp[i] = j;
+        }
+    }
+};
+
+// time: O(m + n) where m = len(haystack), n = len(needle)
+// space: O(n)
+```
