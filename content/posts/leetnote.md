@@ -260,7 +260,7 @@ public:
     int removeElement(vector<int>& nums, int val) {
         int i = 0;
         for (int j = 0; j < nums.size(); j++) {
-            if (nums[j] != val)nums[i++] = nums[j];
+            if (nums[j] != val) nums[i++] = nums[j];
         }
         return i;
     }
@@ -1899,5 +1899,268 @@ private:
 };
 
 // time: O(m + n) where m = len(haystack), n = len(needle)
+// space: O(n)
+```
+
+[#459. Repeated Substring Pattern](https://leetcode.com/problems/repeated-substring-pattern/description/)
+
+1. 构建 LPS 数组，`lps[i]` 表示最长前后缀长度。
+2. 若 `lps[n-1] == 0` → 一定不是重复串。
+3. 最小重复单元长度 = `n - lps[n-1]`。
+4. 若 `n % (n - lps[n-1]) == 0` → 是重复串。
+
+若 `l == 0`, 说明没有任何非空前后缀相等所以不可能是重复构成。`(n - l)` 是最小重复单元长度,
+如果 `n % (n - l) == 0` 字符串长度必须能整除单元长度，满足时说明字符串由该单元反复拼接而成。
+
+```
+"ababab"
+n = 6
+l = 4
+n - l = 2   → 子串 "ab"
+6 % 2 == 0  → ✔
+```
+
+
+```cpp
+class Solution {
+public:
+    bool repeatedSubstringPattern(string s) {
+        int n = s.size();
+        vector<int> lps = buildLPS(s);
+        int l = lps[n-1];
+        if (l == 0) return false;
+        return n % (n - l) == 0;
+    }
+private:
+    vector<int> buildLPS(const string& s) {
+        int n = s.size();
+        vector<int> lps(n, 0);
+        int j = 0;
+        for (int i = 1; i < n; i++) {
+            while (j > 0 && s[j] != s[i])
+                j = lps[j-1];
+            if (s[i] == s[j]) {
+                j++;
+                lps[i] = j;
+            }
+        }
+        return lps;
+    }
+};
+
+// time: O(n)
+// space: O(n)
+```
+
+## 双指针法
+
+大部分题目在以上其实已经总结过便不再赘述，刷一遍练手。(`~` 表示重复项)
+
+### 移除元素
+
+[#27. Remove Element ~](https://leetcode.com/problems/remove-element/)
+
+```cpp
+class Solution {
+public:
+    int removeElement(vector<int>& nums, int val) {
+        int i = 0;
+        for (int j = 0; j < nums.size(); j++) {
+            if (nums[j] != val)
+                nums[i++] = nums[j];
+        }
+        return i;
+    }
+};
+
+// time: O(n)
+// space: O(n)
+```
+
+###  反转字符串
+
+[#344. Reverse String ~](https://leetcode.com/problems/reverse-string/description/)
+
+```cpp
+class Solution {
+public:
+    void reverseString(vector<char>& s) {
+        int l = 0, r = s.size() - 1;
+        while (l < r) {
+            swap(s[l++], s[r--]);
+        }
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
+
+## 栈与队列
+
+**栈**
+
+C++ 的 `std::stack` 是一个典型的后进先出（LIFO）容器适配器，默认使用 `deque` 作为底层实现，只允许从栈顶进行 `push`、`pop` 以及读取 `top`，这些操作都在 `O(1)` 时间内完成。
+
+```cpp
+stack<int> s;
+s.push(10);
+s.push(20);
+int x = s.top(); // 20
+s.pop();
+```
+
+**队列**
+
+C++ 的 `std::queue` 是一种先进先出（FIFO）的容器适配器，默认使用 `deque` 作为底层结构，只允许从队尾 `push`、从队头 `pop`，并通过 `front()` 与 `back()` 访问两端元素；这些操作同样在 `O(1)` 时间内完成。
+
+```cpp
+queue<int> q;
+
+q.push(10);   // push at tail
+q.push(20);
+q.push(30);
+
+// Queue: head [10, 20, 30] tail
+cout << q.front() << endl; // 10 (head)
+cout << q.back()  << endl; // 30 (tail)
+
+q.pop(); // pop from head (removes 10)
+
+// Queue: head [20, 30] tail
+cout << q.front() << endl; // 20
+cout << q.back()  << endl; // 30
+```
+
+### 用栈实现队列
+
+[#232. Implement Queue using Stacks](https://leetcode.com/problems/implement-queue-using-stacks/description/)
+
+用两个栈：`in` 负责入队，`out` 负责出队；当 `out` 空时，把 `in` 全部倒进去。
+
+这个实现的核心在于用两个栈分别承担入队和出队，把顺序反转一次就能得到队列的先入先出行为。绝大多数操作都是常数时间，只有在出队栈为空时才会把入队栈整体倒过去，但每个元素只经历一次倒转，因此整体仍保持接近 `O(1)` 的平均效率。
+
+```
+push 1:   in=[1]        out=[]
+push 2:   in=[1,2]      out=[]
+push 3:   in=[1,2,3]    out=[]
+
+pop → shift:
+          in=[]         out=[3,2,1]  → return 1
+
+push 4:   in=[4]        out=[3,2]
+
+pop:      in=[4]        out=[3,2]    → return 2
+```
+
+```cpp
+class MyQueue {
+public:
+    MyQueue() {}
+
+    // O(1)
+    void push(int x) { in.push(x); }
+
+    // armotized O(1)
+    int pop() {
+        shift();
+        int v = out.top();
+        out.pop();
+        return v;
+    }
+
+    // armotized O(1)
+    int peek() {
+        shift();
+        return out.top();
+    }
+
+    // O(1)
+    bool empty() { return in.empty() && out.empty(); }
+
+private:
+    stack<int> in, out;
+
+    void shift() {
+        if (out.empty()) {
+            while (!in.empty()) {
+                int v = in.top();
+                out.push(v);
+                in.pop();
+            }
+        }
+    }
+};
+
+/**
+ * Your MyQueue object will be instantiated and called as such:
+ * MyQueue* obj = new MyQueue();
+ * obj->push(x);
+ * int param_2 = obj->pop();
+ * int param_3 = obj->peek();
+ * bool param_4 = obj->empty();
+ */
+
+// time: see each method
+// space: O(n)
+```
+
+### 用队列实现栈
+
+[#225. Implement Stack using Queues](https://leetcode.com/problems/implement-stack-using-queues/description/)
+
+用一个队列即可：每次 `push` 时先把元素入队，然后把它之前的所有元素依次出队再入队，让新元素被“旋转”到队头, 这样队头始终是最新压入的元素，于是 `pop` 就是直接弹队头，`top` 直接查看队头，就像在用栈一样。
+
+```
+push(1): [1]
+push(2): [1,2] → rotate → [2,1]
+push(3): [2,1,3] → rotate → [3,2,1]
+
+pop(): 3
+```
+
+```cpp
+class MyStack {
+public:
+    MyStack() {}
+
+    // O(n)
+    void push(int x) {
+        queue.push(x);
+        int n = queue.size() - 1; // reverse old elements
+        while (n--) {
+            int v = queue.front();
+            queue.push(v);
+            queue.pop();
+        }
+    }
+
+    // O(1)
+    int pop() {
+        int v = queue.front();
+        queue.pop();
+        return v;
+    }
+
+    // O(1)
+    int top() { return queue.front(); }
+
+    // O(1)
+    bool empty() { return queue.empty(); }
+
+private:
+    queue<int> queue;
+};
+
+/**
+ * Your MyStack object will be instantiated and called as such:
+ * MyStack* obj = new MyStack();
+ * obj->push(x);
+ * int param_2 = obj->pop();
+ * int param_3 = obj->top();
+ * bool param_4 = obj->empty();
+ */
+
+// time: see each method
 // space: O(n)
 ```
