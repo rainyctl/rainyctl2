@@ -2164,3 +2164,735 @@ private:
 // time: see each method
 // space: O(n)
 ```
+
+### 有效的括号
+
+[#20. Valid Parentheses](https://leetcode.com/problems/valid-parentheses/description/)
+
+当然这题有很多小的优化方式，大处着眼于 `stack` 的用法就好。
+
+```cpp
+class Solution {
+public:
+    bool isValid(string s) {
+        unordered_map<char, char> map{{')', '('}, {']', '['}, {'}', '{'}};
+        stack<char> stack;
+        for (char ch : s) {
+            if (map.count(ch)) {
+                if (stack.empty() || stack.top() != map[ch])
+                    return false;
+                stack.pop();
+            } else {
+                stack.push(ch);
+            }
+        }
+        return stack.empty();
+    }
+};
+
+// time: O(n)
+// space: O(n)
+```
+
+### 删除字符串中的所有相邻重复项
+
+[#1047. Remove All Adjacent Duplicates In String](https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string/description/)
+
+在 C++ 中，用 `string` 本身当作栈非常高效，因为 `std::string` 是可变的、底层是连续内存，`push_back`/`pop_back` 都是摊销 `O(1)`。
+
+但在许多其他语言里，字符串往往是不可变类型，例如 Java 的 `String`、Python 的 `str`、JavaScript 的 `string`、Go 的 `string` 等，对字符串进行拼接或截断都会重新创建新对象，代价是 `O(n)`，如果频繁操作会退化成 `O(n²)`。
+
+```cpp
+class Solution {
+public:
+    string removeDuplicates(string s) {
+        string res;
+        for (char ch : s) {
+            if (res.empty() || res.back() != ch)
+                res.push_back(ch);
+            else
+                res.pop_back();
+        }
+        return res;
+    }
+};
+
+// time: O(n)
+// space: O(n)
+```
+
+## 二叉树
+
+二叉树（`Binary Tree`）是每个节点最多只有两个子节点（`left`、`right`）的树结构。
+
+```
+      1
+     / \
+    2   3
+```
+
+```cpp
+struct TreeNode {
+  int val;
+  TreeNode *left;
+  TreeNode *right;
+  TreeNode() : val(0), left(nullptr), right(nullptr) {}
+  TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+  TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+};
+```
+
+二叉树有几种常见的分类：
+
+**满二叉树** (`Full Binary Tree`)
+
+每个节点要么是 没有子节点，要么同时有 两个子节点。
+
+```
+        1
+      /   \
+     2     3
+    / \   / \
+   4  5  6   7
+```
+
+**完全二叉树**（`Complete Binary Tree`）
+
+除了最后一层外，其他层都必须是满的。
+最后一层的节点从左向右连续排列，中间不能断。
+
+```
+        1
+      /   \
+     2     3
+    / \   /
+   4  5  6
+```
+
+**二叉搜索树**（`BST, Binary Search Tree`）
+
+对于任意一个节点：
+- 左子树所有值 < 当前节点值
+- 右子树所有值 > 当前节点值
+- 左右子树本身也是 BST
+
+```
+        5
+      /   \
+     3     7
+    / \   / \
+   2  4  6   9
+```
+
+中序遍历（左→根→右）会得到严格递增序列：`[2, 3, 4, 5, 6, 7, 9]`。
+
+**堆** (`Heap`)
+
+与之相关，我们说说堆这个概念。堆是建立在完全二叉树基础上的一个结构，再加上堆序性质（`Heap Property`）。
+
+堆的两种常见形式：
+
+**最大堆**（`Max-Heap`）：
+- 每个节点都 ≥ 子节点
+- 根节点是整个树的最大值
+
+```
+        10
+      /    \
+     8      7
+    / \    /
+   5   3  6
+```
+
+```cpp
+#include <queue>
+
+int main() {
+    std::priority_queue<int> pq;  // 默认最大堆
+
+    pq.push(3);
+    pq.push(1);
+    pq.push(5);
+
+    // 输出：5 3 1
+    while (!pq.empty()) {
+        std::cout << pq.top() << " ";
+        pq.pop();
+    }
+}
+```
+
+**最小堆**（`Min-Heap`）：
+- 每个节点都 ≤ 子节点
+- 根节点是整个树的最小值
+
+```
+        1
+      /   \
+     3     2
+    / \   /
+   7  6  4
+```
+
+```cpp
+#include <queue>
+#include <vector>
+#include <functional>
+
+int main() {
+    std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;
+
+    minHeap.push(3);
+    minHeap.push(1);
+    minHeap.push(5);
+
+    // 输出：1 3 5
+    while (!minHeap.empty()) {
+        std::cout << minHeap.top() << " ";
+        minHeap.pop();
+    }
+}
+```
+
+**顺序存储（数组）**
+
+完全二叉树与堆结构紧凑，没有空洞，所以非常适合用数组连续存储。
+
+数组存储方式（从 0 开始）：
+
+对某一节点 `i`：
+- 左孩子：`2*i + 1`
+- 右孩子：`2*i + 2`
+- 父节点：`(i - 1) / 2`
+
+```
+        arr[0]=1
+      /         \
+ arr[1]=2     arr[2]=3
+   /  \         /
+ 4    5       6
+
+```
+
+```
+树结构
+        1
+      /   \
+     3     2
+    / \   /
+   7  6  4
+
+数组表示
+index: 0 1 2 3 4 5 
+value: 1 3 2 7 6 4
+```
+
+**平衡二叉树** (`Balanced BST`)
+
+平衡树是一种在插入、删除后自动调整结构，使整棵树高度保持在 `O(log n)` 的二叉搜索树，从而保证查找、插入、删除等操作在`最坏`情况下仍能做到 `O(log n)`，其意义在于避免普通 BST 因数据顺序不佳而退化成链表。常用的实现方式主要有两类：如 `AVL Tree`，通过维护节点高度并在失衡时做旋转，实现非常严格的平衡、查找更快；以及 `Red-Black Tree`，通过颜色规则和较宽松的平衡要求，让插入/删除旋转更少、整体性能稳定，是实际工程（如 C++ `map`/`set`、Java `TreeMap`）中最常用的平衡树。平衡树也广泛用于实现数据库索引（如 `B+` 树）。
+
+
+```
+在二叉搜索树的基础上，额外限制：任何节点的左右子树高度差 ≤ 1
+
+        4
+      /   \
+     2     6
+    / \   / \
+   1  3  5   7
+
+```
+
+### 二叉树的递归遍历
+
+深度优先遍历（`DFS`）：一路往下走到叶子，再回溯，包括前序、中序、后序等形式。
+
+[#144. Binary Tree Preorder Traversal](https://leetcode.com/problems/binary-tree-preorder-traversal/description/)
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> res;
+        traverse(root, res);
+        return res;
+    }
+private:
+    void traverse(TreeNode* node, vector<int>& res) {
+        if (!node) return;
+        res.push_back(node->val);
+        traverse(node->left, res);
+        traverse(node->right, res);
+    }
+};
+
+// time: O(n)
+// space: O(n)
+```
+
+### 二叉树的层序遍历
+
+广度优先遍历（`BFS`）：按层逐层访问，例如从上到下、从左到右，按层推进。
+
+[#102. Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/)
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        if (!root) return {};
+        vector<vector<int>> res;
+        queue<TreeNode*> queue;
+        queue.push(root);
+        while (!queue.empty()) {
+            int n = queue.size();
+            vector<int> level;
+            while (n--) {
+                TreeNode* node = queue.front();
+                queue.pop();
+                level.push_back(node->val);
+                if (node->left) queue.push(node->left);
+                if (node->right) queue.push(node->right);
+            }
+            res.push_back(level);
+        }
+        return res;
+    }
+};
+
+// time: O(n)
+// space: O(n)
+```
+
+[#116. Populating Next Right Pointers in Each Node](https://leetcode.com/problems/populating-next-right-pointers-in-each-node/description/)
+
+采用层序遍历把一层的 node 逐一连接起来是一种比较直接的做法。这题存在另一种 `O(1)` 的空间最优解法。
+
+```cpp
+/*
+// Definition for a Node.
+class Node {
+public:
+    int val;
+    Node* left;
+    Node* right;
+    Node* next;
+
+    Node() : val(0), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
+
+    Node(int _val, Node* _left, Node* _right, Node* _next)
+        : val(_val), left(_left), right(_right), next(_next) {}
+};
+*/
+
+class Solution {
+public:
+    Node* connect(Node* root) {
+        if (!root) return root;
+        queue<Node*> queue;
+        queue.push(root);
+        while (!queue.empty()) {
+            int n = queue.size();
+            Node* pre = nullptr;
+            while (n--) {
+                Node* node = queue.front();
+                queue.pop();
+                if (pre) pre->next = node;
+                pre = node;
+                if (node->left) queue.push(node->left);
+                if (node->right) queue.push(node->right);
+            }
+        }
+        return root;
+    }
+};
+
+// time: O(n)
+// space: O(n)
+```
+
+[#104. Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/description/)
+
+递归或层序遍历都可以。
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if (!root) return 0;
+        int left = maxDepth(root->left);
+        int right = maxDepth(root->right);
+        return 1 + max(left, right);
+    }
+};
+
+// time: O(n)
+// space: O(height)
+```
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if (!root) return 0;
+        queue<TreeNode*> queue;
+        queue.push(root);
+        int depth = 0;
+        while (!queue.empty()) {
+            int n = queue.size();
+            depth++;
+            while (n--) {
+                TreeNode* node = queue.front();
+                queue.pop();
+                if (node->left) queue.push(node->left);
+                if (node->right) queue.push(node->right);
+            }
+        }
+        return depth;
+    }
+};
+```
+
+[#111. Minimum Depth of Binary Tree](https://leetcode.com/problems/minimum-depth-of-binary-tree/description/)
+
+用层序遍历与上题逻辑基本统一，注意叶子节点的判断就好。
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int minDepth(TreeNode* root) {
+        if (!root) return 0;
+        queue<TreeNode*> queue;
+        queue.push(root);
+        int depth = 0;
+        while (!queue.empty()) {
+            int n = queue.size();
+            depth++;
+            while (n--) {
+                TreeNode* node = queue.front();
+                queue.pop();
+                // leaf node found
+                if (!node->left && !node->right) return depth;
+                if (node->left) queue.push(node->left);
+                if (node->right) queue.push(node->right);
+            }
+        }
+        return depth;
+    }
+};
+
+// time: O(n)
+// space: O(n)
+```
+
+### 翻转二叉树
+
+人生的有些阶段，你需要翻转一个二叉树。
+
+[#226. Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/description/)
+
+```
++----------------------+----------------------+
+|      Step 0          |       Step 1         |
+|     (original)       |    (swap at 4)       |
+|                      |                      |
+|         4            |         4            |
+|       /   \          |       /   \          |
+|      2     7         |      7     2         |
+|     / \   / \        |     / \   / \        |
+|    1   3 6   9       |    6   9 1   3       |
++----------------------+----------------------+
+|      Step 2          |       Step 3         |
+|     (swap at 7)      |    (swap at 2)       |
+|                      |    (final result)    |
+|         4            |         4            |
+|       /   \          |       /   \          |
+|      7     2         |      7     2         |
+|     / \   / \        |     / \   / \        |
+|    9   6 1   3       |    9   6 3   1       |
++----------------------+----------------------+
+```
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if (!root) return root;
+        swap(root->left, root->right);
+        invertTree(root->left);
+        invertTree(root->right);
+        return root;
+    }
+};
+
+// time: O(n)
+// space: O(h) where h is the height of the tree
+```
+
+### 对称二叉树
+
+[#101. Symmetric Tree](https://leetcode.com/problems/symmetric-tree/description/)
+
+```cpp
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        if (!root) return true;
+        return isMirror(root->left, root->right);
+    }
+private:
+    bool isMirror(TreeNode* left, TreeNode* right) {
+        if (!left && !right) return true;
+        if (!left || !right) return false;
+        if (left->val != right->val) return false;
+
+        return isMirror(left->left, right->right) && isMirror(left->right, right->left);
+    }
+};
+
+// time: O(n)
+// space: O(h)
+```
+
+## 回溯
+
+回溯（`Backtracking`）是在一棵隐式搜索树里试探性地做选择，每走一步都继续向下探索，如果发现当前路径不合法或走不通，就撤销这一步并回到上一个分叉点继续尝试其他选择。它本质上是带有“撤销操作”的深度优先搜索，用来穷举所有可能解。
+
+关键思想:
+1. 路径（`path`）：当前做出的选择（递归走过的路）。
+2. 选择列表（`choices`）：当前状态还能做哪些选择。
+3. 结束条件（`终点`）：达到某种合法结果时加入答案。
+
+```
+void backtrack(vector<int>& path) {
+    if (满足结束条件) {
+        ans.push_back(path);
+        return;
+    }
+
+    for (选择 in 选择列表) {
+        做选择;
+        path.push_back(选择);
+
+        backtrack(path);
+
+        撤销选择;
+        path.pop_back();
+    }
+}
+```
+
+回溯是一种很慢的算法。之所以慢，是因为它要探索成倍增长的搜索空间，时间复杂度通常呈指数级，但在需要遍历所有可能解时，它依然是最直接、最清晰的做法。
+
+[#77. Combinations](https://leetcode.com/problems/combinations/description/)
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> combine(int n, int k) {
+        vector<vector<int>> res; 
+        vector<int> path;
+        backtrack(1, n, k, path, res);
+        return res;
+    }
+private:
+    void backtrack(int start, int n, int k,
+                   vector<int>& path,
+                   vector<vector<int>>& res) {
+        if (path.size() == k) {
+            res.push_back(path);
+            return;
+        }
+
+        for (int i = start; i <= n; i++) {
+            int need = k - path.size();
+            int remain = n - i + 1;
+            // not enough numbers
+            if (need > remain) break;
+            path.push_back(i);
+            backtrack(i+1, n, k, path, res);
+            path.pop_back();
+        }
+    }
+};
+```
+
+[#216. Combination Sum III](https://leetcode.com/problems/combination-sum-iii/description/)
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> combinationSum3(int k, int n) {
+        vector<vector<int>> res;
+        vector<int> path;
+        backtrack(k, n, 1, 0, path, res);
+        return res;
+    }
+private:
+    void backtrack(int k, int n, int start, int sum,
+                   vector<int>& path, vector<vector<int>>& res) {
+        if (sum > n || path.size() > k) return;
+
+        if (sum == n && path.size() == k) {
+            res.push_back(path);
+            return;
+        }
+
+        for (int i = start; i <= 9; i++) {
+            path.push_back(i);
+            backtrack(k, n, i+1, sum+i, path, res);
+            path.pop_back();
+        }
+    }
+};
+```
+
+## 贪心算法
+
+贪心算法（`Greedy Algorithm`）是在每一步都作出当前看起来最优的选择（局部最优），希望最终得到全局最优解的方法。
+
+它的特点是：
+- 不回溯，不全局搜索
+- 一次决策影响后续，但不重新考虑之前的选择
+- 快、实现简单、但并非对所有问题都适用
+
+贪心算法通过在每一步做出当前最优（局部最优）的选择来构建整体解，要求问题满足贪心选择性质与最优子结构。它通常以“排序 + 单次决策”的形式出现，优点是简单高效，缺点是只对结构良好的问题有效，不能解决需要`回溯`或`动态规划`的问题。
+
+[#455. Assign Cookies](https://leetcode.com/problems/assign-cookies/description/)
+
+贪心：小胃口孩子用小饼干优先满足，避免浪费大饼干。
+
+做法：排序孩子 g、饼干 s，双指针从小到大匹配。饼干够就同时移动，否则换更大的饼干。
+
+```cpp
+class Solution {
+public:
+    // g: children
+    // s: cookies
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        sort(g.begin(), g.end());
+        sort(s.begin(), s.end());
+        int i = 0; int j = 0;
+        int res = 0;
+        while (i < g.size() && j < s.size()) {
+            if (g[i] <= s[j]) {
+                i++; j++;
+                res++;
+            } else {
+                j++; // try a bigger cookie
+            }
+        }
+        return res;
+    }
+};
+
+// time: O(n log n)
+// space: O(1)
+```
+
+## 动态规划
+
+动态规划的核心特征是一种通过“状态”描述子问题、通过“状态转移”递推大问题解的思想。它适用于具有重叠子问题与最优子结构的问题：大问题可以被拆成相同类型的更小子问题，而这些子问题的最优解又能组合成整体最优解。动态规划通常先定义状态 `dp` 表示“当前子问题的答案”，再根据题意写出状态转移方程，配合正确初始化与遍历顺序，最终自底向上地填表得到答案。它的本质是“用空间换时间”，通过记录中间结果避免重复计算，从而显著减少复杂度。
+
+往往我们能看到在 `dp` 之上对空间的进一步优化。个人觉得初学动态规划时，如果不是很好理解，可以暂时忽略各种空间优化技巧（如滚动数组、状态压缩）。这些优化只是在你已经完全理解“状态表示什么、转移怎么来、遍历顺序为什么这样”之后才有意义。第一遍学习更重要的是把 状态定义 + 转移逻辑 理顺，把题目推导清楚、`dp` 表画对、代码写稳。等核心思路扎实了，再回头做空间优化会非常自然，也不会增加认知负担。
+
+[#509. Fibonacci Number](https://leetcode.com/problems/fibonacci-number/description/)
+
+```cpp
+class Solution {
+public:
+    int fib(int n) {
+        if (n < 2) return n;
+        int a = 0; // dp[0]
+        int b = 1; // dp[1]
+        for (int i = 2; i <= n; i++) {
+            int c = a + b;
+            a = b;
+            b = c;
+        }
+        return b;
+    }
+};
+
+// time: O(n)
+// space: O(1)
+```
