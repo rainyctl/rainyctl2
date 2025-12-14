@@ -46,6 +46,7 @@ sections = [
   # { name = "github", path = "https://github.com/<your-username>", is_external = true },
   { name = "集录", path = "/collections", is_external = false },
   { name = "浅见", path = "/posts", is_external = false },
+  { name = "笔记", path = "/notes", is_external = false },
 ]
 blog_section_path = "/posts"
 
