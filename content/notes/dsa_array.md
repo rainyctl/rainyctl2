@@ -2,7 +2,7 @@
 title = "数组"
 description = "刷遍题 - 数组"
 date = 2025-12-13
-updated = 2025-12-13
+updated = 2025-12-14
 
 [taxonomies]
 tags = ["dsa"]
@@ -175,3 +175,93 @@ class Solution {
 // space: O(n x n)
 ```
 
+### 区间和
+
+[KC.58. 区间和](https://kamacoder.com/problempage.php?pid=1070)
+
+前缀和。
+
+```
+pre[0] = 0
+pre[i] = Array[0] + Array[1] + ... + Array[i-1]
+length: n + 1
+
+sum(a, b) = pre[b + 1] - pre[a]
+```
+
+```java
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        try (var scanner = new Scanner(System.in)) {
+            int n = scanner.nextInt();
+            int[] pre = new int[n + 1];
+            
+            for (int i = 1; i <= n; i++) {
+                pre[i] = pre[i - 1] + scanner.nextInt();
+            }
+            
+            while (scanner.hasNext()) {
+                int a = scanner.nextInt();
+                int b = scanner.nextInt();
+                System.out.println(pre[b + 1] - pre[a]);
+            }
+        }
+    }
+}
+
+// time: O(n)
+// space: O(n)
+```
+
+### 开发商购买土地
+
+[KC.44. 开发商购买土地](https://kamacoder.com/problempage.php?pid=1044)
+
+依然是前缀和的思想减少计算量。对空间进行了一些优化，因为有 total 我们不需要整合前缀和数组，只需要上一个前缀和就可以了。
+
+```java
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        try (var scanner = new Scanner(System.in)) {
+            int n = scanner.nextInt(); // number of rows
+            int m = scanner.nextInt(); // number of columns
+            int[] rowSums = new int[n];
+            int[] colSums = new int[m];
+            int total = 0;
+
+            for (int i = 0; i < n; i++) {
+                for  (int j = 0; j < m; j++) {
+                    int val =  scanner.nextInt();
+                    rowSums[i] += val;
+                    colSums[j] += val;
+                    total += val;
+                }
+            }
+
+            int pre = 0;
+            int diff = Integer.MAX_VALUE;
+            // cut by row
+            for (int i = 0; i < n - 1; i++) {
+                pre += rowSums[i];
+                diff = Math.min(diff, Math.abs(total - pre - pre));
+            }
+
+            // but by column
+            pre = 0;
+            for (int j = 0; j < m - 1; j++) {
+                pre += colSums[j];
+                diff = Math.min(diff, Math.abs(total - pre - pre));
+            }
+
+            System.out.println(diff);
+        }
+    }
+}
+
+// time: O(n x m)
+// space: O(n + m)
+```
