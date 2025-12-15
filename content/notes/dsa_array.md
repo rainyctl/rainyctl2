@@ -18,7 +18,7 @@ math = true
 
 ## 题目
 
-### 二分查找
+### 1. 二分查找
 
 [LT.704. Binary Search](https://leetcode.com/problems/binary-search/description/)
 
@@ -47,7 +47,7 @@ class Solution {
 // space: O(1)
 ```
 
-### 移除元素
+### 2. 移除元素
 
 [LT.27. Remove Element](https://leetcode.com/problems/remove-element/description/)
 
@@ -68,7 +68,7 @@ class Solution {
 // space: O(1)
 ```
 
-### 有序数组的平方
+### 3. 有序数组的平方
 
 [LT.977. Squares of a Sorted Array](https://leetcode.com/problems/squares-of-a-sorted-array/description/)
 
@@ -101,7 +101,7 @@ class Solution {
 // space: O(n)
 ```
 
-### 长度最小的子数组
+### 4. 长度最小的子数组
 
 [LT.209. Minimum Size Subarray Sum](https://leetcode.com/problems/minimum-size-subarray-sum/description/)
 
@@ -128,7 +128,7 @@ class Solution {
 // space: O(1)
 ```
 
-### 螺旋矩阵II
+### 5. 螺旋矩阵II
 
 [LT.59. Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/description/)
 
@@ -175,7 +175,7 @@ class Solution {
 // space: O(n x n)
 ```
 
-### 区间和
+### 6. 区间和
 
 [KC.58. 区间和](https://kamacoder.com/problempage.php?pid=1070)
 
@@ -215,7 +215,7 @@ public class Main {
 // space: O(n)
 ```
 
-### 开发商购买土地
+### 7. 开发商购买土地
 
 [KC.44. 开发商购买土地](https://kamacoder.com/problempage.php?pid=1044)
 
