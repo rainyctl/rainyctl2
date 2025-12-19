@@ -2,7 +2,7 @@
 title = "双指针"
 description = "刷遍题 - 双指针"
 date = 2025-12-17
-updated = 2025-12-17
+updated = 2025-12-18
 
 [taxonomies]
 tags = ["dsa"]
@@ -374,5 +374,57 @@ class Solution {
 }
 
 // time: O(n^2)
-// space: O(1) not consider output
+// space: O(1) if not consider output
+```
+
+### 9. 四数之和
+
+和三数之和思路相同，多了一层循环。
+
+```java
+class Solution {
+    public List<List<Integer>> fourSum(int[] nums, int target) {
+        List<List<Integer>> res = new ArrayList<>();
+        int n = nums.length;
+        Arrays.sort(nums);
+
+        for (int i = 0; i < n - 3; i++) {
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                continue;
+            }
+            for (int j = i + 1; j < n - 2; j++) {
+                if (j > i + 1 && nums[j] == nums[j - 1]) {
+                    continue;
+                }
+
+                int l = j + 1;
+                int r = n - 1;
+                while (l < r) {
+                    long sum = (long) nums[i] + nums[j] + nums[l] + nums[r];
+                    if (sum == target) {
+                        res.add(Arrays.asList(nums[i], nums[j], nums[l], nums[r]));
+    
+                        while (l < r && nums[l] == nums[l + 1]) {
+                            l++;
+                        }
+                        while (l < r && nums[r] == nums[r - 1]) {
+                            r--;
+                        }
+                        l++;
+                        r--;
+                    } else if (sum < target) {
+                        l++;
+                    } else {
+                        r--;
+                    }
+                }
+            }
+        }
+
+        return res;
+    }
+}
+
+// time: O(n^3)
+// space: O(1) if not consider output
 ```
