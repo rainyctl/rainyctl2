@@ -284,3 +284,53 @@ class Solution {
 // time: O(n)
 // space: O(n)
 ```
+
+### 7. 前 K 个高频元素
+
+[LT.347. Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/description/)
+
+把问题转化为 统计频次后只维护“前 k 名候选”，而不是对所有元素排序。
+
+解法先用 `HashMap` 统计每个元素出现次数，然后用一个 大小固定为 k 的小根堆 保存当前频率最高的 k 个元素，堆顶始终表示这 k 个里“频率最小的那个（第 k 名守门员）”。
+
+遍历每个 `(num, freq)` 时，若堆未满直接加入；若已满，只在 `freq` > 堆顶频率 时才替换堆顶，否则忽略。
+这样保证堆中始终是目前见过的 Top K，遍历结束即得到答案。
+
+之所以用 小根堆而不是大根堆，是因为我们只关心谁该被淘汰：小根堆能以 `O(1)` 访问当前最弱的候选，任何无法击败它的元素都不可能进入最终 Top K，从而避免全量排序，将复杂度降为 `O(n log k)`。
+
+```java
+class Solution {
+    public int[] topKFrequent(int[] nums, int k) {
+        // value -> freq
+        Map<Integer, Integer> freqMap = new HashMap<>();
+        for (int num : nums) {
+            freqMap.merge(num, 1, Integer::sum);
+        }
+
+        // min-heap of {value, freq} pairs
+        Queue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);
+        for (var entry : freqMap.entrySet()) {
+            int num = entry.getKey();
+            int freq = entry.getValue();
+            if (pq.size() < k) {
+                pq.offer(new int[]{num, freq});
+                continue;
+            }
+
+            if (freq > pq.peek()[1]) {
+                pq.poll();
+                pq.offer(new int[]{num, freq});
+            }
+        }
+
+        int[] res = new int[k];
+        for (int i = 0; i < k; i++) {
+            res[i] = pq.poll()[0];
+        }
+        return res;
+    }
+}
+
+// time: O(n log k)
+// space: O(n)
+```
