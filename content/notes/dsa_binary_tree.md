@@ -2,7 +2,7 @@
 title = "二叉树"
 description = "刷遍题 - 二叉树数组"
 date = 2025-12-20
-updated = 2025-12-20
+updated = 2025-12-21
 
 [taxonomies]
 tags = ["dsa"]
@@ -430,6 +430,395 @@ class Solution {
     }
 }
 
+// time: O(n)
+// space: O(n)
+```
+
+### 3. 二叉树层序遍历
+
+[LT.102. Binary Tree Level Order Traversal](https://leetcode.com/problems/binary-tree-level-order-traversal/description/)
+
+```java
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> res = new ArrayList<>();
+        if (root == null) {
+            return res;
+        }
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            List<Integer> level = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                level.add(node.val);
+                if (node.left != null) {
+                    queue.add(node.left);
+                }
+                if (node.right != null) {
+                    queue.add(node.right);
+                }
+            }
+            res.add(level);
+        }
+        return res;
+    }
+}
+// time: O(n)
+// space: O(n)
+```
+
+[LT.107. Binary Tree Level Order Traversal II](https://leetcode.com/problems/binary-tree-level-order-traversal-ii/description/)
+
+```java
+class Solution {
+    public List<List<Integer>> levelOrderBottom(TreeNode root) {
+        List<List<Integer>> res = new ArrayList<>();
+        if (root == null) {
+            return res;
+        }
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            List<Integer> level = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                level.add(node.val);
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+            res.add(level);
+        }
+
+        Collections.reverse(res);
+        return res;
+    }
+}
+
+// time: O(n)
+// space: O(n)
+```
+
+[LT.199. Binary Tree Right Side View](https://leetcode.com/problems/binary-tree-right-side-view/description/)
+
+```java
+class Solution {
+    public List<Integer> rightSideView(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        if (root == null) {
+            return res;
+        }
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+        
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                if (i == size - 1) {
+                    res.add(node.val);
+                }
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+        }
+        return res;
+    }
+}
+```
+
+[LT.637. Average of Levels in Binary Tree](https://leetcode.com/problems/average-of-levels-in-binary-tree/)
+
+```java
+class Solution {
+    public List<Double> averageOfLevels(TreeNode root) {
+        List<Double> res = new ArrayList<>();
+        if (root == null) {
+            return res;
+        }
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            long sum = 0;
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                sum += node.val;
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+            res.add((double) sum / size);
+        }
+        return res;
+    }
+}
+
+// time: O(n)
+// space: O(n)
+```
+
+[LT.429. N-ary Tree Level Order Traversal](https://leetcode.com/problems/n-ary-tree-level-order-traversal/description/)
+
+```java
+/*
+// Definition for a Node.
+class Node {
+    public int val;
+    public List<Node> children;
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, List<Node> _children) {
+        val = _val;
+        children = _children;
+    }
+};
+*/
+
+class Solution {
+    public List<List<Integer>> levelOrder(Node root) {
+        List<List<Integer>> res = new ArrayList<>();
+        if (root == null) {
+            return res;
+        }
+        Queue<Node> queue = new ArrayDeque<>();
+        queue.offer(root);
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            List<Integer> level = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                Node node = queue.poll();
+                level.add(node.val);
+                if (node.children != null) {
+                    for (Node child : node.children) {
+                        queue.offer(child);
+                    }
+                }
+            }
+            res.add(level);
+        }
+
+        return res;
+    }
+}
+
+// time: O(n)
+// space: O(n)
+```
+
+[LT.515. Find Largest Value in Each Tree Row](https://leetcode.com/problems/find-largest-value-in-each-tree-row/description/)
+
+```java
+class Solution {
+    public List<Integer> largestValues(TreeNode root) {
+        List<Integer> res = new ArrayList<>();
+        if (root == null) {
+            return res;
+        }
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            int max = Integer.MIN_VALUE;
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                max = Math.max(max, node.val);
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+            res.add(max);
+        }
+        return res;
+    }
+}
+
+// time: O(n)
+// space: O(n)
+```
+
+[LT.116. Populating Next Right Pointers in Each Node](https://leetcode.com/problems/populating-next-right-pointers-in-each-node/)
+
+```java
+class Solution {
+    public Node connect(Node root) {
+        if (root == null) {
+            return root;
+        }
+        Queue<Node> queue = new ArrayDeque<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            Node pre = null;
+            for (int i = 0; i < size; i++) {
+                Node node = queue.poll();
+                if (pre != null) {
+                    pre.next = node;
+                }
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+                pre = node;
+            }
+        }
+        return root;
+    }
+}
+
+// time: O(n)
+// space: O(n)
+```
+
+这题其实有空间 O(1) 的遍历方式，利用已建立的 next 指针，逐层连接:
+- 从最左节点开始，按层遍历（不需要队列）。
+- 对于当前层的每个节点 `cur`：
+    - 同一父节点内：`cur.left.next = cur.right`
+    - 跨父节点：如果 `cur.next != null`，`cur.right.next = cur.next.left` 
+- 用 `levelStart = levelStart.left` 下沉到下一层。
+
+```java
+class Solution {
+    public Node connect(Node root) {
+        if (root == null) {
+            return root;
+        }
+        Node levelStart = root;
+        while (levelStart.left != null) { // still child nodes to connect
+            Node cur = levelStart;
+            while (cur != null) {
+                cur.left.next = cur.right;
+                if (cur.next != null) {
+                    cur.right.next = cur.next.left;
+                }
+                cur = cur.next;
+            }
+            levelStart = levelStart.left;
+        }
+        return root;
+    }
+}
+
+// time: O(n)
+// space: O(1)
+```
+
+[LT.117. Populating Next Right Pointers in Each Node II](https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/description/)
+
+利用已经建立好的 `next` 指针，像“链表”一样横向遍历当前层，同时构建下一层的 `next` 链表。dummy node 在这里也很有用，能简化实现。
+
+- `cur`：当前层正在遍历的节点（沿 `next` 走）
+- `dummy`：下一层的“虚拟头节点”
+- `tail`：下一层链表的尾巴，用来不断接新节点
+
+```java
+class Solution {
+    public Node connect(Node root) {
+        if (root == null) {
+            return root;
+        }
+        Node cur = root;
+        while (cur != null) {
+            Node dummy = new Node();
+            Node tail = dummy;
+            while (cur != null) { // current level
+                if (cur.left != null) {
+                    tail.next = cur.left;
+                    tail = tail.next;
+                }
+                if (cur.right != null) {
+                    tail.next = cur.right;
+                    tail = tail.next;
+                }
+                cur = cur.next;
+            }
+            // go to next level
+            cur = dummy.next;
+        }
+        return root;
+    }
+}
+
+// time: O(n)
+// space: O(1)
+```
+
+[LT.104. Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/description/)
+
+- 树的高度 = 1 + max(左子树高度, 右子树高度)
+- 空节点深度为 0
+- 这是一个天然的 后序遍历 问题（先算左右，再算当前）
+
+```java
+class Solution {
+    public int maxDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+    }
+}
+
+// time: O(n)
+// space: O(h)
+```
+
+[LT.111. Minimum Depth of Binary Tree](https://leetcode.com/problems/minimum-depth-of-binary-tree/description/)
+
+```java
+class Solution {
+    public int minDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+        int depth = 1;
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                if (node.left == null && node.right == null) {
+                    // leaf found
+                    return depth;
+                }
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+            depth++;
+        }
+        return depth; // unreachable
+    }
+}
 // time: O(n)
 // space: O(n)
 ```
