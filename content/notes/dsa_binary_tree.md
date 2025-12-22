@@ -2,7 +2,7 @@
 title = "二叉树"
 description = "刷遍题 - 二叉树数组"
 date = 2025-12-20
-updated = 2025-12-21
+updated = 2025-12-22
 
 [taxonomies]
 tags = ["dsa"]
@@ -821,4 +821,242 @@ class Solution {
 }
 // time: O(n)
 // space: O(n)
+```
+
+### 4. 翻转二叉树
+
+[LT.226. Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/description/)
+
+对每个节点：
+- 递归翻转左子树
+- 递归翻转右子树
+- 交换当前节点的左右孩子
+
+核心就在于后序遍历位置交换。
+
+```java
+class Solution {
+    public TreeNode invertTree(TreeNode root) {
+        if (root == null) {
+            return root;
+        }
+        TreeNode left = invertTree(root.left);
+        TreeNode right = invertTree(root.right);
+        root.left = right;
+        root.right = left;
+        return root;
+    }
+}
+// time: O(n)
+// space: O(h)
+```
+
+### 5. 对称二叉树
+
+[LT.101. Symmetric Tree](https://leetcode.com/problems/symmetric-tree/description/)
+
+```java
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        if (root == null) {
+            return true;
+        }
+        return isMirror(root.left, root.right);
+    }
+
+    private boolean isMirror(TreeNode t1, TreeNode t2) {
+        if (t1 == null && t2 == null) {
+            return true;
+        }
+        if (t1 == null || t2 == null) {
+            return false;
+        }
+        if (t1.val != t2.val) {
+            return false;
+        }
+        return isMirror(t1.left, t2.right) && isMirror(t1.right, t2.left);
+    }
+}
+
+// time: O(n)
+// space: O(h)
+```
+
+### 6. 二叉树的最大深度
+
+[LT.104. Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/description/)
+
+```java
+class Solution {
+    public int maxDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+    }
+}
+
+// time: O(n)
+// space: O(h)
+```
+
+### 7. 二叉树的最小深度
+
+[LT.111. Minimum Depth of Binary Tree](https://leetcode.com/problems/minimum-depth-of-binary-tree/description/)
+
+```java
+class Solution {
+    public int minDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+        int depth = 1;
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                if (node.left == null && node.right == null) {
+                    // leaf found
+                    return depth;
+                }
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+            depth++;
+        }
+        return depth; // unreachable
+    }
+}
+// time: O(n)
+// space: O(n)
+```
+
+### 8. 完全二叉树的节点个数
+
+[LT.222. Count Complete Tree Nodes](https://leetcode.com/problems/count-complete-tree-nodes/description/)
+
+最直接的是遍历节点来计算，以下是后序遍历：
+
+```java
+class Solution {
+    public int countNodes(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        return 1 + countNodes(root.left) + countNodes(root.right);
+    }
+}
+
+// time: O(n)
+// space: O(log n)
+```
+
+我们可以利用完全二叉树的性质避免不必要的遍历所有节点：
+
+若一棵子树最左路径深度 == 最右路径深度，则它是满二叉树，节点数可直接用公式计算。
+
+- 分别沿着 `left.left...` 和 `right.right...` 计算左右深度
+- 若深度相等：直接返回 $2^{height} - 1$
+- 若不相等： 递归统计左右子树节点数，再加上当前根节点
+
+**高度 vs 深度**
+
+一个节点的 depth，指的是 从根节点到该节点的距离（边数或层数）。
+- 根节点的 depth 通常定义为 0（有时也定义为 1，取决于约定）
+- depth 是 “向上看” 的概念
+
+```
+        A        depth(A) = 0
+       / \
+      B   C      depth(B) = 1
+     /
+    D            depth(D) = 2
+
+```
+
+一个节点的 height，指的是 从该节点到最远叶子节点的距离。
+- 叶子节点的 height = 0（或 1，取决于约定）
+- height 是 “向下看” 的概念
+
+```
+        A        height(A) = 2
+       / \
+      B   C      height(B) = 1
+     /
+    D            height(D) = 0
+
+```
+
+```java
+class Solution {
+    public int countNodes(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        TreeNode left = root.left;
+        int leftHeight = 0; // the leftmost path
+        while (left != null) {
+            left = left.left;
+            leftHeight++;
+        }
+        TreeNode right = root.right;
+        int rightHeight = 0; // the rightmost path
+        while (right != null) {
+            right = right.right;
+            rightHeight++;
+        }
+        if (leftHeight == rightHeight) { // perfect tree
+            return (1 << (leftHeight + 1)) - 1;
+        }
+
+        return 1 + countNodes(root.left) + countNodes(root.right);
+    }
+}
+
+// time: O(log n x log n)
+// space: O(log n)
+```
+
+### 9. 平衡二叉树
+
+[LT.110. Balanced Binary Tree](https://leetcode.com/problems/balanced-binary-tree/)
+
+判断一棵二叉树是否平衡（任意节点左右子树高度差 ≤ 1）:
+
+- 用 DFS 后序遍历：先算左右子树高度，再判断当前节点是否平衡。
+- 一旦发现某个子树不平衡，直接返回 -1 作为“哨兵值”，一路向上剪枝，不用再算高度。
+
+```java
+class Solution {
+    public boolean isBalanced(TreeNode root) {
+        return height(root) != -1;
+    }
+
+    private int height(TreeNode node) {
+        if (node == null) {
+            return 0;
+        }
+        int lh = height(node.left);
+        if (lh == -1) {
+            return -1;
+        }
+        int rh = height(node.right);
+        if (rh == -1) {
+            return -1;
+        }
+        if (Math.abs(lh - rh) > 1) {
+            return -1;
+        }
+        return 1 + Math.max(lh, rh);
+    }
+}
+
+// time: O(n)
+// space: O(h)
 ```
