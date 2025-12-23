@@ -1060,3 +1060,122 @@ class Solution {
 // time: O(n)
 // space: O(h)
 ```
+
+### 10. 二叉树所有路径
+
+[LT.257. Binary Tree Paths](https://leetcode.com/problems/binary-tree-paths/description/)
+
+使用 `String` 每次修改会复制不需要回溯。
+
+```java
+class Solution {
+    public List<String> binaryTreePaths(TreeNode root) {
+        List<String> res = new ArrayList<>();
+        if (root == null) {
+            return res;
+        }
+        dfs(root, "", res);
+        return res;
+    }
+
+    private void dfs(TreeNode node, String path, List<String> res) {
+        if (node == null) {
+            return;
+        }
+        path += node.val;
+        // leaf node
+        if (node.left == null && node.right == null) {
+            res.add(path);
+            return;
+        }
+        path += "->";
+        dfs(node.left, path, res);
+        dfs(node.right, path, res);
+    }
+}
+
+// time: O(N + L)
+// space: O(H + L)
+
+// N: the number of nodes
+// H: the height of tree
+// L: the sum of length of all paths
+```
+
+或者使用 `StringBuilder` 加上回溯。
+
+```java
+class Solution {
+    public List<String> binaryTreePaths(TreeNode root) {
+        List<String> res = new ArrayList<>();
+        if (root == null) {
+            return res;
+        }
+        dfs(root, new StringBuilder(), res);
+        return res;
+    }
+
+    public void dfs(TreeNode node, StringBuilder sb, List<String> res) {
+        if (node == null) {
+            return;
+        }
+        int len = sb.length();
+        sb.append(node.val);
+        if (node.left == null && node.right == null) {
+            res.add(sb.toString());
+        } else {
+            sb.append("->");
+            dfs(node.left, sb, res);
+            dfs(node.right, sb, res);
+        }
+        sb.setLength(len); // backtrack
+    }
+}
+
+// time: O(N + L)
+// space: O(H + L) -> O(N + L)
+```
+
+### 11. 左叶子之和
+
+[LT.404. Sum of Left Leaves](https://leetcode.com/problems/sum-of-left-leaves/description/)
+
+如果某个节点的左孩子存在，且这个左孩子是叶子节点，就把它的值加入结果。
+
+```
+no left node
+   1
+
+one left node
+   1
+  /
+ 2
+ ^
+
+two left nodes
+   1
+  / \
+ 2   3
+ ^  /
+   4
+   ^
+```
+
+```java
+class Solution {
+    public int sumOfLeftLeaves(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        int sum = 0;
+        if (root.left != null && root.left.left == null && root.left.right == null) {
+            sum += root.left.val;
+        }
+        sum += sumOfLeftLeaves(root.left);
+        sum += sumOfLeftLeaves(root.right);
+        return sum;
+    }
+}
+// time: O(n)
+// space: O(h)
+```
