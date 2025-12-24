@@ -2,7 +2,7 @@
 title = "二叉树"
 description = "刷遍题 - 二叉树数组"
 date = 2025-12-20
-updated = 2025-12-22
+updated = 2025-12-23
 
 [taxonomies]
 tags = ["dsa"]
@@ -1178,4 +1178,436 @@ class Solution {
 }
 // time: O(n)
 // space: O(h)
+```
+
+### 12. 找树左下角的值
+
+[LT.513. Find Bottom Left Tree Value](https://leetcode.com/problems/find-bottom-left-tree-value/description/)
+
+```java
+class Solution {
+    public int findBottomLeftValue(TreeNode root) {
+        Queue<TreeNode> queue = new ArrayDeque<>();
+        queue.offer(root);
+        int res = root.val;
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                if (i == 0) {
+                    res = node.val;
+                }
+                if (node.left != null) {
+                    queue.offer(node.left);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+        }
+        return res;
+    }
+}
+
+// time: O(n)
+// space: O(n)
+```
+
+### 13. 路径总和
+
+[LT.112. Path Sum](https://leetcode.com/problems/path-sum/description/)
+
+```java
+class Solution {
+    public boolean hasPathSum(TreeNode root, int targetSum) {
+        if (root == null) {
+            return false;
+        }
+        targetSum -= root.val;
+        if (root.left == null && root.right == null) {
+            return targetSum == 0;
+        }
+        return hasPathSum(root.left, targetSum) || hasPathSum(root.right, targetSum);
+    }
+}
+
+// time: O(n)
+// space: O(h)
+```
+
+### 14. 从中序与后序遍历序列构造二叉树
+
+[LT.106. Construct Binary Tree from Inorder and Postorder Traversal](https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/description/)
+
+```
+postorder[postR]  → 当前子树的根
+rootIdx - inL     → 左子树节点数 leftSize
+leftSize 决定 postorder 的左右切分区间
+
+inorder:    [ inL ........ rootIdx-1 | root | rootIdx+1 ........ inR ]
+                       ← leftSize →
+
+postorder:  [ postL .... postL+leftSize-1 | postL+leftSize .... postR-1 | root ]
+                                                         ↑                ↑
+                                                     right subtree     postR
+```
+
+```java
+class Solution {
+    // value -> index of inorder array
+    private Map<Integer, Integer> indexMap = new HashMap<>();
+
+    public TreeNode buildTree(int[] inorder, int[] postorder) {
+        for (int i = 0; i < inorder.length; i++) {
+            indexMap.put(inorder[i], i);
+        }
+        return buildTree(inorder, 0, inorder.length - 1,
+                         postorder, 0, postorder.length - 1);
+    }
+
+    private TreeNode buildTree(
+            int[] inorder, int inL, int inR,
+            int[] postorder, int postL, int postR) {
+        if (inL > inR) {
+            return null;
+        }
+        int val = postorder[postR];
+        TreeNode root = new TreeNode(val);
+        int rootIdx = indexMap.get(val);
+        int leftSize = rootIdx - inL;
+        root.left = buildTree(inorder, inL, rootIdx - 1,
+                              postorder, postL, postL + leftSize - 1);
+        root.right = buildTree(inorder, rootIdx + 1, inR,
+                               postorder, postL + leftSize, postR - 1);
+        return root;
+    }
+}
+
+// time: O(n)
+// space: O(n)
+```
+
+### 15. 最大二叉树
+
+[LT.654. Maximum Binary Tree](https://leetcode.com/problems/maximum-binary-tree/description/)
+
+给你一个不重复的数组 nums：
+- 根节点 = 数组最大值
+- 左子树 = 最大值左边子数组递归构建
+- 右子树 = 最大值右边子数组递归构建
+
+维护一个单调栈，栈里的每个节点都在等右边第一个比它大的数。这样避免每个元素左右扫描导致 O(n^2) 。
+
+栈内的状态：
+
+- 从 top -> bottom: 值递增
+- 栈顶 = 当前元素前面最小的节点，最可能连在左侧成为子节点
+- 栈底 = 当前元素前最大的节点，最可能成为当前元素的父节点
+
+```
+当新元素 `x` 来了
+- 如果比栈顶小：`stackTop.right = x`
+- 如果比栈顶大： `pop` 栈顶，因为已经找到了右侧第一个比它大的 `x.left = pop`
+```
+
+```
+nums
+[3, 2, 1, 6, 0, 5]
+ ^
+stack
+[] -> [3]
+ 
+----------------------
+
+nums
+[3, 2, 1, 6, 0, 5]
+    ^
+stack
+[3] -> [2, 3]
+
+ 3
+  \
+   2
+
+----------------------
+
+nums
+[3, 2, 1, 6, 0, 5]
+       ^
+stack
+[2, 3] -> [1, 2, 3]
+
+ 3
+  \
+   2
+    \
+     1
+
+----------------------
+
+nums
+[3, 2, 1, 6, 0, 5]
+          ^
+stack
+[1, 2, 3] -> [2, 3] pop
+   
+ 3
+  \
+   2   6
+    \ /
+     1
+
+[2, 3] -> [3] pop
+   
+ 3   6
+  \ /
+   2    
+    \  
+     1
+
+[3] -> [] pop
+
+   6
+  /
+ 3    
+  \  
+   2    
+    \  
+     1
+[] -> [6] push
+
+----------------------
+
+nums
+[3, 2, 1, 6, 0, 5]
+             ^
+   6
+  / \
+ 3   0 
+  \  
+   2    
+    \  
+     1
+
+[6] -> [0, 6]
+
+----------------------
+
+nums
+[3, 2, 1, 6, 0, 5]
+                ^
+
+   6   5
+  / \ /
+ 3   0 
+  \  
+   2    
+    \  
+     1
+
+[0, 6] -> [6] pop
+
+    6 
+  /   \ 
+ 3     5 
+  \   /
+   2 0  
+    \  
+     1
+
+[6]
+```
+
+```java
+class Solution {
+    public TreeNode constructMaximumBinaryTree(int[] nums) {
+        // monotonic stack bottom -> top decreasing
+        Deque<TreeNode> stack = new ArrayDeque<>();
+        for (int x : nums) {
+            TreeNode cur = new TreeNode(x);
+            // pop smaller nodes: the last popped becomes cur.left
+            while (!stack.isEmpty() && stack.peek().val < x) {
+                cur.left = stack.pop();
+            }
+            // now stack top (if exists) is greater than cur:
+            // it should take cur as its right child
+            if (!stack.isEmpty()) {
+                stack.peek().right = cur;
+            }
+            stack.push(cur);
+        }
+
+        // root is at the bottom of stack (last element in deque)
+        return stack.peekLast();
+    }
+}
+
+// time: O(n)
+// space: O(n)
+```
+
+### 16. 合并二叉树
+
+[LT.617. Merge Two Binary Trees](https://leetcode.com/problems/merge-two-binary-trees/description/)
+
+```java
+class Solution {
+    public TreeNode mergeTrees(TreeNode root1, TreeNode root2) {
+        // can omit this check, covered by the latter 2
+        if (root1 == null && root2 == null) {
+            return null;
+        }
+        if (root1 == null) {
+            return root2;
+        }
+        if (root2 == null) {
+            return root1;
+        }
+        TreeNode root = new TreeNode(root1.val + root2.val);
+        root.left = mergeTrees(root1.left, root2.left);
+        root.right = mergeTrees(root1.right, root2.right);
+        return root;
+    }
+}
+
+// time: O(n)
+// space: O(h)
+```
+
+### 17. 二叉搜索树中的搜索
+
+[LT.700. Search in a Binary Search Tree](https://leetcode.com/problems/search-in-a-binary-search-tree/description/)
+
+```java
+class Solution {
+    public TreeNode searchBST(TreeNode root, int val) {
+        if (root == null) {
+            return null;
+        }
+        if (root.val == val) {
+            return root;
+        } else if (root.val < val) {
+            return searchBST(root.right, val);
+        } else {
+            return searchBST(root.left, val);
+        }
+    }
+}
+
+// time: O(h)
+// space: O(h)
+```
+
+### 18. 验证二叉搜索树
+
+[LT.98. Validate Binary Search Tree](https://leetcode.com/problems/validate-binary-search-tree/description/)
+
+- BST 的中序遍历结果必须是「严格递增」；
+- 用一个 prev 记录上一个访问的值，只要当前值 <= prev，立刻判定不是 BST。
+
+
+```java
+class Solution {
+    // last visited node
+    private Integer prev = null;
+
+    public boolean isValidBST(TreeNode root) {
+        if (root == null) {
+            return true;
+        }
+        // inorder traversal should be strictly increasing
+        if (!isValidBST(root.left)) { // will update prev
+            return false;
+        }
+        if (prev != null && prev >= root.val) {
+            return false;
+        }
+        prev = root.val;
+        return isValidBST(root.right);
+    }
+}
+// time: O(n)
+// space: O(h)
+```
+
+### 19. 二叉搜索树的最小绝对差
+
+[LT.530. Minimum Absolute Difference in BST](https://leetcode.com/problems/minimum-absolute-difference-in-bst/description/)
+
+```java
+class Solution {
+    private TreeNode prev = null; // last visited node
+    private int minDiff = Integer.MAX_VALUE;
+
+    public int getMinimumDifference(TreeNode root) {
+        dfs(root);
+        return minDiff;
+    }
+    // inorder traversal
+    private void dfs(TreeNode node) {
+        if (node == null) {
+            return;
+        }
+        dfs(node.left);
+        if (prev != null) {
+            minDiff = Math.min(minDiff, node.val - prev.val);
+        }
+        prev = node;
+        dfs(node.right);
+    }
+}
+// time: O(n)
+// space: O(h)
+```
+
+### 20. 二叉搜索树中的众数
+
+[LT.501. Find Mode in Binary Search Tree](https://leetcode.com/problems/find-mode-in-binary-search-tree/description/)
+
+```java
+class Solution {
+    private TreeNode pre = null; // last visited node
+    private int count = 0; // the number of current values
+    private int maxCount = 0;
+    private List<Integer> res = new ArrayList<>();
+
+    public int[] findMode(TreeNode root) {
+        dfs(root);
+        return res.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    // inorder traversal so that values are visited in increasing order
+    // easy to count equal values (consequtive)
+    private void dfs(TreeNode node) {
+        if (node == null) {
+            return;
+        }
+        // visit left subtree
+        dfs(node.left);
+
+        // visit current node
+        if (pre == null || node.val != pre.val) {
+            count = 1; // new value, reset count to 1
+        } else { // same value
+            count++;
+        }
+
+        if (count > maxCount) { // for the same value, this can be called multiple times in this implementation
+            // new max found
+            res.clear(); // clear previous
+            res.add(node.val); // add new value
+            maxCount = count; // update max
+        } else if (count == maxCount) {
+            // another mode with same count of the maxCount
+            res.add(node.val); // just add it
+        }
+        pre = node;
+
+        // visit right subtree
+        dfs(node.right);
+    }
+}
+
+// time: O(n)
+// space: (n)
 ```
