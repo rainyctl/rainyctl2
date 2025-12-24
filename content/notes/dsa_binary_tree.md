@@ -2,7 +2,7 @@
 title = "二叉树"
 description = "刷遍题 - 二叉树数组"
 date = 2025-12-20
-updated = 2025-12-23
+updated = 2025-12-24
 
 [taxonomies]
 tags = ["dsa"]
@@ -1610,4 +1610,306 @@ class Solution {
 
 // time: O(n)
 // space: (n)
+```
+
+### 21. 二叉树的最近公共祖先
+
+[LT.236. Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/description/)
+
+其实和前面中序遍历的思想有点像。我们这里用后序遍历（左、右、中），根据左右子树的返回值（结果）来处理中间节点，实现了自底向上的搜索（处理）。
+
+```java
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null || p == root || q == root) {
+            return root;
+        }
+        // visit left subtree
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        // visit right subtree
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        // visit current
+        // p, q found in different subtrees
+        if (left != null && right != null) {
+            return root;
+        }
+        // p, q found in the same subtree
+        return left != null ? left : right;
+    }
+}
+// time: O(n)
+// space: O(h)
+```
+
+### 22. 二叉搜索树的最近公共祖先
+
+[LT.235. Lowest Common Ancestor of a Binary Search Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/description/)
+
+因为这是 二叉搜索树（BST）：
+- 左子树所有值 < 根节点
+- 右子树所有值 > 根节点
+所以：
+- 如果 p 和 q 都比当前节点值小 → 去左子树
+- 如果 p 和 q 都比当前节点值大 → 去右子树
+- 否则当前节点就是最近公共祖先
+    - 意味着 p 和 q 分布在当前节点两侧
+    - 或者有一个就是当前节点
+
+```
+           6
+         /   \
+        2     8
+       / \   / \
+      0  4  7  9
+        / \
+       3   5
+
+p = 2, q = 8
+2 < 6 < 8  → LCA = 6（第一次分叉点）
+```
+
+```java
+class Solution {
+    // p, q exists in the BST
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null) {
+            return null;
+        }
+        if (p.val < root.val && q.val < root.val) {
+            return lowestCommonAncestor(root.left, p, q);
+        }
+        if (p.val > root.val && q.val > root.val) {
+            return lowestCommonAncestor(root.right, p, q);
+        }
+        // p < root < q or q < root < p
+        return root;
+    }
+}
+// time: O(h)
+// space: O(h)
+```
+
+### 23. 二叉搜索树中的插入操作
+
+[LT.701. Insert into a Binary Search Tree](https://leetcode.com/problems/insert-into-a-binary-search-tree/)
+
+BST 的核心规则：
+- 左子树所有值 < 当前节点
+- 右子树所有值 > 当前节点
+
+所以插入的思路就是：
+- 比当前节点值小 → 去左子树
+- 比当前节点值大 → 去右子树
+- 直到遇到 `null`，就在这里新建节点挂上
+
+不会影响已有结构，也不需要旋转或重排。
+
+```java
+class Solution {
+    public TreeNode insertIntoBST(TreeNode root, int val) {
+        if (root == null) { // found the insert place
+            return new TreeNode(val);
+        }
+        if (root.val < val) {
+            root.right = insertIntoBST(root.right, val);
+        } else {
+            root.left = insertIntoBST(root.left, val);
+        }
+        return root;
+    }
+}
+// time: O(h)
+// space: O(h)
+```
+
+### 24. 删除二叉搜索树中的节点
+
+[LT.450. Delete Node in a BST](https://leetcode.com/problems/delete-node-in-a-bst/description/)
+
+删除节点的情况主要有三种：
+1. 没有子节点：直接删除，返回 null。
+2. 只有一个子节点：返回子节点替代被删除节点。
+3. 有两个子节点：需要找到该节点的 后继节点（右子树中最小节点），用它的值替换当前节点值，然后在右子树中删除这个后继节点。
+
+
+假设当前遍历节点是 `root`：
+1. 如果 `key < root.val` → 去左子树递归删除
+2. 如果 `key > root.val` → 去右子树递归删除
+3. 如果 `key == root.val` → 找到要删除的节点：
+    - 没有左子树：返回右子树
+    - 没有右子树：返回左子树
+    - 两个子树都存在：
+        - 找右子树最小值（successor）
+        - 把 successor 的值放到当前节点
+        - 在右子树删除 successor 节点
+
+```java
+class Solution {
+    public TreeNode deleteNode(TreeNode root, int key) {
+        if (root == null) {
+            return null;
+        }
+        if (root.val < key) { // delete from the right subtree  
+            root.right = deleteNode(root.right, key);
+        } else if (root.val > key) { // delete from the left subtree
+            root.left = deleteNode(root.left, key);
+        } else { // delete current node
+            if (root.left == null) return root.right;
+            if (root.right == null) return root.left;
+            TreeNode successor = getMin(root.right);
+            root.val = successor.val;
+            root.right = deleteNode(root.right, successor.val);
+        }
+        return root;
+    }
+
+    private TreeNode getMin(TreeNode node) {
+        while (node.left != null) {
+            node = node.left;
+        }
+        return node;
+    }
+}
+// time: O(h)
+// space: O(h)
+```
+
+### 25. 修剪二叉搜索树
+
+[LT.669. Trim a Binary Search Tree](https://leetcode.com/problems/trim-a-binary-search-tree/description/)
+
+利用 BST 性质：
+
+- 如果 `root.val < low`：
+`整棵左子树都 < root.val < low`，不可能有合法值，可以整棵丢掉。
+这时答案一定在右子树：`return trimBST(root.right, low, high)`。
+- 如果 `root.val > high`
+`整棵右子树都 > root.val > high`，也不可能有合法值。
+这时答案一定在 左子树：`return trimBST(root.left, low, high)`。
+- 如果 `low <= root.val <= high`
+当前节点应该留下，但是它的左右子树可能还包含不合法节点，
+所以递归修剪。
+
+```
+        3
+       / \
+      0   4
+       \
+        2
+       /
+      1
+
+[low, high] = [1, 3]
+
+      3
+     /
+    2
+   /
+  1
+
+```
+
+```java
+class Solutirn {
+    public TreeNode trimBST(TreeNode root, int low, int high) {
+        if (root == null) {
+            return null;
+        }
+        if (root.val < low) {
+            return trimBST(root.right, low, high);
+        }
+        if (root.val > high) {
+            return trimBST(root.left, low, high);
+        }
+        // keep the current node
+        root.left = trimBST(root.left, low, high);
+        root.right = trimBST(root.right, low, high);
+        return root;
+    }
+}
+// time: O(n)
+// space: O(h)
+```
+
+### 26. 将有序数组转换为二叉搜索树
+
+[LT.108. Convert Sorted Array to Binary Search Tree](https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/description/)
+
+关注一下递归返回的结果是处理好的树（或子树），再此基础上逐步构建最终树。
+
+有序数组 + BST + 要平衡
+- 必然选择中间元素作为根节点。
+- 左半数组递归构造左子树，右半数组递归构造右子树。
+
+因为数组本来是升序：
+- 中间元素左边 < root
+- 中间元素右边 > root
+- 又因为每次都取中点，所以天然接近平衡。
+
+```java
+class Solution {
+    public TreeNode sortedArrayToBST(int[] nums) {
+        return build(nums, 0, nums.length - 1);
+    }
+
+    private TreeNode build(int[] nums, int l, int r) {
+        if (l > r) {
+            return null;
+        }
+        int mid = l + (r - l) / 2;
+        TreeNode node = new TreeNode(nums[mid]);
+        node.left = build(nums, l, mid - 1);
+        node.right = build(nums, mid + 1, r);
+        return node;
+    }
+}
+// time: O(n)
+// space: O(log n) since it's a balanced tree
+```
+
+### 27. 把二叉搜索树转换为累加树
+
+[LT.538. Convert BST to Greater Tree](https://leetcode.com/problems/convert-bst-to-greater-tree/description/)
+
+观察一下那种遍历方式合适。发现如果我们从大到小遍历（右、中、左）就能保证当前访问到的节点，右侧节点都已经累加过。
+
+```java
+class Solution {
+    private int sum = 0;
+    public TreeNode convertBST(TreeNode root) {
+        if (root == null) {
+            return null;
+        }
+        // visit right subtree first
+        convertBST(root.right);
+        // visit current node
+        root.val += sum;
+        sum = root.val;
+        convertBST(root.left);
+        return root;
+    }
+}
+
+// time: O(n)
+// space: O(h)
+```
+
+### ##. 圣诞树
+
+刚好写完二叉树这部分，明天就是圣诞节了。
+
+```
+                 *
+                /@\
+               /@@@\
+              /@#@@@\
+             /@@@#@@@\
+            /@#@@@#@@@\
+           /@@@#@@@#@@@\
+          /@#@@@#@@@#@@@\
+         /@@@@@@@@@@@@@@@\
+               ||||
+               ||||
+            ==========
+
 ```
