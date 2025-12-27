@@ -564,6 +564,8 @@ class Solution {
 
 ### 14. 解数独
 
+[LT.37. Sudoku Solver](https://leetcode.com/problems/sudoku-solver/description/)
+
 之前做过的许多回溯题（如子集、排列、N皇后）是 一维递归走一个方向。本题的搜索树更“宽更深”：需要 遍历每个格子 `(r, c)` 并在每个格子处尝试数字，进行 “二维递归”。
 
 - 若当前格是 `.`，就尝试放 1~9
