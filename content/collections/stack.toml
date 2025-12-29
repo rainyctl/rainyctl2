@@ -9,3 +9,15 @@ title = "Maven"
 [[collection]]
 type = "entry"
 title = "Spring"
+
+[[collection]]
+type = "entry"
+title = "Spring Boot"
+
+[[collection]]
+type = "entry"
+title = "Spring Web MVC"
+
+[[collection]]
+type = "entry"
+title = "MyBatis"
