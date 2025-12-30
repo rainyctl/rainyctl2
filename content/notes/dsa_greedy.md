@@ -93,3 +93,115 @@ class Solution {
 // time: O(n)
 // space: O(1)
 ```
+
+### 3. 最大子序和
+
+[LT.53. Maximum Subarray](https://leetcode.com/problems/maximum-subarray/description/)
+
+当前和一旦变负就清零重开；一路过程中记下遇到过的最大值。
+- 我们维护一个当前连续子数组的最大和 `curSum`，以及一个全局最大 `maxSum`
+- 当 `curSum < 0` 时，它对后面的子数组只会产生负贡献，立刻丢掉，从当前元素重新开始
+- 否则把当前元素接上，继续累加
+- 遍历过程中不断更新 `maxSum`
+
+```java
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int maxSum = nums[0]; // max sum so far
+        int curSum = nums[0]; // current running subarray sum
+
+        // start from the second element
+        for (int i = 1; i < nums.length; i++) {
+            // if sum so far becomes negative, drop it
+            // restart from current this element
+            curSum = Math.max(nums[i], curSum + nums[i]);
+            // update global max
+            maxSum = Math.max(curSum, maxSum);
+        }
+
+        return maxSum;
+    }
+}
+// time: O(n)
+// space: O(1)
+```
+
+### 4. 买卖股票的最佳时机 II
+
+[LT.122. Best Time to Buy and Sell Stock II](https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/)
+
+只要今天价格高于昨天，就把这段正差价累加起来，因为每一段上升都可以视为一次独立的买入卖出盈利。
+
+```
+p[3] - p[0] = (p[3] - p[2]) + (p[2] - p[1]) + (p[1] - p[0])
+              |  + take   |   |  - ignore |   |  + take   | 
+              
+```
+
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+        if (prices.length < 2) {
+            return 0;
+        }
+        int profit = 0;
+        for (int i = 1; i < prices.length; i++) {
+            profit += Math.max(prices[i] - prices[i - 1], 0);
+        }
+        return profit;
+    }
+}
+// time: O(n)
+// space: O(1)
+```
+
+### 5. 跳跃游戏
+
+[LT.55. Jump Game](https://leetcode.com/problems/jump-game/description/)
+
+从左到右维护当前能到达的最远位置，只要当前位置不超过这个最远值，并不断更新它，最后能覆盖到最后一个下标就成功。
+
+```java
+class Solution {
+    public boolean canJump(int[] nums) {
+        int max = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            if (i > max) return false;
+            max = Math.max(max, i + nums[i]);
+            // optional pruning 
+            if (max >= nums.length - 1) return true;
+        }
+        return true;
+    }
+}
+// time: O(n)
+// space: O(1)
+```
+
+### 6. 跳跃游戏II
+
+用贪心按“覆盖区间”分层：在当前层内不断更新能到达的最远位置，走到层尽头时才 +1 跳，最终得到最少跳跃次数。
+
+```java
+class Solution {
+    public int jump(int[] nums) {
+        int jumps = 0;
+        int curEnd = 0; // when you have to jump, the boundary
+        int farthest = 0;
+        // no need to jump at the last step
+        for (int i = 0; i < nums.length - 1; i++) {
+            farthest = Math.max(farthest, i + nums[i]);
+            // when we reach the end of the current jump range
+            // we must make another jump and extend the range
+            if (i == curEnd) {
+                jumps++;
+                curEnd = farthest; // jump to the farthest
+            }
+        }
+        return jumps;
+    }
+}
+
+// time: O(n)
+// space: O(1)
+```
