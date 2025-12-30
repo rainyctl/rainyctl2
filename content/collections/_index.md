@@ -26,6 +26,10 @@ subtitle = "学习中"
 
 {{ collection(file="db.toml") }}
 
+## AI
+
+{{ collection(file="ai.toml") }}
+
 ## 技术栈 v2 
 
 {{ collection(file="stack.toml") }}

@@ -21,3 +21,11 @@ title = "Spring Web MVC"
 [[collection]]
 type = "entry"
 title = "MyBatis"
+
+[[collection]]
+type = "entry"
+title = "Lombok"
+
+[[collection]]
+type = "entry"
+title = "SLF4J (Logback)"
