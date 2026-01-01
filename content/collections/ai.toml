@@ -3,3 +3,23 @@ type = "entry"
 link = "https://www.bilibili.com/video/BV1mX3NzrEu6/"
 title = "尚硅谷 LangChain4J (阳哥)"
 
+[[collection]]
+type = "entry"
+link = "https://www.langchain.com/"
+title = "LangChain"
+
+[[collection]]
+type = "entry"
+link = "https://docs.langchain4j.dev/"
+title = "LangChain4J"
+
+[[collection]]
+type = "entry"
+link = "https://github.com/qdrant/qdrant"
+title = "Qdrant"
+
+[[collection]]
+type = "entry"
+link = "https://mcp.so/"
+title = "MCP.so"
+
