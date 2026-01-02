@@ -2,7 +2,7 @@
 title = "贪心算法"
 description = "刷遍题 - 贪心算法"
 date = 2025-12-28
-updated = 2025-12-28
+updated = 2026-01-01
 
 [taxonomies]
 tags = ["dsa"]
@@ -204,4 +204,114 @@ class Solution {
 
 // time: O(n)
 // space: O(1)
+```
+
+### 7. K次取反后最大化的数组和
+
+[LT.1005. Maximize Sum Of Array After K Negations](https://leetcode.com/problems/maximize-sum-of-array-after-k-negations/description/)
+
+目标：通过最多 k 次取反，让数组和最大
+
+- 先按**绝对值**从大到小排序，大的数先处理
+- 从左到右：如果是负数并且 `k > 0` → 翻转它（收益最大）
+- 如果最后 k 还剩
+    - 如果是偶数：反复翻转最后一个，不影响最终 sum , 相当于没有翻转
+    - 如果是奇数：也是反复翻转最后一个，等价于将最小的正数翻成负数
+
+```java
+class Solution {
+    public int largestSumAfterKNegations(int[] nums, int k) {
+        // sort by absolute value in decreasing order
+        nums = IntStream.of(nums)
+                .boxed()
+                .sorted((a, b) -> Integer.compare(Math.abs(b), Math.abs(a)))
+                .mapToInt(Integer::intValue)
+                .toArray();
+
+        for (int i = 0; i < nums.length && k > 0; i++) {
+            if (nums[i] < 0) {
+                nums[i] *= -1;
+                k--;
+            }
+        }
+        if (k % 2 == 1) {
+            nums[nums.length - 1] *= -1;
+        }
+        int sum = 0;
+        for (int num : nums) {
+            sum += num;
+        }
+        return sum;
+    }
+}
+
+// time: O(n log n)
+// space: O(1)
+```
+
+### 8. 加油站
+
+[LT.134. Gas Station](https://leetcode.com/problems/gas-station/description/)
+
+```java
+class Solution {
+    public int canCompleteCircuit(int[] gas, int[] cost) {
+        int n = gas.length;
+        int curSum = 0; // net gas from current start to current index
+        int totalSum = 0; // total net gas over the whole circle
+        int start = 0; // candidate starting index
+        // the idea is that both totalSum (global) and curSum (local)
+        // should be >= 0, otherwise, try next possible start (i + 1)
+        for (int i = 0; i < n; i++) {
+            int diff = gas[i] - cost[i];
+            curSum += diff;
+            totalSum += diff;
+            if (curSum < 0) {
+                start = i + 1;
+                curSum = 0;
+            }
+        }
+        if (totalSum < 0) {
+            return -1;
+        }
+        return start;
+    }
+}
+// time: O(n)
+// space: O(1)
+```
+
+### 9. 分发糖果
+
+[LT.135. Candy](https://leetcode.com/problems/candy/description/)
+
+- 从左往右: 保证「右边评分更高 ⇒ 右边糖更多」
+- 从右往左: 保证「左边评分更高 ⇒ 左边糖更多」
+- 最终对每个位置取两次规则中的最大值。因为一个孩子既可能需要满足左规则，也可能需要满足右规则
+
+```java
+class Solution {
+    public int candy(int[] ratings) {
+        int n = ratings.length;
+        int[] candies = new int[n];
+        Arrays.fill(candies, 1);
+        // left -> right
+        for (int i = 1; i < n; i++) {
+            if (ratings[i] > ratings[i - 1]) {
+                candies[i] = candies[i - 1] + 1;
+            }
+        }
+        // right -> left
+        for (int i = n - 2; i >= 0; i--) {
+            if (ratings[i] > ratings[i + 1]) {
+                candies[i] = Math.max(candies[i], candies[i + 1] + 1);
+            }
+        }
+        int sum = 0;
+        for (int num : candies) sum += num;
+        return sum;
+    }
+}
+// time: O(n)
+// space: O(n)
 ```

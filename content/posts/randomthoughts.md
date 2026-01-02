@@ -3,6 +3,7 @@ title = "Random Thoughts"
 description = "random thoughts, dark positive :)"
 date = 2025-12-19
 updated = 2025-12-19
+draft = true
 
 [taxonomies]
 tags = ["random thoughts"]
