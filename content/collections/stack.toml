@@ -20,7 +20,15 @@ title = "Spring Web MVC"
 
 [[collection]]
 type = "entry"
+title = "Spring Security"
+
+[[collection]]
+type = "entry"
 title = "MyBatis"
+
+[[collection]]
+type = "entry"
+title = "MyBatis-Plus"
 
 [[collection]]
 type = "entry"
