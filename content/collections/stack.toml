@@ -37,3 +37,11 @@ title = "Lombok"
 [[collection]]
 type = "entry"
 title = "SLF4J (Logback)"
+
+[[collection]]
+type = "entry"
+title = "MySQL"
+
+[[collection]]
+type = "entry"
+title = "Redis"

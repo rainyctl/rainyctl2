@@ -315,3 +315,69 @@ class Solution {
 // time: O(n)
 // space: O(n)
 ```
+
+### 10. 柠檬水找零
+
+[LT.860. Lemonade Change](https://leetcode.com/problems/lemonade-change/description/)
+
+思路（贪心）
+
+核心：只用 5 和 10 两种零钱来找零，并且尽量保留更多的 5 元。
+
+维护两个计数：
+- five：当前手里有多少张 5 元
+- ten：当前手里有多少张 10 元
+
+逐个处理 bills[i]：
+1. 收 5 元
+    - 不用找零，five++
+
+2. 收 10 元（需要找 5 元）
+    - 必须拿出一张 5 元
+
+3. 收 20 元（需要找 15 元） 贪心策略：
+    - 优先用 10 + 5（消耗一个 10，一张 5）
+    - 否则再考虑用 5 + 5 + 5
+    - 否则就无法找零：`return false;`
+
+为什么 20 元优先用 10 + 5 ?
+
+因为 5 元是万能找零单位，比如下一个顾客付 10 元时一定需要 5 元。
+如果我们现在用掉 3 张 5 元，后面可能就没办法给 10 元的顾客找零了。
+
+所以：尽量保留小额的 5 元，这就是贪心的关键。
+
+
+```java
+class Solution {
+    public boolean lemonadeChange(int[] bills) {
+        int five = 0;
+        int ten = 0;
+        for (int bill : bills) {
+            if (bill == 5) {
+                five++;
+            } else if (bill == 10) {
+                ten++;
+                if (five > 0) {
+                    five--;
+                } else {
+                    return false;
+                }
+            } else if (bill == 20) {
+                if (ten > 0 && five > 0) {
+                    ten--;
+                    five--;
+                } else if (five >= 3) {
+                    five -= 3;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+
+// time: O(n)
+// space: O(1)
+```
