@@ -36,7 +36,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 4 | <input type='checkbox' checked> | 739 | M | 栈, 单调栈 | [每日温度](https://leetcode.cn/problems/daily-temperatures/) | [Daily Temperatures](https://leetcode.com/problems/daily-temperatures/) |
 | 5 | <input type='checkbox' checked> | 226 | E | 二叉树, 递归 | [翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/) | [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/) |
 | 6 | <input type='checkbox' checked> | 221 | M | 动态规划, 二维DP | [最大正方形](https://leetcode.cn/problems/maximal-square/) | [Maximal Square](https://leetcode.com/problems/maximal-square/) |
-| 7 | <input type='checkbox'> | 215 | M | 堆, 快速选择 | [数组中的第K个最大元素](https://leetcode.cn/problems/kth-largest-element-in-an-array/) | [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/) |
+| 7 | <input type='checkbox' checked> | 215 | M | 堆, 快速选择 | [数组中的第K个最大元素](https://leetcode.cn/problems/kth-largest-element-in-an-array/) | [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/) |
 | 8 | <input type='checkbox'> | 208 | M | Trie树, 前缀树 | [实现Trie(前缀树)](https://leetcode.cn/problems/implement-trie-prefix-tree/) | [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/) |
 | 9 | <input type='checkbox'> | 207 | M | 图, 拓扑排序, DFS | [课程表](https://leetcode.cn/problems/course-schedule/) | [Course Schedule](https://leetcode.com/problems/course-schedule/) |
 | 10 | <input type='checkbox'> | 206 | E | 链表, 递归, 迭代 | [反转链表](https://leetcode.cn/problems/reverse-linked-list/) | [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/) |
@@ -452,3 +452,232 @@ class Solution {
 // time: O(m * n), m 和 n 分别是矩阵的行数和列数
 // space: O(m * n), dp 数组的空间
 ```
+
+### 215. 数组中的第K个最大元素
+
+[LT.215. Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/)
+
+这道题有两种主要解法：最小堆和快速选择（Quick Select）。快速选择使用三路分区（Three-Way Partition）可以高效处理重复元素。
+
+**思考过程**：
+1. **最小堆方法**：维护大小为 k 的最小堆，堆顶即为第 k 大元素
+2. **快速选择方法**：使用 partition 将数组分成三部分，根据 pivot 位置决定递归方向
+3. **三路分区的优势**：当数组中有大量重复元素时，标准分区会导致 TLE，三路分区可以高效处理
+
+---
+
+## 方法一：最小堆（推荐，简单稳定）
+
+**核心思想**：维护大小为 k 的最小堆，堆中存储当前见过的 k 个最大元素，堆顶即为第 k 大元素。
+
+```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        // 最小堆（默认 PriorityQueue 是最小堆）
+        PriorityQueue<Integer> pq = new PriorityQueue<>();
+        
+        for (int num : nums) {
+            pq.offer(num);
+            // 保持堆大小为 k，移除最小的元素
+            if (pq.size() > k) {
+                pq.poll();
+            }
+        }
+        
+        return pq.peek(); // 堆顶 = 第 k 大元素
+    }
+}
+
+// time: O(n log k), n 是数组长度
+// space: O(k), 堆的空间
+```
+
+---
+
+## 方法二：快速选择 + 三路分区（处理重复元素）
+
+### 为什么需要三路分区？
+
+标准分区（两路分区）在遇到重复元素时会退化：
+- 当所有元素相等时，标准分区会把所有元素分到一边
+- 每次递归只减少一个元素 → O(n²) 时间复杂度 → TLE
+
+**三路分区**将数组分成三部分：`[< pivot] [= pivot] [> pivot]`，当所有元素相等时可以直接返回，避免递归。
+
+### 三路分区详解（Dutch National Flag Algorithm）
+
+**核心思想**：使用三个指针将数组分成三个区域：
+- `i`: `[left, i-1]` 是 `< pivot` 的区域
+- `j`: `[i, j-1]` 是 `= pivot` 的区域  
+- `k`: `[k+1, right-1]` 是 `> pivot` 的区域
+- `j` 是当前扫描指针，`[j, k]` 是未处理的区域
+
+**分区过程**：
+1. 如果 `nums[j] < pivot`: 交换到 `< pivot` 区域，`i++`, `j++`
+2. 如果 `nums[j] = pivot`: 已经在正确位置，`j++`
+3. 如果 `nums[j] > pivot`: 交换到 `> pivot` 区域，`k--`（不移动 `j`，因为交换来的元素需要检查）
+
+**详细示例**：
+
+```
+Array: [3, 2, 3, 1, 3, 4, 5, 3], pivot = 3
+
+初始状态：i=0, j=0, k=7, pivot=3
+[3, 2, 3, 1, 3, 4, 5, 3]
+ ↑
+ i,j                     k
+
+j=0: nums[0]=3 = pivot, j++
+[3, 2, 3, 1, 3, 4, 5, 3]
+ ↑  ↑
+ i  j                  k
+
+j=1: nums[1]=2 < pivot, swap(i,j), i++, j++
+[2, 3, 3, 1, 3, 4, 5, 3]
+    ↑  ↑
+    i  j               k
+
+j=2: nums[2]=3 = pivot, j++
+[2, 3, 3, 1, 3, 4, 5, 3]
+    ↑     ↑
+    i     j            k
+
+j=3: nums[3]=1 < pivot, swap(i,j), i++, j++
+[2, 1, 3, 3, 3, 4, 5, 3]
+       ↑  ↑
+       i  j            k
+
+j=4: nums[4]=3 = pivot, j++
+[2, 1, 3, 3, 3, 4, 5, 3]
+       ↑     ↑
+       i     j         k
+
+j=5: nums[5]=4 > pivot, swap(j,k), k--
+[2, 1, 3, 3, 3, 3, 5, 4]
+       ↑     ↑     ↑
+       i     j     k
+注意：j 不移动，需要检查交换来的元素
+
+j=5: nums[5]=3 = pivot, j++
+[2, 1, 3, 3, 3, 3, 5, 4]
+       ↑        ↑  ↑
+       i        j  k
+
+j=6: nums[6]=5 > pivot, swap(j,k), k--
+[2, 1, 3, 3, 3, 3, 4, 5]
+       ↑        ↑  ↑
+       i        j  k
+
+j=6: nums[6]=4 > pivot, swap(j,k), k--
+[2, 1, 3, 3, 3, 3, 5, 4]
+       ↑        ↑  ↑
+       i        j  k
+但此时 j=6 > k=5，循环结束
+
+最终交换 pivot (nums[right]=3) 到位置 j
+[2, 1, 3, 3, 3, 3, 5, 4] → [2, 1, 3, 3, 3, 3, 4, 5]
+
+返回 [i=2, j=6]，表示 [2,6) 范围内的元素都等于 pivot
+```
+
+### 完整代码实现
+
+```java
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        // 将第 k 大转换为第 (n-k) 小（0-indexed）
+        int kSmallest = nums.length - k;
+        return quickSelect(nums, 0, nums.length - 1, kSmallest);
+    }
+    
+    private int quickSelect(int[] nums, int left, int right, int k) {
+        if (left == right) {
+            return nums[left];
+        }
+        
+        // 三路分区：返回等于 pivot 的元素的起始和结束位置
+        int[] pivotRange = threeWayPartition(nums, left, right);
+        int pivotStart = pivotRange[0];
+        int pivotEnd = pivotRange[1];
+        
+        if (k >= pivotStart && k <= pivotEnd) {
+            // k 在 pivot 的范围内，找到了！
+            return nums[pivotStart];
+        } else if (k < pivotStart) {
+            // k 在左半部分（< pivot）
+            return quickSelect(nums, left, pivotStart - 1, k);
+        } else {
+            // k 在右半部分（> pivot）
+            return quickSelect(nums, pivotEnd + 1, right, k);
+        }
+    }
+    
+    // 三路分区（Dutch National Flag Algorithm）
+    // 将数组分成三部分：[< pivot] [= pivot] [> pivot]
+    // 返回：等于 pivot 的元素的起始和结束位置 [start, end]
+    private int[] threeWayPartition(int[] nums, int left, int right) {
+        int pivot = nums[right];
+        int i = left;      // [left, i-1] 是 < pivot 的区域
+        int j = left;      // [i, j-1] 是 = pivot 的区域
+        int k = right - 1; // [k+1, right-1] 是 > pivot 的区域
+        
+        // j 是扫描指针，[j, k] 是未处理的区域
+        while (j <= k) {
+            if (nums[j] < pivot) {
+                // 小于 pivot，交换到左区域
+                swap(nums, i, j);
+                i++;
+                j++;
+            } else if (nums[j] > pivot) {
+                // 大于 pivot，交换到右区域
+                swap(nums, j, k);
+                k--;
+                // 注意：j 不移动，因为交换来的元素需要重新检查
+            } else {
+                // 等于 pivot，已经在正确位置
+                j++;
+            }
+        }
+        
+        // 将 pivot（nums[right]）放到正确位置
+        swap(nums, j, right);
+        
+        // 返回等于 pivot 的范围 [i, j]
+        return new int[]{i, j};
+    }
+    
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+}
+
+// time: O(n) 平均时间，O(n²) 最坏情况（但三路分区使最坏情况很少发生）
+// space: O(1) 额外空间，递归栈 O(log n) 平均，O(n) 最坏
+```
+
+### 为什么三路分区能处理重复元素？
+
+**场景：所有元素相等** `[5, 5, 5, 5, 5]`, k = 3
+
+1. 三路分区后：所有元素都在 `= pivot` 区域
+2. 返回范围 `[0, 4]`
+3. k=2 在范围内 → 直接返回，无需递归！
+
+**对比标准分区**：
+- 标准分区：所有元素分到一边，每次只减少一个元素 → O(n²)
+- 三路分区：所有相等的元素被识别为一个整体，立即返回 → O(n)
+
+### 复杂度分析
+
+- **时间复杂度**：
+  - 平均：O(n) - 每次分区大约消除一半元素
+  - 最坏：O(n²) - 但三路分区使最坏情况很少发生（所有元素相等时是 O(n)）
+- **空间复杂度**：O(1) 额外空间，递归栈 O(log n) 平均
+
+### 方法选择建议
+
+- **面试/实践**：优先使用最小堆，简单稳定，易于解释
+- **学习算法**：实现三路分区，理解分区思想
+- **性能优化**：三路分区在重复元素多时更优
