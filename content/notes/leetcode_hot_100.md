@@ -576,8 +576,10 @@ j=6: nums[6]=4 > pivot, swap(j,k), k--
 
 最终交换 pivot (nums[right]=3) 到位置 j
 [2, 1, 3, 3, 3, 3, 5, 4] → [2, 1, 3, 3, 3, 3, 4, 5]
+                              ↑        ↑     ↑
+                            i=2        j=6  (pivot最终位置)
 
-返回 [i=2, j=6]，表示 [2,6) 范围内的元素都等于 pivot
+返回 [i=2, j=6]，表示 [2,6] 范围内的元素都等于 pivot（闭区间，两端都包含）
 ```
 
 ### 完整代码实现
@@ -602,6 +604,7 @@ class Solution {
         
         if (k >= pivotStart && k <= pivotEnd) {
             // k 在 pivot 的范围内，找到了！
+            // 注意：使用 <= 而不是 <，因为 pivotRange 是闭区间 [pivotStart, pivotEnd]
             return nums[pivotStart];
         } else if (k < pivotStart) {
             // k 在左半部分（< pivot）
