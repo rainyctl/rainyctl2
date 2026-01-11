@@ -30,6 +30,10 @@ subtitle = "学习中"
 
 {{ collection(file="ai.toml") }}
 
+## 基础设施
+
+{{ collection(file="infra.toml") }}
+
 ## 技术栈 v2 
 
 {{ collection(file="stack.toml") }}
