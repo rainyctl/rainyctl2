@@ -45,3 +45,7 @@ title = "MySQL"
 [[collection]]
 type = "entry"
 title = "Redis"
+
+[[collection]]
+type = "entry"
+title = "Spring Cloud"
