@@ -585,75 +585,94 @@ j=6: nums[6]=4 > pivot, swap(j,k), k--
 
 ### 完整代码实现
 
+**实现要点**：
+- 使用**随机 pivot**避免最坏情况
+- 将 pivot 交换到 `left` 位置，简化分区逻辑
+- 使用迭代而非递归，空间更优
+- 三指针分区：`lt`（小于区域边界）、`i`（扫描指针）、`gt`（大于区域边界）
+
 ```java
 class Solution {
+    private final Random random = new Random();
+   
     public int findKthLargest(int[] nums, int k) {
+        int n = nums.length;
         // 将第 k 大转换为第 (n-k) 小（0-indexed）
-        int kSmallest = nums.length - k;
-        return quickSelect(nums, 0, nums.length - 1, kSmallest);
-    }
-    
-    private int quickSelect(int[] nums, int left, int right, int k) {
-        if (left == right) {
-            return nums[left];
-        }
+        int target = n - k;
+        int left = 0, right = n - 1;
         
-        // 三路分区：返回等于 pivot 的元素的起始和结束位置
-        int[] pivotRange = threeWayPartition(nums, left, right);
-        int pivotStart = pivotRange[0];
-        int pivotEnd = pivotRange[1];
-        
-        if (k >= pivotStart && k <= pivotEnd) {
-            // k 在 pivot 的范围内，找到了！
-            // 注意：使用 <= 而不是 <，因为 pivotRange 是闭区间 [pivotStart, pivotEnd]
-            return nums[pivotStart];
-        } else if (k < pivotStart) {
-            // k 在左半部分（< pivot）
-            return quickSelect(nums, left, pivotStart - 1, k);
-        } else {
-            // k 在右半部分（> pivot）
-            return quickSelect(nums, pivotEnd + 1, right, k);
+        // 迭代版本的快速选择（避免递归栈空间）
+        while (left <= right) {
+            // 三路分区，返回等于 pivot 的范围 [lt, gt]（闭区间）
+            int[] p = partition3(nums, left, right);
+            int lt = p[0]; // 等于 pivot 区域的起始索引
+            int gt = p[1]; // 等于 pivot 区域的结束索引
+            
+            if (target < lt) {
+                // target 在左半部分（< pivot）
+                right = lt - 1;
+            } else if (target > gt) {
+                // target 在右半部分（> pivot）
+                left = gt + 1;
+            } else {
+                // target 在等于 pivot 的范围内，找到了！
+                return nums[lt];
+            }
         }
+        return -1; // 不应该到达这里
     }
-    
+
     // 三路分区（Dutch National Flag Algorithm）
     // 将数组分成三部分：[< pivot] [= pivot] [> pivot]
-    // 返回：等于 pivot 的元素的起始和结束位置 [start, end]
-    private int[] threeWayPartition(int[] nums, int left, int right) {
-        int pivot = nums[right];
-        int i = left;      // [left, i-1] 是 < pivot 的区域
-        int j = left;      // [i, j-1] 是 = pivot 的区域
-        int k = right - 1; // [k+1, right-1] 是 > pivot 的区域
+    // 返回：等于 pivot 的元素的起始和结束位置 [lt, gt]（闭区间）
+    private int[] partition3(int[] nums, int left, int right) {
+        // 随机选择 pivot，避免最坏情况
+        int pivotIndex = left + random.nextInt(right - left + 1);
+        int pivot = nums[pivotIndex];
         
-        // j 是扫描指针，[j, k] 是未处理的区域
-        while (j <= k) {
-            if (nums[j] < pivot) {
-                // 小于 pivot，交换到左区域
-                swap(nums, i, j);
-                i++;
-                j++;
-            } else if (nums[j] > pivot) {
-                // 大于 pivot，交换到右区域
-                swap(nums, j, k);
-                k--;
-                // 注意：j 不移动，因为交换来的元素需要重新检查
+        // 将 pivot 交换到 left 位置，简化分区逻辑
+        swap(nums, left, pivotIndex);
+        
+        // 初始化三个指针：
+        // lt: [left+1, lt-1] 是 < pivot 的区域（lt 指向第一个 = pivot 的位置）
+        // i:  扫描指针，当前检查的位置
+        // gt: [gt+1, right] 是 > pivot 的区域（gt 指向最后一个 = pivot 的位置）
+        int lt = left;        // 小于区域的右边界（不包含），等于区域的起始位置
+        int i = left + 1;     // 当前扫描位置，从 left+1 开始
+        int gt = right;       // 大于区域的左边界（不包含），等于区域的结束位置
+        
+        // 扫描未处理的区域 [i, gt]
+        while (i <= gt) {
+            if (nums[i] < pivot) {
+                // 小于 pivot：交换到左区域
+                // 交换后，nums[lt] 是之前的小元素，nums[i] 是原来 lt 位置的值
+                // lt++ 和 i++ 都移动，因为交换后 i 位置的值已经处理过
+                swap(nums, i++, lt++);
+            } else if (nums[i] > pivot) {
+                // 大于 pivot：交换到右区域
+                // 交换后，nums[gt] 是之前的大元素，nums[i] 是交换来的未知值
+                // 只移动 gt--，i 不移动，因为需要检查交换来的元素
+                swap(nums, i, gt--);
             } else {
-                // 等于 pivot，已经在正确位置
-                j++;
+                // 等于 pivot：已经在正确位置，继续扫描
+                i++;
             }
         }
         
-        // 将 pivot（nums[right]）放到正确位置
-        swap(nums, j, right);
+        // 分区完成后的状态：
+        // [left+1, lt-1] 是 < pivot 的元素
+        // [lt, gt] 是 = pivot 的元素（闭区间）
+        // [gt+1, right] 是 > pivot 的元素
+        // 注意：left 位置的 pivot 在分区过程中被交换到 [lt, gt] 范围内的某个位置
         
-        // 返回等于 pivot 的范围 [i, j]
-        return new int[]{i, j};
+        // 返回等于 pivot 的范围（闭区间）
+        return new int[]{lt, gt};
     }
-    
+
     private void swap(int[] nums, int i, int j) {
-        int temp = nums[i];
+        int tmp = nums[i];
         nums[i] = nums[j];
-        nums[j] = temp;
+        nums[j] = tmp;
     }
 }
 
