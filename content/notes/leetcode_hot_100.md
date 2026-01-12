@@ -37,7 +37,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 5 | <input type='checkbox' checked> | 226 | E | 二叉树, 递归 | [翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/) | [Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/) |
 | 6 | <input type='checkbox' checked> | 221 | M | 动态规划, 二维DP | [最大正方形](https://leetcode.cn/problems/maximal-square/) | [Maximal Square](https://leetcode.com/problems/maximal-square/) |
 | 7 | <input type='checkbox' checked> | 215 | M | 堆, 快速选择 | [数组中的第K个最大元素](https://leetcode.cn/problems/kth-largest-element-in-an-array/) | [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/) |
-| 8 | <input type='checkbox'> | 208 | M | Trie树, 前缀树 | [实现Trie(前缀树)](https://leetcode.cn/problems/implement-trie-prefix-tree/) | [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/) |
+| 8 | <input type='checkbox' checked> | 208 | M | Trie树, 前缀树 | [实现Trie(前缀树)](https://leetcode.cn/problems/implement-trie-prefix-tree/) | [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/) |
 | 9 | <input type='checkbox'> | 207 | M | 图, 拓扑排序, DFS | [课程表](https://leetcode.cn/problems/course-schedule/) | [Course Schedule](https://leetcode.com/problems/course-schedule/) |
 | 10 | <input type='checkbox'> | 206 | E | 链表, 递归, 迭代 | [反转链表](https://leetcode.cn/problems/reverse-linked-list/) | [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/) |
 | 11 | <input type='checkbox'> | 200 | M | 图, DFS, BFS, 并查集 | [岛屿数量](https://leetcode.cn/problems/number-of-islands/) | [Number of Islands](https://leetcode.com/problems/number-of-islands/) |
@@ -492,7 +492,7 @@ class Solution {
 
 #### 方法二：快速选择 + 三路分区（处理重复元素）
 
-### 为什么需要三路分区？
+##### 为什么需要三路分区？
 
 标准分区（两路分区）在遇到重复元素时会退化：
 - 当所有元素相等时，标准分区会把所有元素分到一边
@@ -500,7 +500,7 @@ class Solution {
 
 **三路分区**将数组分成三部分：`[< pivot] [= pivot] [> pivot]`，当所有元素相等时可以直接返回，避免递归。
 
-### 三路分区详解（Dutch National Flag Algorithm）
+##### 三路分区详解（Dutch National Flag Algorithm）
 
 **核心思想**：使用三个指针将数组分成三个区域（实现中将 pivot 交换到 left 位置）：
 - `lt`: `[left+1, lt-1]` 是 `< pivot` 的区域（lt 指向第一个 `= pivot` 的位置）
@@ -579,7 +579,7 @@ j=6: nums[6]=4 > pivot, swap(j,k), k--
 返回 [i=2, j=6]，表示 [2,6] 范围内的元素都等于 pivot（闭区间，两端都包含）
 ```
 
-### 完整代码实现
+##### 完整代码实现
 
 **实现要点**：
 - 使用**随机 pivot**避免最坏情况
@@ -676,7 +676,7 @@ class Solution {
 // space: O(1) 额外空间，递归栈 O(log n) 平均，O(n) 最坏
 ```
 
-### 为什么三路分区能处理重复元素？
+##### 为什么三路分区能处理重复元素？
 
 **场景：所有元素相等** `[5, 5, 5, 5, 5]`, k = 3
 
@@ -711,14 +711,14 @@ class Solution {
 - 标准分区：所有元素分到一边，每次只减少一个元素 → O(n²)
 - 三路分区：所有相等的元素被识别为一个整体，立即返回 → O(n)
 
-### 复杂度分析
+##### 复杂度分析
 
 - **时间复杂度**：
   - 平均：O(n) - 每次分区大约消除一半元素
   - 最坏：O(n²) - 但三路分区使最坏情况很少发生（所有元素相等时是 O(n)）
 - **空间复杂度**：O(1) 额外空间，递归栈 O(log n) 平均
 
-### 方法选择建议
+##### 方法选择建议
 
 - **面试/实践**：优先使用最小堆，简单稳定，易于解释
 - **学习算法**：实现三路分区，理解分区思想
