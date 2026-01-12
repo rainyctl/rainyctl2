@@ -506,16 +506,17 @@ class Solution {
 
 ### 三路分区详解（Dutch National Flag Algorithm）
 
-**核心思想**：使用三个指针将数组分成三个区域：
-- `i`: `[left, i-1]` 是 `< pivot` 的区域
-- `j`: `[i, j-1]` 是 `= pivot` 的区域  
-- `k`: `[k+1, right-1]` 是 `> pivot` 的区域
-- `j` 是当前扫描指针，`[j, k]` 是未处理的区域
+**核心思想**：使用三个指针将数组分成三个区域（实现中将 pivot 交换到 left 位置）：
+- `lt`: `[left+1, lt-1]` 是 `< pivot` 的区域（lt 指向第一个 `= pivot` 的位置）
+- `i`: 当前扫描指针，`[i, gt]` 是未处理的区域
+- `gt`: `[gt+1, right]` 是 `> pivot` 的区域（gt 指向最后一个 `= pivot` 的位置）
+- 分区后：`[lt, gt]` 是 `= pivot` 的区域（闭区间）
 
 **分区过程**：
-1. 如果 `nums[j] < pivot`: 交换到 `< pivot` 区域，`i++`, `j++`
-2. 如果 `nums[j] = pivot`: 已经在正确位置，`j++`
-3. 如果 `nums[j] > pivot`: 交换到 `> pivot` 区域，`k--`（不移动 `j`，因为交换来的元素需要检查）
+1. **随机选择 pivot** 并交换到 `left` 位置（简化逻辑）
+2. 如果 `nums[i] < pivot`: 交换到左区域，`i++`, `lt++`
+3. 如果 `nums[i] = pivot`: 已经在正确位置，`i++`
+4. 如果 `nums[i] > pivot`: 交换到右区域，`gt--`（不移动 `i`，需要检查交换来的元素）
 
 **详细示例**：
 
