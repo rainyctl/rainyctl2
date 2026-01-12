@@ -34,6 +34,10 @@ subtitle = "学习中"
 
 {{ collection(file="infra.toml") }}
 
+## 技术社区
+
+{{ collection(file="info.tolml") }}
+
 ## 技术栈 v2 
 
 {{ collection(file="stack.toml") }}
