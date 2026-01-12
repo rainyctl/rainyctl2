@@ -723,3 +723,96 @@ class Solution {
 - **面试/实践**：优先使用最小堆，简单稳定，易于解释
 - **学习算法**：实现三路分区，理解分区思想
 - **性能优化**：三路分区在重复元素多时更优
+
+### 208. 实现Trie(前缀树)
+
+[LT.208. Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/)
+
+Trie（前缀树）是一种树形数据结构，用于高效存储和检索字符串集合。它的核心思想是利用字符串的公共前缀来减少存储空间，并支持快速的前缀匹配。
+
+**思考过程**：
+1. **节点结构**：每个节点包含一个子节点数组（26个字母）和一个布尔标志（表示是否为单词结尾）
+2. **插入操作**：从根节点开始，沿着字符路径创建节点，到达单词末尾时标记为结束
+3. **查找操作**：从根节点开始，沿着字符路径查找，检查是否存在完整的单词或前缀
+4. **辅助方法**：`find` 方法统一处理路径查找，`search` 和 `startsWith` 复用该方法
+
+**核心思想**：
+- **共享前缀**：具有相同前缀的单词共享路径，节省空间
+- **路径表示字符**：从根到某个节点的路径表示一个字符串前缀
+- **结束标志**：`isEnd` 标志区分完整单词和前缀
+
+```java
+class Trie {
+    // 根节点（不存储字符，作为所有单词的起始点）
+    private final TrieNode root;
+
+    public Trie() {
+        root = new TrieNode();
+    }
+    
+    // 插入单词到 Trie 中
+    public void insert(String word) {
+        TrieNode cur = root;
+        // 沿着单词的每个字符路径向下
+        for (char c : word.toCharArray()) {
+            int idx = c - 'a'; // 将字符转换为索引（'a'=0, 'b'=1, ...）
+            // 如果当前字符对应的子节点不存在，创建新节点
+            if (cur.children[idx] == null) {
+                cur.children[idx] = new TrieNode();
+            }
+            // 移动到子节点
+            cur = cur.children[idx];
+        }
+        // 标记单词结束
+        cur.isEnd = true;
+    }
+    
+    // 查找完整的单词（必须是一个完整的单词，不能只是前缀）
+    public boolean search(String word) {
+        TrieNode node = find(word);
+        // 找到节点且该节点标记为单词结尾
+        return node != null && node.isEnd;
+    }
+    
+    // 检查是否存在以给定前缀开头的单词
+    public boolean startsWith(String prefix) {
+        // 只要找到对应的节点路径即可（不需要是完整单词）
+        return find(prefix) != null;
+    }
+
+    // 辅助方法：查找字符串对应的节点
+    // 如果路径存在返回对应节点，否则返回 null
+    private TrieNode find(String s) {
+        TrieNode cur = root;
+        for (char c : s.toCharArray()) {
+            int idx = c - 'a';
+            // 如果路径中断，返回 null
+            if (cur.children[idx] == null) return null;
+            cur = cur.children[idx];
+        }
+        return cur;
+    }
+
+    // Trie 节点定义
+    private static class TrieNode {
+        // 子节点数组，每个索引对应一个字母（'a' 到 'z'）
+        private TrieNode[] children = new TrieNode[26];
+        // 标记当前节点是否为某个单词的结尾
+        private boolean isEnd = false;
+    }
+}
+
+/**
+ * Your Trie object will be instantiated and called as such:
+ * Trie obj = new Trie();
+ * obj.insert(word);
+ * boolean param_2 = obj.search(word);
+ * boolean param_3 = obj.startsWith(prefix);
+ */
+
+// 时间复杂度：
+//   insert: O(m), m 是单词长度
+//   search: O(m), m 是单词长度
+//   startsWith: O(m), m 是前缀长度
+// 空间复杂度：O(ALPHABET_SIZE × N × M)，N 是单词数量，M 是平均单词长度
+```
