@@ -39,7 +39,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 7 | <input type='checkbox' checked> | 215 | M | 堆, 快速选择 | [数组中的第K个最大元素](https://leetcode.cn/problems/kth-largest-element-in-an-array/) | [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/) |
 | 8 | <input type='checkbox' checked> | 208 | M | Trie树, 前缀树 | [实现Trie(前缀树)](https://leetcode.cn/problems/implement-trie-prefix-tree/) | [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/) |
 | 9 | <input type='checkbox' checked> | 207 | M | 图, 拓扑排序, DFS | [课程表](https://leetcode.cn/problems/course-schedule/) | [Course Schedule](https://leetcode.com/problems/course-schedule/) |
-| 10 | <input type='checkbox'> | 206 | E | 链表, 递归, 迭代 | [反转链表](https://leetcode.cn/problems/reverse-linked-list/) | [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/) |
+| 10 | <input type='checkbox' checked> | 206 | E | 链表, 递归, 迭代 | [反转链表](https://leetcode.cn/problems/reverse-linked-list/) | [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/) |
 | 11 | <input type='checkbox'> | 200 | M | 图, DFS, BFS, 并查集 | [岛屿数量](https://leetcode.cn/problems/number-of-islands/) | [Number of Islands](https://leetcode.com/problems/number-of-islands/) |
 | 12 | <input type='checkbox'> | 198 | M | 动态规划 | [打家劫舍](https://leetcode.cn/problems/house-robber/) | [House Robber](https://leetcode.com/problems/house-robber/) |
 | 13 | <input type='checkbox'> | 169 | E | 数组, 哈希表, 投票算法 | [多数元素](https://leetcode.cn/problems/majority-element/) | [Majority Element](https://leetcode.com/problems/majority-element/) |
@@ -986,3 +986,138 @@ DFS(0):
 **复杂度分析**：
 - **时间复杂度**：O(V + E)，需要遍历所有节点和边
 - **空间复杂度**：O(V + E)，存储图和辅助数组/栈
+
+### 206. 反转链表
+
+[LT.206. Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
+
+这道题的核心思想是使用双指针（或三指针）逐个反转链表的连接方向。
+
+**思考过程**：
+1. **迭代方法**：使用 `prev`、`cur`、`next` 三个指针，逐个反转每个节点的 `next` 指针
+2. **递归方法**：递归到链表末尾，然后从后往前反转每个节点
+3. **关键点**：在反转 `cur.next` 之前，需要先保存 `cur.next`，否则会丢失后续节点
+
+**核心思想**：
+- **三指针技巧**：`prev`（前一个节点）、`cur`（当前节点）、`next`（下一个节点）
+- **逐个反转**：每次循环反转一个节点的 `next` 指针
+- **边界处理**：初始时 `prev = null`，最终 `prev` 成为新的头节点
+
+#### 方法一：迭代（推荐）
+
+```java
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode prev = null;  // 前一个节点，初始为 null
+        ListNode cur = head;  // 当前节点，从 head 开始
+        
+        while (cur != null) {
+            // 先保存下一个节点，避免丢失
+            ListNode next = cur.next;
+            // 反转当前节点的 next 指针
+            cur.next = prev;
+            // 移动指针：prev 和 cur 都向前移动
+            prev = cur;
+            cur = next;
+        }
+        // prev 最终指向原链表的最后一个节点，即反转后的头节点
+        return prev;
+    }
+}
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+// time: O(n), n 是链表长度
+// space: O(1), 只使用了常数额外空间
+```
+
+**执行过程可视化**：
+```
+初始：NULL  1 → 2 → 3 → 4 → NULL
+      ↑    ↑
+     prev cur
+
+第1步：保存 next = 2
+      反转：NULL ← 1    2 → 3 → 4 → NULL
+            ↑     ↑    ↑
+           prev  cur  next
+      移动：NULL ← 1    2 → 3 → 4 → NULL
+                 ↑     ↑
+                prev  cur
+
+第2步：保存 next = 3
+      反转：NULL ← 1 ← 2    3 → 4 → NULL
+                 ↑    ↑    ↑
+                prev cur  next
+      移动：NULL ← 1 ← 2    3 → 4 → NULL
+                      ↑     ↑
+                     prev  cur
+
+...继续直到 cur == null
+
+最终：NULL ← 1 ← 2 ← 3 ← 4
+                      ↑
+                     prev (新头节点)
+```
+
+#### 方法二：递归
+
+**核心思想**：递归到链表末尾，然后从后往前反转每个节点。
+
+```java
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        //  base case：空链表或只有一个节点
+        if (head == null || head.next == null) {
+            return head;
+        }
+        
+        // 递归反转后续链表，返回新的头节点
+        ListNode newHead = reverseList(head.next);
+        
+        // 反转当前节点和下一个节点的连接
+        head.next.next = head;
+        head.next = null;
+        
+        return newHead;
+    }
+}
+
+// time: O(n), n 是链表长度
+// space: O(n), 递归栈的深度
+```
+
+**递归过程可视化**：
+```
+原链表：1 → 2 → 3 → 4 → NULL
+
+递归调用栈：
+reverseList(1)
+  reverseList(2)
+    reverseList(3)
+      reverseList(4) → 返回 4（base case）
+    反转：4 → 3，返回 4
+  反转：4 → 3 → 2，返回 4
+反转：4 → 3 → 2 → 1，返回 4
+
+最终：NULL ← 1 ← 2 ← 3 ← 4
+                      ↑
+                    newHead
+```
+
+**两种方法对比**：
+
+| 方法 | 时间复杂度 | 空间复杂度 | 优势 |
+|------|-----------|-----------|------|
+| 迭代 | O(n) | O(1) | 空间效率高，适合长链表 |
+| 递归 | O(n) | O(n) | 代码简洁，但可能栈溢出 |
+
+**推荐**：优先使用迭代方法，空间效率更高。
