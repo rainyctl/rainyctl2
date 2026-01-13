@@ -40,7 +40,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 8 | <input type='checkbox' checked> | 208 | M | Trie树, 前缀树 | [实现Trie(前缀树)](https://leetcode.cn/problems/implement-trie-prefix-tree/) | [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/) |
 | 9 | <input type='checkbox' checked> | 207 | M | 图, 拓扑排序, DFS | [课程表](https://leetcode.cn/problems/course-schedule/) | [Course Schedule](https://leetcode.com/problems/course-schedule/) |
 | 10 | <input type='checkbox' checked> | 206 | E | 链表, 递归, 迭代 | [反转链表](https://leetcode.cn/problems/reverse-linked-list/) | [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/) |
-| 11 | <input type='checkbox'> | 200 | M | 图, DFS, BFS, 并查集 | [岛屿数量](https://leetcode.cn/problems/number-of-islands/) | [Number of Islands](https://leetcode.com/problems/number-of-islands/) |
+| 11 | <input type='checkbox' checked> | 200 | M | 图, DFS, BFS, 并查集 | [岛屿数量](https://leetcode.cn/problems/number-of-islands/) | [Number of Islands](https://leetcode.com/problems/number-of-islands/) |
 | 12 | <input type='checkbox'> | 198 | M | 动态规划 | [打家劫舍](https://leetcode.cn/problems/house-robber/) | [House Robber](https://leetcode.com/problems/house-robber/) |
 | 13 | <input type='checkbox'> | 169 | E | 数组, 哈希表, 投票算法 | [多数元素](https://leetcode.cn/problems/majority-element/) | [Majority Element](https://leetcode.com/problems/majority-element/) |
 | 14 | <input type='checkbox'> | 238 | M | 数组, 前缀积 | [除自身以外数组的乘积](https://leetcode.cn/problems/product-of-array-except-self/) | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) |
@@ -1121,3 +1121,112 @@ reverseList(1)
 | 递归 | O(n) | O(n) | 代码简洁，但可能栈溢出 |
 
 **推荐**：优先使用迭代方法，空间效率更高。
+
+### 200. 岛屿数量
+
+[LT.200. Number of Islands](https://leetcode.com/problems/number-of-islands/)
+
+这道题的核心思想是使用 DFS 或 BFS 遍历网格，将连通的 '1' 区域标记为已访问，统计有多少个独立的连通区域。
+
+**思考过程**：
+1. **问题转换**：网格中的 '1' 表示陆地，连通的 '1' 组成一个岛屿
+2. **遍历策略**：遍历整个网格，遇到 '1' 时，使用 DFS/BFS 标记所有连通的 '1'
+3. **标记方法**：将访问过的 '1' 改为 '0'（"沉没"岛屿），避免重复计算
+4. **计数**：每次遇到新的 '1'，说明发现一个新岛屿，计数加 1
+
+**核心思想**：
+- **连通性**：上下左右相邻的 '1' 属于同一个岛屿
+- **标记访问**：通过修改原数组标记已访问（"沉没"技术），无需额外空间
+- **DFS 递归**：从每个 '1' 开始，递归标记所有连通的 '1'
+
+**DFS 方法（推荐）**：
+
+```java
+class Solution {
+    public int numIslands(char[][] grid) {
+        int m = grid.length;
+        int n = grid[0].length;
+        int count = 0;
+        
+        // 遍历整个网格
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == '1') {
+                    // 发现新的岛屿，计数加 1
+                    count++;
+                    // 使用 DFS 标记所有连通的 '1'（"沉没"整个岛屿）
+                    dfs(grid, i, j);
+                }
+            }
+        }
+        return count;
+    }
+
+    // DFS：标记所有与 (i, j) 连通的 '1'
+    private void dfs(char[][] grid, int i, int j) {
+        int m = grid.length;
+        int n = grid[0].length;
+        
+        // 边界检查：越界则返回
+        if (i < 0 || i >= m || j < 0 || j >= n) return;
+        // 如果不是 '1'（可能是 '0' 或已访问），返回
+        if (grid[i][j] != '1') return;
+        
+        // 标记为已访问（"沉没"这个位置）
+        grid[i][j] = '0';
+        
+        // 递归访问四个方向：上、下、左、右
+        dfs(grid, i + 1, j); // 下
+        dfs(grid, i - 1, j); // 上
+        dfs(grid, i, j + 1); // 右
+        dfs(grid, i, j - 1); // 左
+    }
+}
+
+// time: O(m × n), m 和 n 是网格的行数和列数
+// space: O(m × n), 最坏情况下递归栈的深度（整个网格都是 '1'）
+```
+
+**执行过程示例**：
+
+```
+初始网格：
+1 1 0 0 0
+1 1 0 0 0
+0 0 1 0 0
+0 0 0 1 1
+
+第1步：发现 (0,0) = '1'，count = 1
+DFS(0,0) → 标记所有连通的 '1'：
+0 0 0 0 0  (第一个岛屿被"沉没")
+0 0 0 0 0
+0 0 1 0 0
+0 0 0 1 1
+
+第2步：发现 (2,2) = '1'，count = 2
+DFS(2,2) → 标记：
+0 0 0 0 0
+0 0 0 0 0
+0 0 0 0 0  (第二个岛屿被"沉没")
+0 0 0 1 1
+
+第3步：发现 (3,3) = '1'，count = 3
+DFS(3,3) → 标记：
+0 0 0 0 0
+0 0 0 0 0
+0 0 0 0 0
+0 0 0 0 0  (第三个岛屿被"沉没")
+
+返回 3
+```
+
+**关键技巧 - "沉没"技术**：
+- 将访问过的 '1' 改为 '0'，这样在后续遍历中不会重复计算
+- 无需额外的 `visited` 数组，节省空间
+- 修改原数组是安全的，因为题目只要求计数，不要求保留原数组
+
+**复杂度分析**：
+- **时间复杂度**：O(m × n)，每个格子最多访问一次
+- **空间复杂度**：O(m × n)，最坏情况下递归栈的深度（整个网格都是 '1' 时，形成一条长链）
+
+**优化提示**：如果网格很大，可以考虑使用 BFS（迭代）来避免递归栈溢出。
