@@ -41,7 +41,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 9 | <input type='checkbox' checked> | 207 | M | 图, 拓扑排序, DFS | [课程表](https://leetcode.cn/problems/course-schedule/) | [Course Schedule](https://leetcode.com/problems/course-schedule/) |
 | 10 | <input type='checkbox' checked> | 206 | E | 链表, 递归, 迭代 | [反转链表](https://leetcode.cn/problems/reverse-linked-list/) | [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/) |
 | 11 | <input type='checkbox' checked> | 200 | M | 图, DFS, BFS, 并查集 | [岛屿数量](https://leetcode.cn/problems/number-of-islands/) | [Number of Islands](https://leetcode.com/problems/number-of-islands/) |
-| 12 | <input type='checkbox'> | 198 | M | 动态规划 | [打家劫舍](https://leetcode.cn/problems/house-robber/) | [House Robber](https://leetcode.com/problems/house-robber/) |
+| 12 | <input type='checkbox' checked> | 198 | M | 动态规划 | [打家劫舍](https://leetcode.cn/problems/house-robber/) | [House Robber](https://leetcode.com/problems/house-robber/) |
 | 13 | <input type='checkbox'> | 169 | E | 数组, 哈希表, 投票算法 | [多数元素](https://leetcode.cn/problems/majority-element/) | [Majority Element](https://leetcode.com/problems/majority-element/) |
 | 14 | <input type='checkbox'> | 238 | M | 数组, 前缀积 | [除自身以外数组的乘积](https://leetcode.cn/problems/product-of-array-except-self/) | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) |
 | 15 | <input type='checkbox'> | 155 | M | 栈, 设计 | [最小栈](https://leetcode.cn/problems/min-stack/) | [Min Stack](https://leetcode.com/problems/min-stack/) |
@@ -1230,3 +1230,141 @@ DFS(3,3) → 标记：
 - **空间复杂度**：O(m × n)，最坏情况下递归栈的深度（整个网格都是 '1' 时，形成一条长链）
 
 **优化提示**：如果网格很大，可以考虑使用 BFS（迭代）来避免递归栈溢出。
+
+### 198. 打家劫舍
+
+[LT.198. House Robber](https://leetcode.com/problems/house-robber/)
+
+这道题的核心思想是使用动态规划，对于每个房子，我们有两个选择：偷或不偷，选择收益更大的方案。
+
+**思考过程**：
+1. **定义状态**：`dp[i]` 表示前 i 个房子能获得的最大金额
+2. **状态转移**：对于第 i 个房子，有两种选择：
+   - 不偷：`dp[i] = dp[i-1]`（保持前 i-1 个房子的最大金额）
+   - 偷：`dp[i] = dp[i-2] + nums[i]`（前 i-2 个房子的最大金额 + 当前房子金额）
+   - 取两者最大值
+3. **边界情况**：前 0 个房子为 0，前 1 个房子为 `nums[0]`
+
+**核心思想**：
+- **最优子结构**：前 i 个房子的最优解依赖于前 i-1 和前 i-2 个房子的最优解
+- **状态转移方程**：`dp[i] = max(dp[i-1], dp[i-2] + nums[i])`
+- **空间优化**：由于只依赖前两个状态，可以用 O(1) 空间
+
+#### 方法一：标准 DP（你的实现）
+
+你的代码是正确的！可以稍微简化边界处理。
+
+```java
+class Solution {
+    public int rob(int[] nums) {
+        // 边界情况处理
+        if (nums.length == 1) {
+            return nums[0];
+        }
+        if (nums.length == 2) {
+            return Math.max(nums[0], nums[1]);
+        }
+        
+        // dp[i] 表示前 i 个房子能获得的最大金额
+        int[] dp = new int[nums.length];
+        dp[0] = nums[0];
+        dp[1] = Math.max(nums[0], nums[1]);
+        
+        // 对于每个房子，选择偷或不偷
+        for (int i = 2; i < nums.length; i++) {
+            // 不偷当前房子：保持前 i-1 个房子的最大金额
+            // 偷当前房子：前 i-2 个房子的最大金额 + 当前房子金额
+            dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);
+        }
+        
+        return dp[nums.length - 1];
+    }
+}
+
+// time: O(n), n 是房子数量
+// space: O(n), dp 数组的空间
+```
+
+**改进建议**：
+1. **简化边界处理**：可以统一处理，让代码更简洁
+2. **空间优化**：只依赖前两个状态，可以优化到 O(1) 空间
+
+#### 方法二：简化版本（统一边界处理）
+
+```java
+class Solution {
+    public int rob(int[] nums) {
+        int n = nums.length;
+        if (n == 0) return 0;
+        if (n == 1) return nums[0];
+        
+        int[] dp = new int[n];
+        dp[0] = nums[0];
+        dp[1] = Math.max(nums[0], nums[1]);
+        
+        for (int i = 2; i < n; i++) {
+            dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);
+        }
+        
+        return dp[n - 1];
+    }
+}
+```
+
+#### 方法三：空间优化版本（O(1) 空间）
+
+**核心思想**：由于 `dp[i]` 只依赖 `dp[i-1]` 和 `dp[i-2]`，可以用两个变量代替整个数组。
+
+```java
+class Solution {
+    public int rob(int[] nums) {
+        int n = nums.length;
+        if (n == 0) return 0;
+        if (n == 1) return nums[0];
+        
+        // 用两个变量代替 dp 数组
+        int prev2 = nums[0];           // dp[i-2]
+        int prev1 = Math.max(nums[0], nums[1]); // dp[i-1]
+        
+        for (int i = 2; i < n; i++) {
+            // 计算 dp[i]
+            int cur = Math.max(prev1, prev2 + nums[i]);
+            // 更新状态：向前移动
+            prev2 = prev1;
+            prev1 = cur;
+        }
+        
+        return prev1;
+    }
+}
+
+// time: O(n)
+// space: O(1), 只使用了常数额外空间
+```
+
+**空间优化过程可视化**：
+```
+标准 DP：
+dp[0] = 2
+dp[1] = 7
+dp[2] = max(dp[1]=7, dp[0]+9=11) = 11
+dp[3] = max(dp[2]=11, dp[1]+3=10) = 11
+dp[4] = max(dp[3]=11, dp[2]+1=12) = 12
+
+空间优化（只保留前两个状态）：
+prev2 = 2, prev1 = 7
+i=2: cur = max(7, 2+9) = 11, prev2=7, prev1=11
+i=3: cur = max(11, 7+3) = 11, prev2=11, prev1=11
+i=4: cur = max(11, 11+1) = 12, prev2=11, prev1=12
+```
+
+**代码评价**：
+- ✅ **正确性**：你的实现完全正确，逻辑清晰
+- ✅ **边界处理**：显式处理了边界情况，代码安全
+- 💡 **可优化点**：
+  - 边界处理可以统一（但你的方式更清晰）
+  - 可以优化到 O(1) 空间（但 O(n) 空间也完全可接受）
+
+**推荐**：
+- **面试/学习**：你的实现很好，清晰易懂
+- **性能优化**：如果需要 O(1) 空间，使用方法三
