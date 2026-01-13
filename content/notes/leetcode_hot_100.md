@@ -38,7 +38,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 6 | <input type='checkbox' checked> | 221 | M | 动态规划, 二维DP | [最大正方形](https://leetcode.cn/problems/maximal-square/) | [Maximal Square](https://leetcode.com/problems/maximal-square/) |
 | 7 | <input type='checkbox' checked> | 215 | M | 堆, 快速选择 | [数组中的第K个最大元素](https://leetcode.cn/problems/kth-largest-element-in-an-array/) | [Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/) |
 | 8 | <input type='checkbox' checked> | 208 | M | Trie树, 前缀树 | [实现Trie(前缀树)](https://leetcode.cn/problems/implement-trie-prefix-tree/) | [Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/) |
-| 9 | <input type='checkbox'> | 207 | M | 图, 拓扑排序, DFS | [课程表](https://leetcode.cn/problems/course-schedule/) | [Course Schedule](https://leetcode.com/problems/course-schedule/) |
+| 9 | <input type='checkbox' checked> | 207 | M | 图, 拓扑排序, DFS | [课程表](https://leetcode.cn/problems/course-schedule/) | [Course Schedule](https://leetcode.com/problems/course-schedule/) |
 | 10 | <input type='checkbox'> | 206 | E | 链表, 递归, 迭代 | [反转链表](https://leetcode.cn/problems/reverse-linked-list/) | [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/) |
 | 11 | <input type='checkbox'> | 200 | M | 图, DFS, BFS, 并查集 | [岛屿数量](https://leetcode.cn/problems/number-of-islands/) | [Number of Islands](https://leetcode.com/problems/number-of-islands/) |
 | 12 | <input type='checkbox'> | 198 | M | 动态规划 | [打家劫舍](https://leetcode.cn/problems/house-robber/) | [House Robber](https://leetcode.com/problems/house-robber/) |
@@ -816,3 +816,173 @@ class Trie {
 //   startsWith: O(m), m 是前缀长度
 // 空间复杂度：O(ALPHABET_SIZE × N × M)，N 是单词数量，M 是平均单词长度
 ```
+
+### 207. 课程表
+
+[LT.207. Course Schedule](https://leetcode.com/problems/course-schedule/)
+
+这道题本质上是判断有向图是否存在环。如果能完成所有课程，说明图中没有环（可以进行拓扑排序）。
+
+**思考过程**：
+1. **问题转换**：课程依赖关系构成有向图，判断是否存在环
+2. **BFS 方法（拓扑排序）**：从入度为 0 的节点开始，逐步移除节点，如果所有节点都能被访问，说明无环
+3. **DFS 方法（状态标记）**：使用三种状态标记节点，如果在 DFS 过程中遇到 "visiting" 状态的节点，说明存在环
+
+**核心思想**：
+- **拓扑排序**：有向无环图（DAG）可以进行拓扑排序
+- **入度统计**：BFS 方法通过统计入度，从没有依赖的节点开始处理
+- **状态标记**：DFS 方法通过状态标记（0=未访问, 1=访问中, 2=已访问）检测后向边（back edge）
+
+#### 方法一：BFS + 拓扑排序（Kahn's Algorithm）
+
+**核心思想**：从入度为 0 的节点开始，逐步移除节点并更新其邻居的入度，如果所有节点都能被访问，说明无环。
+
+```java
+class Solution {
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        // 构建邻接表表示的有向图
+        List<List<Integer>> graph = new ArrayList<>();
+        for (int i = 0; i < numCourses; i++) {
+            graph.add(new ArrayList<>());
+        }
+        // 统计每个节点的入度
+        int[] indegree = new int[numCourses];
+        
+        // 构建图和入度数组
+        for (int[] prerequisite : prerequisites) {
+            int to = prerequisite[0];   // 目标课程
+            int from = prerequisite[1]; // 先修课程
+            graph.get(from).add(to);    // from -> to 的边
+            indegree[to]++;             // to 的入度加 1
+        }
+
+        // 将所有入度为 0 的节点加入队列（没有依赖的课程）
+        Deque<Integer> queue = new ArrayDeque<>();
+        for (int i = 0; i < numCourses; i++) {
+            if (indegree[i] == 0) {
+                queue.offer(i);
+            }
+        }
+
+        // BFS：从入度为 0 的节点开始，逐步移除节点
+        int visited = 0;
+        while (!queue.isEmpty()) {
+            int cur = queue.poll();
+            visited++;
+            // 遍历当前节点的所有邻居
+            for (int next : graph.get(cur)) {
+                // 减少邻居的入度
+                if (--indegree[next] == 0) {
+                    // 如果邻居的入度变为 0，加入队列
+                    queue.offer(next);
+                }
+            }
+        }
+        // 如果所有节点都被访问，说明无环，可以完成所有课程
+        return visited == numCourses;
+    }
+}
+
+// time: O(V + E), V 是课程数，E 是依赖关系数
+// space: O(V + E), 图的空间和队列的空间
+```
+
+#### 方法二：DFS + 状态标记（Cycle Detection）
+
+**核心思想**：使用三种状态标记节点，在 DFS 过程中如果遇到 "visiting" 状态的节点，说明存在后向边（back edge），即存在环。
+
+**状态定义**：
+- `0` (UNVISITED): 未访问
+- `1` (VISITING): 正在访问（在递归栈中）
+- `2` (VISITED): 已访问（已完成 DFS）
+
+**关键洞察**：如果在 DFS 过程中遇到状态为 `VISITING` 的节点，说明存在后向边，即存在环。
+
+```java
+class Solution {
+    private static final int UNVISITED = 0;
+    private static final int VISITING = 1;
+    private static final int VISITED = 2;
+    
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        // 构建邻接表
+        List<List<Integer>> graph = new ArrayList<>();
+        for (int i = 0; i < numCourses; i++) {
+            graph.add(new ArrayList<>());
+        }
+        for (int[] prerequisite : prerequisites) {
+            int to = prerequisite[0];
+            int from = prerequisite[1];
+            graph.get(from).add(to);
+        }
+        
+        // 状态数组：0=未访问, 1=访问中, 2=已访问
+        int[] state = new int[numCourses];
+        
+        // 对每个节点进行 DFS
+        for (int i = 0; i < numCourses; i++) {
+            if (state[i] == UNVISITED) {
+                if (hasCycle(graph, state, i)) {
+                    return false; // 发现环，无法完成
+                }
+            }
+        }
+        return true; // 无环，可以完成
+    }
+    
+    // DFS 检测是否存在环
+    private boolean hasCycle(List<List<Integer>> graph, int[] state, int node) {
+        // 如果节点正在访问中，说明存在后向边（back edge），存在环
+        if (state[node] == VISITING) {
+            return true;
+        }
+        // 如果节点已访问，说明这个分支已经检查过，无环
+        if (state[node] == VISITED) {
+            return false;
+        }
+        
+        // 标记为访问中（进入递归栈）
+        state[node] = VISITING;
+        
+        // 递归访问所有邻居
+        for (int next : graph.get(node)) {
+            if (hasCycle(graph, state, next)) {
+                return true; // 发现环
+            }
+        }
+        
+        // 标记为已访问（离开递归栈）
+        state[node] = VISITED;
+        return false; // 无环
+    }
+}
+
+// time: O(V + E), V 是课程数，E 是依赖关系数
+// space: O(V + E), 图的空间和递归栈的空间
+```
+
+**DFS 方法的工作原理**：
+
+```
+示例：课程 0 -> 1 -> 2 -> 0（存在环）
+
+DFS(0):
+  state[0] = VISITING
+  DFS(1):
+    state[1] = VISITING
+    DFS(2):
+      state[2] = VISITING
+      DFS(0):
+        state[0] == VISITING → 发现环！返回 true
+```
+
+**两种方法对比**：
+
+| 方法 | 思路 | 优势 | 适用场景 |
+|------|------|------|----------|
+| BFS (拓扑排序) | 从入度为 0 的节点开始，逐步移除 | 直观，易于理解 | 需要拓扑排序结果时 |
+| DFS (状态标记) | 检测后向边判断环 | 代码简洁，空间可能更优 | 只需要判断是否有环时 |
+
+**复杂度分析**：
+- **时间复杂度**：O(V + E)，需要遍历所有节点和边
+- **空间复杂度**：O(V + E)，存储图和辅助数组/栈
