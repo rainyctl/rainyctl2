@@ -45,7 +45,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 13 | <input type='checkbox' checked> | 169 | E | 数组, 哈希表, 投票算法 | [多数元素](https://leetcode.cn/problems/majority-element/) | [Majority Element](https://leetcode.com/problems/majority-element/) |
 | 14 | <input type='checkbox' checked> | 238 | M | 数组, 前缀积 | [除自身以外数组的乘积](https://leetcode.cn/problems/product-of-array-except-self/) | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) |
 | 15 | <input type='checkbox' checked> | 155 | M | 栈, 设计 | [最小栈](https://leetcode.cn/problems/min-stack/) | [Min Stack](https://leetcode.com/problems/min-stack/) |
-| 16 | <input type='checkbox'> | 152 | M | 动态规划, 数组 | [乘积最大子数组](https://leetcode.cn/problems/maximum-product-subarray/) | [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/) |
+| 16 | <input type='checkbox' checked> | 152 | M | 动态规划, 数组 | [乘积最大子数组](https://leetcode.cn/problems/maximum-product-subarray/) | [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/) |
 | 17 | <input type='checkbox'> | 148 | M | 链表, 归并排序, 快慢指针 | [排序链表](https://leetcode.cn/problems/sort-list/) | [Sort List](https://leetcode.com/problems/sort-list/) |
 | 18 | <input type='checkbox'> | 146 | M | 哈希表, 双向链表, LRU | [LRU缓存](https://leetcode.cn/problems/lru-cache/) | [LRU Cache](https://leetcode.com/problems/lru-cache/) |
 | 19 | <input type='checkbox'> | 142 | M | 链表, 快慢指针, 数学 | [环形链表II](https://leetcode.cn/problems/linked-list-cycle-ii/) | [Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/) |
@@ -1792,3 +1792,193 @@ class MinStack {
 **设计模式**：
 - **辅助数据结构**：使用额外的数据结构（`minStack`）来支持高效操作
 - **同步维护**：主栈和辅助栈同步操作，保证状态一致
+
+### 152. 乘积最大子数组
+
+[LT.152. Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)
+
+这道题的核心思想是使用**动态规划**，同时维护**最大值和最小值**，因为负数会将最小值变成最大值。
+
+**思考过程**：
+1. **问题理解**：找到连续子数组，使得乘积最大
+2. **关键挑战**：负数会让乘积的符号翻转，最小值可能在下一次遇到负数时变成最大值
+3. **解决方案**：同时维护以当前位置结尾的最大乘积和最小乘积
+
+**核心思想 - 为什么需要同时跟踪 min 和 max？**
+
+**关键洞察**：乘法与加法不同，符号会影响结果。
+- 当遇到**正数**时：`max = max * num`，`min = min * num`
+- 当遇到**负数**时：`max = min * num`（负数让最小值变最大值），`min = max * num`（负数让最大值变最小值）
+- 因此，我们需要同时维护两个状态，并在每一步都考虑所有可能性
+
+**状态定义**：
+- `max`：以当前位置结尾的最大乘积
+- `min`：以当前位置结尾的最小乘积
+
+**状态转移方程**：
+对于位置 `i`，考虑三种情况：
+1. 从当前位置重新开始：`num`
+2. 继承之前最大值并继续：`prevMax * num`
+3. 继承之前最小值并继续：`prevMin * num`（负数时这个会成为最大值）
+
+```
+max[i] = max(num[i], prevMax * num[i], prevMin * num[i])
+min[i] = min(num[i], prevMax * num[i], prevMin * num[i])
+```
+
+**可视化示例**：
+
+```
+输入：nums = [2, 3, -2, 4]
+
+i=0: num=2
+  max = 2, min = 2
+  res = 2
+
+i=1: num=3
+  prevMax = 2, prevMin = 2
+  max = max(3, 2*3, 2*3) = max(3, 6, 6) = 6
+  min = min(3, 2*3, 2*3) = min(3, 6, 6) = 3
+  res = max(6, 2) = 6
+
+i=2: num=-2
+  prevMax = 6, prevMin = 3
+  max = max(-2, 6*(-2), 3*(-2)) = max(-2, -12, -6) = -2
+  min = min(-2, 6*(-2), 3*(-2)) = min(-2, -12, -6) = -12
+  res = max(-2, 6) = 6
+
+i=3: num=4
+  prevMax = -2, prevMin = -12
+  max = max(4, -2*4, -12*4) = max(4, -8, -48) = 4
+  min = min(4, -2*4, -12*4) = min(4, -8, -48) = -48
+  res = max(4, 6) = 6
+
+最终结果：6（来自子数组 [2, 3]）
+```
+
+**另一个例子（展示负数的作用）**：
+
+```
+输入：nums = [-2, 3, -4]
+
+i=0: num=-2
+  max = -2, min = -2
+  res = -2
+
+i=1: num=3
+  prevMax = -2, prevMin = -2
+  max = max(3, -2*3, -2*3) = max(3, -6, -6) = 3
+  min = min(3, -2*3, -2*3) = min(3, -6, -6) = -6
+  res = max(3, -2) = 3
+
+i=2: num=-4
+  prevMax = 3, prevMin = -6
+  max = max(-4, 3*(-4), -6*(-4)) = max(-4, -12, 24) = 24 ✓
+  min = min(-4, 3*(-4), -6*(-4)) = min(-4, -12, 24) = -12
+  res = max(24, 3) = 24
+
+最终结果：24（来自子数组 [3, -4]，但实际上是 [-2, 3, -4] 全部）
+注意：当遇到 -4 时，之前的最小值 -6 乘以 -4 变成了最大值 24
+```
+
+```java
+class Solution {
+    public int maxProduct(int[] nums) {
+        // 初始化：第一个元素的状态
+        int min = nums[0];  // 以当前位置结尾的最小乘积
+        int max = nums[0];  // 以当前位置结尾的最大乘积
+        int res = nums[0];  // 全局最大乘积
+
+        for (int i = 1; i < nums.length; i++) {
+            int num = nums[i];
+            // 保存前一个状态（因为在计算新状态时会被覆盖）
+            int prevMin = min;
+            int prevMax = max;
+            
+            // 更新最大值：考虑三种情况
+            // 1. 从当前位置重新开始：num
+            // 2. 继承之前最大值：prevMax * num
+            // 3. 继承之前最小值：prevMin * num（负数时这个可能成为最大值）
+            max = Math.max(num, Math.max(prevMin * num, prevMax * num));
+            
+            // 更新最小值：同样考虑三种情况
+            // 1. 从当前位置重新开始：num
+            // 2. 继承之前最大值：prevMax * num（负数时这个可能成为最小值）
+            // 3. 继承之前最小值：prevMin * num
+            min = Math.min(num, Math.min(prevMin * num, prevMax * num));
+            
+            // 更新全局最大值
+            res = Math.max(max, res);
+        }
+
+        return res;
+    }
+}
+
+// time: O(n), 一次遍历数组
+// space: O(1), 只使用了常数额外空间
+```
+
+**其他解法对比**：
+
+#### 方法二：暴力法（不推荐）
+
+```java
+// 枚举所有子数组，计算乘积
+// time: O(n²), space: O(1)
+// 超时
+```
+
+#### 方法三：DP 数组版本（更直观但空间更差）
+
+```java
+class Solution {
+    public int maxProduct(int[] nums) {
+        int n = nums.length;
+        int[] maxDp = new int[n];  // 最大乘积数组
+        int[] minDp = new int[n];  // 最小乘积数组
+        
+        maxDp[0] = nums[0];
+        minDp[0] = nums[0];
+        int res = nums[0];
+        
+        for (int i = 1; i < n; i++) {
+            maxDp[i] = Math.max(nums[i], Math.max(maxDp[i-1] * nums[i], minDp[i-1] * nums[i]));
+            minDp[i] = Math.min(nums[i], Math.min(maxDp[i-1] * nums[i], minDp[i-1] * nums[i]));
+            res = Math.max(res, maxDp[i]);
+        }
+        
+        return res;
+    }
+}
+// time: O(n)
+// space: O(n), 需要两个数组
+```
+
+**方法对比**：
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+|------|-----------|-----------|------|
+| **你的方法（DP + 变量）** | O(n) | O(1) | ✅ 最优，空间优化 |
+| DP 数组版本 | O(n) | O(n) | 更直观，但需要额外空间 |
+| 暴力法 | O(n²) | O(1) | ❌ 超时 |
+
+**关键要点**：
+- ✅ **双状态维护**：同时跟踪 `max` 和 `min`，因为负数会让符号翻转
+- ✅ **三种选择**：每个位置可以选择重新开始、继承最大值或继承最小值
+- ✅ **空间优化**：只使用两个变量，不需要 DP 数组
+- ✅ **边界处理**：从第一个元素开始初始化
+
+**为什么不能像最大子数组和那样只维护 max？**
+
+最大子数组和（Kadane's Algorithm）可以只维护最大值，因为：
+- 如果当前和变负，就重新开始：`curSum = max(nums[i], curSum + nums[i])`
+
+但乘积不同：
+- 负数会让符号翻转：`-2 * -4 = 8`（两个负数相乘变正数）
+- 当前的最小值在遇到下一个负数时可能成为最大值
+- 因此必须同时维护两个状态
+
+**复杂度分析**：
+- **时间复杂度**：O(n)，一次遍历数组
+- **空间复杂度**：O(1)，只使用了常数额外空间（`min`、`max`、`res` 等变量）
