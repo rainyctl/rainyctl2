@@ -42,7 +42,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 10 | <input type='checkbox' checked> | 206 | E | 链表, 递归, 迭代 | [反转链表](https://leetcode.cn/problems/reverse-linked-list/) | [Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/) |
 | 11 | <input type='checkbox' checked> | 200 | M | 图, DFS, BFS, 并查集 | [岛屿数量](https://leetcode.cn/problems/number-of-islands/) | [Number of Islands](https://leetcode.com/problems/number-of-islands/) |
 | 12 | <input type='checkbox' checked> | 198 | M | 动态规划 | [打家劫舍](https://leetcode.cn/problems/house-robber/) | [House Robber](https://leetcode.com/problems/house-robber/) |
-| 13 | <input type='checkbox'> | 169 | E | 数组, 哈希表, 投票算法 | [多数元素](https://leetcode.cn/problems/majority-element/) | [Majority Element](https://leetcode.com/problems/majority-element/) |
+| 13 | <input type='checkbox' checked> | 169 | E | 数组, 哈希表, 投票算法 | [多数元素](https://leetcode.cn/problems/majority-element/) | [Majority Element](https://leetcode.com/problems/majority-element/) |
 | 14 | <input type='checkbox'> | 238 | M | 数组, 前缀积 | [除自身以外数组的乘积](https://leetcode.cn/problems/product-of-array-except-self/) | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) |
 | 15 | <input type='checkbox'> | 155 | M | 栈, 设计 | [最小栈](https://leetcode.cn/problems/min-stack/) | [Min Stack](https://leetcode.com/problems/min-stack/) |
 | 16 | <input type='checkbox'> | 152 | M | 动态规划, 数组 | [乘积最大子数组](https://leetcode.cn/problems/maximum-product-subarray/) | [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/) |
@@ -1368,3 +1368,134 @@ i=4: cur = max(11, 11+1) = 12, prev2=11, prev1=12
 **推荐**：
 - **面试/学习**：你的实现很好，清晰易懂
 - **性能优化**：如果需要 O(1) 空间，使用方法三
+
+### 169. 多数元素
+
+[LT.169. Majority Element](https://leetcode.com/problems/majority-element/)
+
+这道题的核心思想是使用 **Boyer-Moore 投票算法**（Boyer-Moore Voting Algorithm），在 O(n) 时间和 O(1) 空间内找到出现次数超过一半的元素。
+
+**思考过程**：
+1. **问题理解**：多数元素出现次数 > n/2，意味着它比其他所有元素的总和还要多
+2. **投票思想**：将多数元素看作 +1，其他元素看作 -1，最终和一定 > 0
+3. **抵消策略**：不同的元素互相抵消，最后剩下的候选者就是多数元素
+
+**核心思想 - Boyer-Moore 投票算法**：
+- **维护候选者和计数**：遍历数组，维护一个候选者 `candidate` 和它的计数 `count`
+- **投票规则**：
+  - 如果 `count == 0`：选择当前元素作为新的候选者，`count = 1`
+  - 如果当前元素 == 候选者：`count++`（支持票）
+  - 如果当前元素 != 候选者：`count--`（反对票，抵消）
+- **最终结果**：遍历结束后，候选者就是多数元素
+
+**为什么这个算法有效？**
+
+**关键洞察**：多数元素的数量 > n/2，意味着：
+- 即使所有其他元素都"反对"它，它仍然会有剩余的支持票
+- 不同元素之间的抵消不会影响多数元素的最终优势
+
+**可视化示例**：
+
+```
+数组：[2, 2, 1, 1, 1, 2, 2]
+多数元素：2（出现 4 次，> 7/2 = 3.5）
+
+遍历过程：
+i=0: num=2, count=0 → candidate=2, count=1
+i=1: num=2, candidate=2 → count=2
+i=2: num=1, candidate=2 → count=1 (抵消)
+i=3: num=1, candidate=2 → count=0 (抵消)
+i=4: num=1, count=0 → candidate=1, count=1 (重新选择)
+i=5: num=2, candidate=1 → count=0 (抵消)
+i=6: num=2, count=0 → candidate=2, count=1 (重新选择)
+
+最终：candidate=2 ✓
+```
+
+**另一种理解方式 - 配对抵消**：
+- 将数组中的元素两两配对
+- 如果两个元素不同，就抵消掉（相当于 `count--`）
+- 如果两个元素相同，就保留（相当于 `count++`）
+- 最后剩下的元素就是多数元素
+
+```java
+class Solution {
+    public int majorityElement(int[] nums) {
+        int candidate = 0;  // 候选者
+        int count = 0;      // 候选者的计数
+        
+        for (int num : nums) {
+            if (count == 0) {
+                // 当前没有候选者，选择当前元素作为候选者
+                candidate = num;
+                count = 1;
+            } else if (candidate == num) {
+                // 当前元素与候选者相同，增加支持票
+                count++;
+            } else {
+                // 当前元素与候选者不同，抵消一票
+                count--;
+            }
+        }
+        
+        // 遍历结束后，candidate 就是多数元素
+        // 注意：题目保证多数元素一定存在，所以不需要验证
+        return candidate;
+    }
+}
+
+// time: O(n), 一次遍历
+// space: O(1), 只使用了常数额外空间
+```
+
+**其他解法对比**：
+
+#### 方法二：哈希表计数
+
+```java
+class Solution {
+    public int majorityElement(int[] nums) {
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int num : nums) {
+            map.put(num, map.getOrDefault(num, 0) + 1);
+            if (map.get(num) > nums.length / 2) {
+                return num;
+            }
+        }
+        return -1;
+    }
+}
+// time: O(n)
+// space: O(n), 哈希表的空间
+```
+
+#### 方法三：排序
+
+```java
+class Solution {
+    public int majorityElement(int[] nums) {
+        Arrays.sort(nums);
+        return nums[nums.length / 2]; // 中间元素一定是多数元素
+    }
+}
+// time: O(n log n)
+// space: O(1) 或 O(n)（取决于排序实现）
+```
+
+**方法对比**：
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+|------|-----------|-----------|------|
+| **Boyer-Moore 投票** | O(n) | O(1) | ✅ 最优，一次遍历，无需额外空间 |
+| 哈希表 | O(n) | O(n) | 需要额外空间存储计数 |
+| 排序 | O(n log n) | O(1) 或 O(n) | 时间复杂度较高 |
+
+**关键要点**：
+- ✅ **Boyer-Moore 算法**是这道题的最优解
+- ✅ **一次遍历**，无需额外空间
+- ✅ **核心思想**：不同元素互相抵消，多数元素最终会胜出
+- ⚠️ **前提条件**：题目保证多数元素一定存在（出现次数 > n/2）
+
+**复杂度分析**：
+- **时间复杂度**：O(n)，一次遍历数组
+- **空间复杂度**：O(1)，只使用了两个变量 `candidate` 和 `count`
