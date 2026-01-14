@@ -43,7 +43,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 11 | <input type='checkbox' checked> | 200 | M | 图, DFS, BFS, 并查集 | [岛屿数量](https://leetcode.cn/problems/number-of-islands/) | [Number of Islands](https://leetcode.com/problems/number-of-islands/) |
 | 12 | <input type='checkbox' checked> | 198 | M | 动态规划 | [打家劫舍](https://leetcode.cn/problems/house-robber/) | [House Robber](https://leetcode.com/problems/house-robber/) |
 | 13 | <input type='checkbox' checked> | 169 | E | 数组, 哈希表, 投票算法 | [多数元素](https://leetcode.cn/problems/majority-element/) | [Majority Element](https://leetcode.com/problems/majority-element/) |
-| 14 | <input type='checkbox'> | 238 | M | 数组, 前缀积 | [除自身以外数组的乘积](https://leetcode.cn/problems/product-of-array-except-self/) | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) |
+| 14 | <input type='checkbox' checked> | 238 | M | 数组, 前缀积 | [除自身以外数组的乘积](https://leetcode.cn/problems/product-of-array-except-self/) | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) |
 | 15 | <input type='checkbox'> | 155 | M | 栈, 设计 | [最小栈](https://leetcode.cn/problems/min-stack/) | [Min Stack](https://leetcode.com/problems/min-stack/) |
 | 16 | <input type='checkbox'> | 152 | M | 动态规划, 数组 | [乘积最大子数组](https://leetcode.cn/problems/maximum-product-subarray/) | [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/) |
 | 17 | <input type='checkbox'> | 148 | M | 链表, 归并排序, 快慢指针 | [排序链表](https://leetcode.cn/problems/sort-list/) | [Sort List](https://leetcode.com/problems/sort-list/) |
@@ -1499,3 +1499,148 @@ class Solution {
 **复杂度分析**：
 - **时间复杂度**：O(n)，一次遍历数组
 - **空间复杂度**：O(1)，只使用了两个变量 `candidate` 和 `count`
+
+### 238. 除自身以外数组的乘积
+
+[LT.238. Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
+
+这道题的核心思想是使用**前缀积**和**后缀积**，在 O(n) 时间和 O(1) 额外空间（不包括输出数组）内计算每个位置除自身外的所有元素乘积。
+
+**思考过程**：
+1. **问题理解**：对于位置 `i`，需要计算 `nums[0] * nums[1] * ... * nums[i-1] * nums[i+1] * ... * nums[n-1]`
+2. **分解问题**：可以拆分为两部分：
+   - **左半部分**：`nums[0] * nums[1] * ... * nums[i-1]`（前缀积）
+   - **右半部分**：`nums[i+1] * ... * nums[n-1]`（后缀积）
+3. **两遍遍历**：
+   - 第一遍：从左到右，计算每个位置左侧所有元素的乘积（前缀积）
+   - 第二遍：从右到左，计算每个位置右侧所有元素的乘积（后缀积），并乘到结果中
+
+**核心思想**：
+- **前缀积**：`res[i] = nums[0] * nums[1] * ... * nums[i-1]`
+- **后缀积**：`right = nums[i+1] * nums[i+2] * ... * nums[n-1]`
+- **最终结果**：`res[i] = 前缀积 * 后缀积`
+
+**关键技巧**：
+- 使用**输出数组**存储前缀积，节省空间
+- 第二遍遍历时，用**变量 `right`** 动态计算后缀积，边计算边更新结果
+- 这样只需要 O(1) 额外空间（不包括输出数组）
+
+**可视化示例**：
+
+```
+输入：nums = [1, 2, 3, 4]
+
+第一遍（从左到右，计算前缀积）：
+i=0: res[0] = 1 (没有左侧元素)
+i=1: res[1] = res[0] * nums[0] = 1 * 1 = 1
+i=2: res[2] = res[1] * nums[1] = 1 * 2 = 2
+i=3: res[3] = res[2] * nums[2] = 2 * 3 = 6
+
+此时 res = [1, 1, 2, 6]（前缀积）
+
+第二遍（从右到左，计算后缀积并更新结果）：
+i=3: right = 1, res[3] = 6 * 1 = 6, right = 1 * 4 = 4
+i=2: right = 4, res[2] = 2 * 4 = 8, right = 4 * 3 = 12
+i=1: right = 12, res[1] = 1 * 12 = 12, right = 12 * 2 = 24
+i=0: right = 24, res[0] = 1 * 24 = 24, right = 24 * 1 = 24
+
+最终结果：[24, 12, 8, 6]
+
+验证：
+res[0] = 2 * 3 * 4 = 24 ✓
+res[1] = 1 * 3 * 4 = 12 ✓
+res[2] = 1 * 2 * 4 = 8 ✓
+res[3] = 1 * 2 * 3 = 6 ✓
+```
+
+```java
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] res = new int[n];
+        
+        // 第一遍：从左到右，计算前缀积
+        // res[i] = nums[0] * nums[1] * ... * nums[i-1]
+        res[0] = 1; // 第一个元素没有左侧元素，前缀积为 1
+        for (int i = 1; i < n; i++) {
+            // 当前位置的前缀积 = 前一个位置的前缀积 * 前一个位置的元素值
+            res[i] = res[i - 1] * nums[i - 1];
+        }
+        
+        // 第二遍：从右到左，计算后缀积并更新结果
+        // right 表示当前位置右侧所有元素的乘积
+        int right = 1; // 最后一个元素没有右侧元素，后缀积初始为 1
+        for (int i = n - 1; i >= 0; i--) {
+            // 将后缀积乘到结果中：res[i] = 前缀积 * 后缀积
+            res[i] *= right;
+            // 更新后缀积：将当前元素乘到 right 中，为下一个位置准备
+            right *= nums[i];
+        }
+        
+        return res;
+    }
+}
+
+// time: O(n), 两次遍历数组
+// space: O(1), 只使用了常数额外空间（不包括输出数组 res）
+```
+
+**其他解法对比**：
+
+#### 方法二：使用左右两个数组（更直观但需要额外空间）
+
+```java
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] left = new int[n];   // 前缀积数组
+        int[] right = new int[n];  // 后缀积数组
+        int[] res = new int[n];
+        
+        // 计算前缀积
+        left[0] = 1;
+        for (int i = 1; i < n; i++) {
+            left[i] = left[i - 1] * nums[i - 1];
+        }
+        
+        // 计算后缀积
+        right[n - 1] = 1;
+        for (int i = n - 2; i >= 0; i--) {
+            right[i] = right[i + 1] * nums[i + 1];
+        }
+        
+        // 合并结果
+        for (int i = 0; i < n; i++) {
+            res[i] = left[i] * right[i];
+        }
+        
+        return res;
+    }
+}
+// time: O(n)
+// space: O(n), 需要额外的 left 和 right 数组
+```
+
+#### 方法三：使用除法（不推荐，需要处理 0）
+
+```java
+// 不推荐：需要处理 0 的情况，且题目要求不能使用除法
+```
+
+**方法对比**：
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+|------|-----------|-----------|------|
+| **你的方法（两遍遍历）** | O(n) | O(1) | ✅ 最优，使用输出数组存储前缀积，变量存储后缀积 |
+| 左右两个数组 | O(n) | O(n) | 更直观，但需要额外空间 |
+| 除法 | O(n) | O(1) | ❌ 不适用，题目不允许使用除法，且需要处理 0 |
+
+**关键要点**：
+- ✅ **两遍遍历**：第一遍计算前缀积，第二遍计算后缀积并更新结果
+- ✅ **空间优化**：使用输出数组存储前缀积，用变量动态计算后缀积
+- ✅ **核心思想**：将问题分解为前缀积和后缀积两部分
+- ✅ **边界处理**：第一个元素的前缀积为 1，最后一个元素的后缀积为 1
+
+**复杂度分析**：
+- **时间复杂度**：O(n)，两次遍历数组，每次 O(n)
+- **空间复杂度**：O(1)，只使用了常数额外空间（不包括输出数组 `res`，因为题目要求输出数组不算额外空间）
