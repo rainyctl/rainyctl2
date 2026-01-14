@@ -46,7 +46,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 14 | <input type='checkbox' checked> | 238 | M | 数组, 前缀积 | [除自身以外数组的乘积](https://leetcode.cn/problems/product-of-array-except-self/) | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) |
 | 15 | <input type='checkbox' checked> | 155 | M | 栈, 设计 | [最小栈](https://leetcode.cn/problems/min-stack/) | [Min Stack](https://leetcode.com/problems/min-stack/) |
 | 16 | <input type='checkbox' checked> | 152 | M | 动态规划, 数组 | [乘积最大子数组](https://leetcode.cn/problems/maximum-product-subarray/) | [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/) |
-| 17 | <input type='checkbox'> | 148 | M | 链表, 归并排序, 快慢指针 | [排序链表](https://leetcode.cn/problems/sort-list/) | [Sort List](https://leetcode.com/problems/sort-list/) |
+| 17 | <input type='checkbox' checked> | 148 | M | 链表, 归并排序, 快慢指针 | [排序链表](https://leetcode.cn/problems/sort-list/) | [Sort List](https://leetcode.com/problems/sort-list/) |
 | 18 | <input type='checkbox'> | 146 | M | 哈希表, 双向链表, LRU | [LRU缓存](https://leetcode.cn/problems/lru-cache/) | [LRU Cache](https://leetcode.com/problems/lru-cache/) |
 | 19 | <input type='checkbox'> | 142 | M | 链表, 快慢指针, 数学 | [环形链表II](https://leetcode.cn/problems/linked-list-cycle-ii/) | [Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/) |
 | 20 | <input type='checkbox'> | 141 | E | 链表, 快慢指针, 哈希表 | [环形链表](https://leetcode.cn/problems/linked-list-cycle/) | [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/) |
@@ -1982,3 +1982,282 @@ class Solution {
 **复杂度分析**：
 - **时间复杂度**：O(n)，一次遍历数组
 - **空间复杂度**：O(1)，只使用了常数额外空间（`min`、`max`、`res` 等变量）
+
+### 148. 排序链表
+
+[LT.148. Sort List](https://leetcode.com/problems/sort-list/)
+
+这道题的核心思想是使用**归并排序**（Merge Sort），结合**快慢指针**找到链表中点，然后递归地排序左右两部分，最后合并。
+
+**思考过程**：
+1. **分治思想**：将链表分成两半，分别排序，然后合并
+2. **找中点**：使用快慢指针找到链表中点
+3. **递归排序**：对左右两部分递归调用 `sortList`
+4. **合并有序链表**：使用双指针合并两个有序链表
+
+**核心思想**：
+- **归并排序**：分而治之，先分后合
+- **快慢指针找中点**：fast 走两步，slow 走一步，fast 到达末尾时 slow 在中点
+- **合并两个有序链表**：使用 dummy 节点简化边界处理
+
+#### 快慢指针找中点的两种模式
+
+**为什么需要正确找中点？**
+
+在归并排序中，正确分割链表至关重要：
+- 如果分割不均匀，可能导致栈溢出（递归深度过大）
+- 如果分割点选择错误，可能导致无限递归或排序错误
+
+**Pattern A：左中点模式（你的实现）**
+
+```java
+slow = head
+fast = head
+
+while (fast.next != null && fast.next.next != null) {
+    slow = slow.next
+    fast = fast.next.next
+}
+mid = slow.next
+slow.next = null
+```
+
+**特点**：
+- `slow` 停在**前半部分的最后一个节点**（左中点）
+- `mid = slow.next` 是**后半部分的起始节点**
+- 分割后：`[head, slow]` 和 `[mid, tail]`
+
+**示例分析**：
+
+```
+偶数长度（4 个节点）：1 -> 2 -> 3 -> 4 -> NULL
+
+初始：
+slow = 1, fast = 1
+
+第1步：fast.next = 2, fast.next.next = 3（存在）
+slow = 2, fast = 3
+
+第2步：fast.next = 4, fast.next.next = NULL（不存在，退出）
+slow = 2（前半部分最后一个节点）
+mid = slow.next = 3（后半部分起始节点）
+
+分割结果：
+左半部分：1 -> 2 -> NULL
+右半部分：3 -> 4 -> NULL
+```
+
+```
+奇数长度（5 个节点）：1 -> 2 -> 3 -> 4 -> 5 -> NULL
+
+初始：
+slow = 1, fast = 1
+
+第1步：fast.next = 2, fast.next.next = 3（存在）
+slow = 2, fast = 3
+
+第2步：fast.next = 4, fast.next.next = 5（存在）
+slow = 3, fast = 5
+
+第3步：fast.next = NULL（不存在，退出）
+slow = 3（前半部分最后一个节点，也是中间节点）
+mid = slow.next = 4（后半部分起始节点）
+
+分割结果：
+左半部分：1 -> 2 -> 3 -> NULL
+右半部分：4 -> 5 -> NULL
+```
+
+**Pattern B：右中点模式**
+
+```java
+slow = head
+fast = head.next
+
+while (fast != null && fast.next != null) {
+    slow = slow.next
+    fast = fast.next.next
+}
+mid = slow.next
+slow.next = null
+```
+
+**特点**：
+- `slow` 停在**前半部分的最后一个节点**（右中点）
+- `mid = slow.next` 是**后半部分的起始节点**
+- 分割后：`[head, slow]` 和 `[mid, tail]`
+
+**示例分析**：
+
+```
+偶数长度（4 个节点）：1 -> 2 -> 3 -> 4 -> NULL
+
+初始：
+slow = 1, fast = 2
+
+第1步：fast = 2, fast.next = 3（存在）
+slow = 2, fast = 4
+
+第2步：fast = 4, fast.next = NULL（不存在，退出）
+slow = 2（前半部分最后一个节点）
+mid = slow.next = 3（后半部分起始节点）
+
+分割结果：
+左半部分：1 -> 2 -> NULL
+右半部分：3 -> 4 -> NULL
+```
+
+```
+奇数长度（5 个节点）：1 -> 2 -> 3 -> 4 -> 5 -> NULL
+
+初始：
+slow = 1, fast = 2
+
+第1步：fast = 2, fast.next = 3（存在）
+slow = 2, fast = 4
+
+第2步：fast = 4, fast.next = 5（存在）
+slow = 3, fast = NULL（fast.next = NULL，但 fast 本身不为 null，继续）
+
+第3步：fast = NULL（退出）
+slow = 3（前半部分最后一个节点）
+mid = slow.next = 4（后半部分起始节点）
+
+分割结果：
+左半部分：1 -> 2 -> 3 -> NULL
+右半部分：4 -> 5 -> NULL
+```
+
+**两种模式对比**：
+
+| 模式 | fast 初始位置 | 循环条件 | 适用场景 |
+|------|-------------|---------|---------|
+| **Pattern A** | `head` | `fast.next != null && fast.next.next != null` | ✅ 归并排序（你的实现） |
+| **Pattern B** | `head.next` | `fast != null && fast.next != null` | ✅ 回文链表检测 |
+
+**为什么 Pattern A 更适合归并排序？**
+
+1. **更均匀的分割**：在偶数长度时，Pattern A 能更均匀地分割（如 4 个节点分成 2+2）
+2. **避免边界问题**：`fast.next.next` 的检查确保 fast 能安全地走两步
+3. **递归深度更平衡**：左右两部分大小更接近，递归深度更平衡
+
+**关键点总结**：
+- ✅ **两种模式都安全**：都能正确找到中点并分割链表
+- ✅ **Pattern A 更适合归并排序**：分割更均匀，递归更平衡
+- ✅ **分割后必须断开**：`slow.next = null` 是关键，否则会导致无限递归
+
+```java
+class Solution {
+    public ListNode sortList(ListNode head) {
+        // 边界情况：空链表或只有一个节点，已经有序
+        if (head == null || head.next == null) return head;
+        
+        // 使用快慢指针找到链表中点（Pattern A：左中点模式）
+        ListNode slow = head;
+        ListNode fast = head;
+        // 循环条件：确保 fast 能走两步
+        while (fast.next != null && fast.next.next != null) {
+            slow = slow.next;      // slow 走一步
+            fast = fast.next.next; // fast 走两步
+        }
+        // slow 停在前半部分的最后一个节点
+        ListNode mid = slow.next;  // mid 是后半部分的起始节点
+        slow.next = null;          // 断开链表，分成两部分
+        
+        // 递归排序左右两部分
+        ListNode left = sortList(head);   // 排序左半部分 [head, slow]
+        ListNode right = sortList(mid);   // 排序右半部分 [mid, tail]
+        
+        // 合并两个有序链表
+        return merge(left, right);
+    }
+
+    // 合并两个有序链表
+    private ListNode merge(ListNode l1, ListNode l2) {
+        // 使用 dummy 节点简化边界处理
+        ListNode dummy = new ListNode(0);
+        ListNode cur = dummy;
+        
+        // 双指针合并：选择较小的节点加入结果链表
+        while (l1 != null && l2 != null) {
+            if (l1.val <= l2.val) {
+                cur.next = l1;
+                l1 = l1.next;
+            } else {
+                cur.next = l2;
+                l2 = l2.next;
+            }
+            cur = cur.next;
+        }
+        
+        // 将剩余部分连接到结果链表
+        cur.next = l1 != null ? l1 : l2;
+        
+        return dummy.next;
+    }
+}
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+// time: O(n log n), 归并排序的时间复杂度
+// space: O(log n), 递归栈的深度（平衡分割时）
+```
+
+**执行过程可视化**：
+
+```
+输入：4 -> 2 -> 1 -> 3 -> NULL
+
+第1层递归：
+  找中点：slow = 2, mid = 1
+  分割：left = [4, 2], right = [1, 3]
+  
+  递归左半部分 [4, 2]：
+    找中点：slow = 4, mid = 2
+    分割：left = [4], right = [2]
+    合并：[2, 4]
+  
+  递归右半部分 [1, 3]：
+    找中点：slow = 1, mid = 3
+    分割：left = [1], right = [3]
+    合并：[1, 3]
+  
+  合并 [2, 4] 和 [1, 3]：
+    结果：[1, 2, 3, 4]
+```
+
+**其他解法对比**：
+
+#### 方法二：转换为数组排序（不推荐，不符合要求）
+
+```java
+// 将链表转换为数组，排序后再转回链表
+// time: O(n log n)
+// space: O(n), 需要额外数组空间
+// 不符合 O(1) 空间复杂度的要求
+```
+
+**方法对比**：
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+|------|-----------|-----------|------|
+| **归并排序（你的方法）** | O(n log n) | O(log n) | ✅ 最优，符合要求 |
+| 转换为数组 | O(n log n) | O(n) | ❌ 需要额外空间 |
+
+**关键要点**：
+- ✅ **快慢指针找中点**：Pattern A 更适合归并排序，分割更均匀
+- ✅ **必须断开链表**：`slow.next = null` 是关键，否则会导致无限递归
+- ✅ **递归终止条件**：空链表或只有一个节点时直接返回
+- ✅ **合并有序链表**：使用 dummy 节点简化边界处理
+
+**复杂度分析**：
+- **时间复杂度**：O(n log n)，归并排序的标准时间复杂度
+- **空间复杂度**：O(log n)，递归栈的深度（平衡分割时，最坏情况 O(n)）
