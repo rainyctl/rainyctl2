@@ -44,7 +44,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 12 | <input type='checkbox' checked> | 198 | M | 动态规划 | [打家劫舍](https://leetcode.cn/problems/house-robber/) | [House Robber](https://leetcode.com/problems/house-robber/) |
 | 13 | <input type='checkbox' checked> | 169 | E | 数组, 哈希表, 投票算法 | [多数元素](https://leetcode.cn/problems/majority-element/) | [Majority Element](https://leetcode.com/problems/majority-element/) |
 | 14 | <input type='checkbox' checked> | 238 | M | 数组, 前缀积 | [除自身以外数组的乘积](https://leetcode.cn/problems/product-of-array-except-self/) | [Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/) |
-| 15 | <input type='checkbox'> | 155 | M | 栈, 设计 | [最小栈](https://leetcode.cn/problems/min-stack/) | [Min Stack](https://leetcode.com/problems/min-stack/) |
+| 15 | <input type='checkbox' checked> | 155 | M | 栈, 设计 | [最小栈](https://leetcode.cn/problems/min-stack/) | [Min Stack](https://leetcode.com/problems/min-stack/) |
 | 16 | <input type='checkbox'> | 152 | M | 动态规划, 数组 | [乘积最大子数组](https://leetcode.cn/problems/maximum-product-subarray/) | [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/) |
 | 17 | <input type='checkbox'> | 148 | M | 链表, 归并排序, 快慢指针 | [排序链表](https://leetcode.cn/problems/sort-list/) | [Sort List](https://leetcode.com/problems/sort-list/) |
 | 18 | <input type='checkbox'> | 146 | M | 哈希表, 双向链表, LRU | [LRU缓存](https://leetcode.cn/problems/lru-cache/) | [LRU Cache](https://leetcode.com/problems/lru-cache/) |
@@ -1644,3 +1644,151 @@ class Solution {
 **复杂度分析**：
 - **时间复杂度**：O(n)，两次遍历数组，每次 O(n)
 - **空间复杂度**：O(1)，只使用了常数额外空间（不包括输出数组 `res`，因为题目要求输出数组不算额外空间）
+
+### 155. 最小栈
+
+[LT.155. Min Stack](https://leetcode.com/problems/min-stack/)
+
+这道题的核心思想是使用**辅助栈**（`minStack`）来跟踪每个状态下的最小值，使得所有操作都能在 O(1) 时间内完成。
+
+**思考过程**：
+1. **问题理解**：需要实现一个栈，支持常规的 `push`、`pop`、`top` 操作，同时支持 O(1) 时间获取最小值
+2. **关键挑战**：当栈顶元素被弹出后，最小值可能会改变，需要快速找到新的最小值
+3. **解决方案**：使用辅助栈 `minStack`，在每个状态下都存储当前的最小值
+
+**核心思想 - 辅助栈方法**：
+- **主栈 `stack`**：存储所有元素
+- **辅助栈 `minStack`**：存储每个状态下的最小值
+- **同步操作**：每次 `push` 时，将当前最小值（包括新元素）存入 `minStack`；每次 `pop` 时，同时弹出两个栈
+- **获取最小值**：直接返回 `minStack` 的栈顶元素
+
+**为什么这个设计有效？**
+
+**关键洞察**：`minStack` 的栈顶始终是当前状态下所有元素的最小值。
+- 当新元素入栈时，如果它比当前最小值小，它成为新的最小值；否则保持原来的最小值
+- 当元素出栈时，`minStack` 同步出栈，栈顶自然恢复到之前状态的最小值
+
+**可视化示例**：
+
+```
+操作序列：push(3), push(2), push(1), push(4), pop(), getMin(), pop(), getMin()
+
+初始状态：
+stack:     []
+minStack:  []
+
+push(3):
+stack:     [3]
+minStack:  [3]     ← 当前最小值是 3
+
+push(2):
+stack:     [3, 2]
+minStack:  [3, 2]  ← 当前最小值是 min(3,2) = 2
+
+push(1):
+stack:     [3, 2, 1]
+minStack:  [3, 2, 1]  ← 当前最小值是 min(3,2,1) = 1
+
+push(4):
+stack:     [3, 2, 1, 4]
+minStack:  [3, 2, 1, 1]  ← 当前最小值仍然是 min(3,2,1,4) = 1
+
+pop() (弹出 4):
+stack:     [3, 2, 1]
+minStack:  [3, 2, 1]  ← 恢复，当前最小值是 1
+
+getMin() → 1
+
+pop() (弹出 1):
+stack:     [3, 2]
+minStack:  [3, 2]  ← 恢复，当前最小值是 2
+
+getMin() → 2
+```
+
+```java
+class MinStack {
+    // 主栈：存储所有元素
+    private Deque<Integer> stack = new ArrayDeque<>();
+    // 辅助栈：存储每个状态下的最小值
+    private Deque<Integer> minStack = new ArrayDeque<>();
+
+    public MinStack() {
+        // 构造函数：不需要初始化，Deque 已经初始化
+    }
+    
+    public void push(int val) {
+        // 将元素入主栈
+        stack.push(val);
+        
+        // 将当前最小值入辅助栈
+        // 如果 minStack 为空，当前元素就是最小值
+        // 否则，取新元素和当前最小值的较小者
+        if (minStack.isEmpty()) {
+            minStack.push(val);
+        } else {
+            minStack.push(Math.min(val, minStack.peek()));
+        }
+    }
+    
+    public void pop() {
+        // 同步弹出两个栈
+        // 主栈弹出元素，辅助栈弹出对应的最小值
+        stack.pop();
+        minStack.pop();
+    }
+    
+    public int top() {
+        // 返回主栈的栈顶元素（不移除）
+        return stack.peek();
+    }
+    
+    public int getMin() {
+        // 返回辅助栈的栈顶元素，即当前状态下的最小值
+        return minStack.peek();
+    }
+}
+
+/**
+ * Your MinStack object will be instantiated and called as such:
+ * MinStack obj = new MinStack();
+ * obj.push(val);
+ * obj.pop();
+ * int param_3 = obj.top();
+ * int param_4 = obj.getMin();
+ */
+
+// time: O(1) 所有操作都是 O(1)
+// space: O(n), 需要额外的 minStack 存储最小值
+```
+
+**其他解法对比**：
+
+#### 方法二：存储差值（空间优化，但实现复杂）
+
+```java
+// 使用一个栈存储 (val - min) 的差值，用一个变量存储当前最小值
+// 空间复杂度仍然是 O(n)，但常数更小
+// 实现复杂，容易出错，不推荐
+```
+
+**方法对比**：
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+|------|-----------|-----------|------|
+| **辅助栈（你的方法）** | O(1) | O(n) | ✅ 推荐，实现简单，思路清晰 |
+| 存储差值 | O(1) | O(n) | 空间常数更小，但实现复杂，容易出错 |
+
+**关键要点**：
+- ✅ **辅助栈同步**：`minStack` 与 `stack` 同步操作，保持相同大小
+- ✅ **存储当前最小值**：每次 `push` 时，`minStack` 存储的是"包含当前元素在内的最小值"
+- ✅ **O(1) 操作**：所有操作都是 O(1)，符合题目要求
+- ✅ **实现简单**：思路直观，代码易维护
+
+**复杂度分析**：
+- **时间复杂度**：O(1)，所有操作（`push`、`pop`、`top`、`getMin`）都是 O(1)
+- **空间复杂度**：O(n)，需要额外的 `minStack` 存储 n 个最小值
+
+**设计模式**：
+- **辅助数据结构**：使用额外的数据结构（`minStack`）来支持高效操作
+- **同步维护**：主栈和辅助栈同步操作，保证状态一致
