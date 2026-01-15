@@ -47,7 +47,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 15 | <input type='checkbox' checked> | 155 | M | 栈, 设计 | [最小栈](https://leetcode.cn/problems/min-stack/) | [Min Stack](https://leetcode.com/problems/min-stack/) |
 | 16 | <input type='checkbox' checked> | 152 | M | 动态规划, 数组 | [乘积最大子数组](https://leetcode.cn/problems/maximum-product-subarray/) | [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/) |
 | 17 | <input type='checkbox' checked> | 148 | M | 链表, 归并排序, 快慢指针 | [排序链表](https://leetcode.cn/problems/sort-list/) | [Sort List](https://leetcode.com/problems/sort-list/) |
-| 18 | <input type='checkbox'> | 146 | M | 哈希表, 双向链表, LRU | [LRU缓存](https://leetcode.cn/problems/lru-cache/) | [LRU Cache](https://leetcode.com/problems/lru-cache/) |
+| 18 | <input type='checkbox' checked> | 146 | M | 哈希表, 双向链表, LRU | [LRU缓存](https://leetcode.cn/problems/lru-cache/) | [LRU Cache](https://leetcode.com/problems/lru-cache/) |
 | 19 | <input type='checkbox'> | 142 | M | 链表, 快慢指针, 数学 | [环形链表II](https://leetcode.cn/problems/linked-list-cycle-ii/) | [Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/) |
 | 20 | <input type='checkbox'> | 141 | E | 链表, 快慢指针, 哈希表 | [环形链表](https://leetcode.cn/problems/linked-list-cycle/) | [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/) |
 | 21 | <input type='checkbox'> | 139 | M | 动态规划, 字符串 | [单词拆分](https://leetcode.cn/problems/word-break/) | [Word Break](https://leetcode.com/problems/word-break/) |
@@ -2285,3 +2285,358 @@ class Solution {
 **复杂度分析**：
 - **时间复杂度**：O(n log n)，归并排序的标准时间复杂度
 - **空间复杂度**：O(log n)，递归栈的深度（平衡分割时，最坏情况 O(n)）
+
+### 146. LRU缓存
+
+[LT.146. LRU Cache](https://leetcode.com/problems/lru-cache/)
+
+这道题的核心思想是使用**哈希表 + 双向链表**来实现 LRU（Least Recently Used）缓存。哈希表提供 O(1) 的查找，双向链表提供 O(1) 的插入和删除。
+
+**思考过程**：
+1. **数据结构选择**：
+   - **HashMap**：存储 key 到 Node 的映射，O(1) 查找
+   - **双向链表**：维护访问顺序，最近访问的在头部，最久未访问的在尾部
+   - **Dummy 节点**：使用 `head` 和 `tail` 作为哨兵节点，简化边界处理
+2. **核心操作**：
+   - `get(key)`：如果存在，移动到头部（标记为最近使用）
+   - `put(key, value)`：如果存在则更新并移动到头部；如果不存在则添加到头部，如果容量超限则删除尾部节点
+
+**核心思想**：
+- **最近访问在头部**：每次访问或更新节点时，都将其移动到链表头部
+- **最久未访问在尾部**：当容量满时，删除尾部节点
+- **双向链表**：支持 O(1) 的节点删除和插入（需要知道前驱节点）
+
+#### 双向链表操作详解
+
+**数据结构示意图**：
+
+```
+head (dummy) <-> node1 <-> node2 <-> node3 <-> tail (dummy)
+```
+
+每个节点有两个指针：`prev`（前驱）和 `next`（后继）
+
+#### 操作一：`addToHead(node)` - 将节点添加到头部
+
+**目标**：将新节点插入到 `head` 之后，成为第一个实际节点
+
+**步骤详解**：
+
+```
+初始状态：
+head <-> node1 <-> node2 <-> tail
+        ↑
+      要插入的 node
+
+步骤1：设置 node 的 prev 指向 head
+node.prev = head
+head <-> node  (node.prev = head)
+        <-> node1 <-> node2 <-> tail
+
+步骤2：设置 node 的 next 指向 head.next（即原来的第一个节点）
+node.next = head.next
+head <-> node -> node1 <-> node2 <-> tail
+        <-       ↑
+        (node.prev = head, node.next = node1)
+
+步骤3：让 node1 的 prev 指向 node
+head.next.prev = node
+head <-> node <-> node1 <-> node2 <-> tail
+        <-      <-      <- 
+
+步骤4：让 head 的 next 指向 node
+head.next = node
+head -> node <-> node1 <-> node2 <-> tail
+     <-      <-      <- 
+
+最终状态：
+head <-> node <-> node1 <-> node2 <-> tail
+```
+
+**代码对应**：
+```java
+private void addToHead(Node node) {
+    node.prev = head;              // 步骤1
+    node.next = head.next;         // 步骤2
+    head.next.prev = node;         // 步骤3
+    head.next = node;              // 步骤4
+}
+```
+
+#### 操作二：`removeNode(node)` - 从链表中删除节点
+
+**目标**：将节点从链表中移除，但不删除节点本身
+
+**步骤详解**：
+
+```
+初始状态：
+head <-> node1 <-> node <-> node2 <-> tail
+                 ↑
+                要删除的 node
+
+步骤1：让 node 的前驱节点的 next 指向 node 的后继节点
+node.prev.next = node.next
+head <-> node1 -> node -> node2 <-> tail
+        <-       <-      <-
+(node1.next 现在指向 node2，跳过了 node)
+
+步骤2：让 node 的后继节点的 prev 指向 node 的前驱节点
+node.next.prev = node.prev
+head <-> node1 <-> node2 <-> tail
+        <-      <-
+(node2.prev 现在指向 node1)
+
+最终状态（node 已经从链表中移除）：
+head <-> node1 <-> node2 <-> tail
+
+注意：node 的 prev 和 next 指针仍然保留，但不再在链表中
+```
+
+**代码对应**：
+```java
+private void removeNode(Node node) {
+    node.prev.next = node.next;    // 步骤1
+    node.next.prev = node.prev;    // 步骤2
+}
+```
+
+#### 操作三：`moveToHead(node)` - 将节点移动到头部
+
+**目标**：先将节点从当前位置移除，然后添加到头部
+
+**步骤详解**：
+
+```
+初始状态：
+head <-> node1 <-> node <-> node2 <-> tail
+                 ↑
+                要移动的 node
+
+步骤1：removeNode(node) - 从当前位置移除
+head <-> node1 <-> node2 <-> tail
+                 ↑
+                node（已脱离链表，但 prev 和 next 仍然保留）
+
+步骤2：addToHead(node) - 添加到头部
+head <-> node <-> node1 <-> node2 <-> tail
+     <-      <-      <-
+
+最终状态：
+head <-> node <-> node1 <-> node2 <-> tail
+```
+
+**代码对应**：
+```java
+private void moveToHead(Node node) {
+    removeNode(node);    // 步骤1：移除
+    addToHead(node);     // 步骤2：添加到头部
+}
+```
+
+#### 操作四：`removeTail()` - 删除尾部节点
+
+**目标**：删除最后一个实际节点（`tail.prev`），并返回该节点
+
+**步骤详解**：
+
+```
+初始状态：
+head <-> node1 <-> node2 <-> node3 <-> tail
+                                   ↑
+                                  要删除的节点（tail.prev）
+
+步骤1：获取尾部节点
+Node node = tail.prev
+node 指向 node3
+
+步骤2：removeNode(node) - 移除节点
+head <-> node1 <-> node2 <-> tail
+                        ↑
+                       node3（已移除）
+
+步骤3：返回节点（用于从 HashMap 中删除对应的 key）
+return node
+
+最终状态：
+head <-> node1 <-> node2 <-> tail
+```
+
+**代码对应**：
+```java
+private Node removeTail() {
+    Node node = tail.prev;        // 步骤1：获取尾部节点
+    removeNode(node);             // 步骤2：移除
+    return node;                  // 步骤3：返回
+}
+```
+
+#### 完整操作序列示例
+
+```
+容量 capacity = 2
+初始状态：
+head <-> tail
+HashMap: {}
+
+操作1：put(1, 10)
+----------------------------------------
+addToHead(new Node(1, 10))：
+head <-> [1,10] <-> tail
+HashMap: {1 -> [1,10]}
+
+操作2：put(2, 20)
+----------------------------------------
+addToHead(new Node(2, 20))：
+head <-> [2,20] <-> [1,10] <-> tail
+HashMap: {1 -> [1,10], 2 -> [2,20]}
+
+操作3：get(1)
+----------------------------------------
+从 HashMap 找到 [1,10]
+moveToHead([1,10])：
+  1. removeNode([1,10])：
+     head <-> [2,20] <-> tail
+  2. addToHead([1,10])：
+     head <-> [1,10] <-> [2,20] <-> tail
+HashMap: {1 -> [1,10], 2 -> [2,20]}
+返回：10
+
+操作4：put(3, 30)
+----------------------------------------
+HashMap 中没有 3，需要添加
+addToHead(new Node(3, 30))：
+head <-> [3,30] <-> [1,10] <-> [2,20] <-> tail
+HashMap: {1 -> [1,10], 2 -> [2,20], 3 -> [3,30]}
+
+容量超限（size = 3 > capacity = 2）：
+removeTail() -> [2,20]
+head <-> [3,30] <-> [1,10] <-> tail
+HashMap.remove(2)
+HashMap: {1 -> [1,10], 3 -> [3,30]}
+
+最终状态：
+head <-> [3,30] <-> [1,10] <-> tail
+HashMap: {1 -> [1,10], 3 -> [3,30]}
+```
+
+```java
+class LRUCache {
+
+    private final int capacity;              // 缓存容量
+    private final Map<Integer, Node> cache;  // HashMap：key -> Node 映射，O(1) 查找
+    private final Node head;                 // 哨兵节点：链表的虚拟头节点
+    private final Node tail;                 // 哨兵节点：链表的虚拟尾节点
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        cache = new HashMap<>();
+        // 创建两个哨兵节点，简化边界处理
+        head = new Node();
+        tail = new Node();
+        // 初始化：head 和 tail 互相指向
+        head.next = tail;
+        tail.prev = head;
+    }
+    
+    public int get(int key) {
+        Node node = cache.get(key);
+        if (node == null) {
+            // key 不存在，返回 -1
+            return -1;
+        }
+        // key 存在，将其移动到头部（标记为最近使用）
+        moveToHead(node);
+        return node.value;
+    }
+    
+    public void put(int key, int value) {
+        Node node = cache.get(key);
+        if (node != null) {
+            // key 已存在，更新值并移动到头部
+            node.value = value;
+            moveToHead(node);
+        } else {
+            // key 不存在，创建新节点并添加到头部
+            node = new Node(key, value);
+            addToHead(node);
+            cache.put(key, node);
+
+            // 如果容量超限，删除尾部节点（最久未使用）
+            if (cache.size() > capacity) {
+                Node removed = removeTail();
+                cache.remove(removed.key);  // 从 HashMap 中删除对应的 key
+            }
+        }
+    }
+
+    // 将节点添加到头部（head 之后）
+    // 步骤：1. node.prev = head
+    //      2. node.next = head.next
+    //      3. head.next.prev = node
+    //      4. head.next = node
+    private void addToHead(Node node) {
+        node.prev = head;              // 步骤1：设置 node 的前驱
+        node.next = head.next;         // 步骤2：设置 node 的后继
+        head.next.prev = node;         // 步骤3：更新原第一个节点的前驱
+        head.next = node;              // 步骤4：更新 head 的后继
+    }
+
+    // 从链表中移除节点（但不删除节点本身）
+    // 步骤：1. node.prev.next = node.next
+    //      2. node.next.prev = node.prev
+    private void removeNode(Node node) {
+        node.prev.next = node.next;    // 步骤1：前驱指向后继
+        node.next.prev = node.prev;    // 步骤2：后继指向前驱
+    }
+
+    // 将节点移动到头部
+    // 先移除，再添加到头部
+    private void moveToHead(Node node) {
+        removeNode(node);    // 从当前位置移除
+        addToHead(node);     // 添加到头部
+    }
+
+    // 删除尾部节点（最久未使用的节点）
+    // 返回被删除的节点，用于从 HashMap 中删除对应的 key
+    private Node removeTail() {
+        Node node = tail.prev;  // 尾部节点是 tail.prev
+        removeNode(node);       // 移除节点
+        return node;            // 返回节点（用于删除 HashMap 中的 key）
+    }
+
+    // 双向链表节点
+    static class Node {
+        int key;       // 存储 key，用于从 HashMap 中删除
+        int value;     // 存储 value
+        Node prev;     // 前驱节点
+        Node next;     // 后继节点
+
+        Node() {}  // 无参构造（用于创建哨兵节点）
+        Node(int key, int value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+}
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache obj = new LRUCache(capacity);
+ * int param_1 = obj.get(key);
+ * obj.put(key,value);
+ */
+
+// time: O(1), 所有操作都是 O(1)
+// space: O(capacity), HashMap 和双向链表都最多存储 capacity 个节点
+```
+
+**关键要点**：
+- ✅ **双向链表**：支持 O(1) 的节点删除（需要知道前驱节点）
+- ✅ **哨兵节点**：`head` 和 `tail` 简化边界处理，避免空指针检查
+- ✅ **HashMap 存储 key**：Node 中存储 key，用于从 HashMap 中删除
+- ✅ **移动操作**：`moveToHead` = `removeNode` + `addToHead`
+
+**复杂度分析**：
+- **时间复杂度**：O(1)，所有操作（`get`、`put`、`addToHead`、`removeNode`、`moveToHead`、`removeTail`）都是 O(1)
+- **空间复杂度**：O(capacity)，HashMap 和双向链表都最多存储 `capacity` 个节点
