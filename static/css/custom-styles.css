@@ -2,21 +2,18 @@
   stroke: lime;
 }
 
-/* Make Mermaid diagrams wider */
+/* Make Mermaid diagrams wider and responsive */
 .prose pre.mermaid {
     width: 100%;
     max-width: 100%;
     overflow-x: auto;
+    margin: 1.5em auto;
+    padding: 1em;
 }
 
 .prose pre.mermaid svg {
     width: 100% !important;
     max-width: 100%;
     height: auto !important;
-}
-
-/* Ensure Mermaid diagrams are centered and responsive */
-.prose pre.mermaid {
-    margin: 1.5em auto;
-    padding: 1em;
+    min-width: 600px; /* Ensure minimum width for readability */
 }
