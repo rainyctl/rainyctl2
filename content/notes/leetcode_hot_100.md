@@ -2313,19 +2313,9 @@ class Solution {
 
 **数据结构示意图**：
 
-{% mermaid() %}
-graph TB
-    H[head<br/>dummy] <--> N1[node1<br/>key,value]
-    N1 <--> N2[node2<br/>key,value]
-    N2 <--> N3[node3<br/>key,value]
-    N3 <--> T[tail<br/>dummy]
-    
-    style H fill:#e1f5ff
-    style T fill:#e1f5ff
-    style N1 fill:#fff4e6
-    style N2 fill:#fff4e6
-    style N3 fill:#fff4e6
-{% end %}
+```
+head (dummy) <-> node1 <-> node2 <-> node3 <-> tail (dummy)
+```
 
 每个节点有两个指针：`prev`（前驱）和 `next`（后继）
 
@@ -2381,29 +2371,29 @@ private void addToHead(Node node) {
 
 **步骤详解**：
 
-{% mermaid() %}
-graph TB
-    subgraph "初始状态"
-        H1[head] <--> N1[node1] <--> TARGET[要删除的 node] <--> N2[node2] <--> T1[tail]
-    end
-    
-    subgraph "步骤1: node.prev.next = node.next"
-        H2[head] <--> N3[node1] -->|next跳过| N4[node2]
-        TARGET2[node] -.->|已断开| N3
-        TARGET2 -.->|已断开| N4
-        N4 <--> T2[tail]
-    end
-    
-    subgraph "步骤2: node.next.prev = node.prev"
-        H3[head] <--> N5[node1] <--> N6[node2] <--> T3[tail]
-        TARGET3[node] -.->|孤立节点| X[不在链表中]
-    end
-    
-    subgraph "最终状态"
-        H4[head] <--> N7[node1] <--> N8[node2] <--> T4[tail]
-        NOTE[注意: node 的 prev 和 next 指针<br/>仍然保留，但不再在链表中]
-    end
-{% end %}
+```
+初始状态：
+head <-> node1 <-> node <-> node2 <-> tail
+                 ↑
+                要删除的 node
+
+步骤1：让 node 的前驱节点的 next 指向 node 的后继节点
+node.prev.next = node.next
+head <-> node1 -> node -> node2 <-> tail
+        <-       <-      <-
+(node1.next 现在指向 node2，跳过了 node)
+
+步骤2：让 node 的后继节点的 prev 指向 node 的前驱节点
+node.next.prev = node.prev
+head <-> node1 <-> node2 <-> tail
+        <-      <-
+(node2.prev 现在指向 node1)
+
+最终状态（node 已经从链表中移除）：
+head <-> node1 <-> node2 <-> tail
+
+注意：node 的 prev 和 next 指针仍然保留，但不再在链表中
+```
 
 **代码对应**：
 ```java
@@ -2419,25 +2409,24 @@ private void removeNode(Node node) {
 
 **步骤详解**：
 
-{% mermaid() %}
-graph TB
-    subgraph "初始状态"
-        H1[head] <--> N1[node1] <--> TARGET[要移动的 node] <--> N2[node2] <--> T1[tail]
-    end
-    
-    subgraph "步骤1: removeNode(node) - 从当前位置移除"
-        H2[head] <--> N3[node1] <--> N4[node2] <--> T2[tail]
-        TARGET2[node<br/>已脱离链表]
-    end
-    
-    subgraph "步骤2: addToHead(node) - 添加到头部"
-        H3[head] <--> TARGET3[node] <--> N5[node1] <--> N6[node2] <--> T3[tail]
-    end
-    
-    subgraph "最终状态"
-        H4[head] <--> TARGET4[node] <--> N7[node1] <--> N8[node2] <--> T4[tail]
-    end
-{% end %}
+```
+初始状态：
+head <-> node1 <-> node <-> node2 <-> tail
+                 ↑
+                要移动的 node
+
+步骤1：removeNode(node) - 从当前位置移除
+head <-> node1 <-> node2 <-> tail
+                 ↑
+                node（已脱离链表，但 prev 和 next 仍然保留）
+
+步骤2：addToHead(node) - 添加到头部
+head <-> node <-> node1 <-> node2 <-> tail
+     <-      <-      <-
+
+最终状态：
+head <-> node <-> node1 <-> node2 <-> tail
+```
 
 **代码对应**：
 ```java
@@ -2453,27 +2442,27 @@ private void moveToHead(Node node) {
 
 **步骤详解**：
 
-{% mermaid() %}
-graph TB
-    subgraph "初始状态"
-        H1[head] <--> N1[node1] <--> N2[node2] <--> N3[node3] <--> T1[tail]
-        NOTE1[tail.prev 指向 node3]
-    end
-    
-    subgraph "步骤1: 获取尾部节点"
-        H2[head] <--> N4[node1] <--> N5[node2] <--> TARGET[node3<br/>Node node = tail.prev] <--> T2[tail]
-    end
-    
-    subgraph "步骤2: removeNode(node) - 移除节点"
-        H3[head] <--> N6[node1] <--> N7[node2] <--> T3[tail]
-        TARGET2[node3<br/>已移除]
-    end
-    
-    subgraph "最终状态: 返回节点"
-        H4[head] <--> N8[node1] <--> N9[node2] <--> T4[tail]
-        NOTE2[返回 node3<br/>用于从 HashMap 删除 key]
-    end
-{% end %}
+```
+初始状态：
+head <-> node1 <-> node2 <-> node3 <-> tail
+                                   ↑
+                                  要删除的节点（tail.prev）
+
+步骤1：获取尾部节点
+Node node = tail.prev
+node 指向 node3
+
+步骤2：removeNode(node) - 移除节点
+head <-> node1 <-> node2 <-> tail
+                        ↑
+                       node3（已移除）
+
+步骤3：返回节点（用于从 HashMap 中删除对应的 key）
+return node
+
+最终状态：
+head <-> node1 <-> node2 <-> tail
+```
 
 **代码对应**：
 ```java
@@ -2488,38 +2477,51 @@ private Node removeTail() {
 
 **容量 capacity = 2**
 
-{% mermaid() %}
-graph TB
-    subgraph "初始状态"
-        H1[head] <--> T1[tail]
-        HM1["HashMap: {}"]
-    end
-    
-    subgraph "操作1: put(1, 10)"
-        H2[head] <--> N1["[1,10]"] <--> T2[tail]
-        HM2["HashMap: {1 → [1,10]}"]
-    end
-    
-    subgraph "操作2: put(2, 20)"
-        H3[head] <--> N2["[2,20]"] <--> N3["[1,10]"] <--> T3[tail]
-        HM3["HashMap: {1 → [1,10], 2 → [2,20]}"]
-    end
-    
-    subgraph "操作3: get(1) - moveToHead"
-        H4[head] <--> N4["[1,10]"] <--> N5["[2,20]"] <--> T4[tail]
-        HM4["HashMap: {1 → [1,10], 2 → [2,20]}<br/>返回: 10"]
-    end
-    
-    subgraph "操作4: put(3, 30) - 添加后"
-        H5[head] <--> N6["[3,30]"] <--> N7["[1,10]"] <--> N8["[2,20]"] <--> T5[tail]
-        HM5["HashMap: {1 → [1,10], 2 → [2,20], 3 → [3,30]}<br/>容量超限!"]
-    end
-    
-    subgraph "操作4: put(3, 30) - 删除尾部后"
-        H6[head] <--> N9["[3,30]"] <--> N10["[1,10]"] <--> T6[tail]
-        HM6["HashMap: {1 → [1,10], 3 → [3,30]}<br/>已删除 [2,20]"]
-    end
-{% end %}
+```
+初始状态：
+head <-> tail
+HashMap: {}
+
+操作1：put(1, 10)
+----------------------------------------
+addToHead(new Node(1, 10))：
+head <-> [1,10] <-> tail
+HashMap: {1 -> [1,10]}
+
+操作2：put(2, 20)
+----------------------------------------
+addToHead(new Node(2, 20))：
+head <-> [2,20] <-> [1,10] <-> tail
+HashMap: {1 -> [1,10], 2 -> [2,20]}
+
+操作3：get(1)
+----------------------------------------
+从 HashMap 找到 [1,10]
+moveToHead([1,10])：
+  1. removeNode([1,10])：
+     head <-> [2,20] <-> tail
+  2. addToHead([1,10])：
+     head <-> [1,10] <-> [2,20] <-> tail
+HashMap: {1 -> [1,10], 2 -> [2,20]}
+返回：10
+
+操作4：put(3, 30)
+----------------------------------------
+HashMap 中没有 3，需要添加
+addToHead(new Node(3, 30))：
+head <-> [3,30] <-> [1,10] <-> [2,20] <-> tail
+HashMap: {1 -> [1,10], 2 -> [2,20], 3 -> [3,30]}
+
+容量超限（size = 3 > capacity = 2）：
+removeTail() -> [2,20]
+head <-> [3,30] <-> [1,10] <-> tail
+HashMap.remove(2)
+HashMap: {1 -> [1,10], 3 -> [3,30]}
+
+最终状态：
+head <-> [3,30] <-> [1,10] <-> tail
+HashMap: {1 -> [1,10], 3 -> [3,30]}
+```
 
 ```java
 class LRUCache {
