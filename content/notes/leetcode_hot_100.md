@@ -2866,6 +2866,191 @@ p1 和 p2 在节点 3 相遇，节点 3 就是环入口
 - **时间复杂度**：O(n)，最坏情况下需要遍历整个链表
 - **空间复杂度**：O(1)，只使用了常数额外空间（两个指针）
 
+### 139. 单词拆分
+
+[LT.139. Word Break](https://leetcode.com/problems/word-break/)
+
+这道题的核心思想是使用**动态规划**，判断字符串 `s` 是否能被 `wordDict` 中的单词完全拆分。
+
+**思考过程**：
+1. **问题理解**：判断字符串 `s` 是否能被拆分成 `wordDict` 中的单词
+2. **子问题分解**：如果 `s[0..i]` 能被拆分，那么 `s[0..j]` 也能被拆分（j < i），且 `s[j..i]` 是一个单词
+3. **DP 状态定义**：`dp[i]` 表示 `s[0..i-1]`（前 i 个字符）是否能被拆分
+
+**核心思想 - DP 状态转移**：
+
+**DP 状态定义**：
+- `dp[i]` = `true` 表示字符串 `s` 的前 `i` 个字符（即 `s[0..i-1]`）可以被 `wordDict` 中的单词拆分
+- `dp[0] = true` 表示空字符串可以被拆分（基础情况）
+
+**索引含义**：
+- **`i`**：当前考虑的位置，表示前 `i` 个字符（`s[0..i-1]`）
+  - `i` 的范围：`1` 到 `n`（包含）
+  - `dp[i]` 表示 `s[0..i-1]` 是否能被拆分
+- **`j`**：分割点，表示前 `j` 个字符（`s[0..j-1]`）已经被拆分
+  - `j` 的范围：`0` 到 `i-1`
+  - `dp[j]` 表示 `s[0..j-1]` 是否能被拆分
+  - `s.substring(j, i)` 表示从位置 `j` 到 `i-1` 的子串
+
+**状态转移方程**：
+```
+dp[i] = true 当且仅当存在 j (0 <= j < i) 使得：
+  - dp[j] == true（前 j 个字符可以被拆分）
+  - s.substring(j, i) 在 wordDict 中（剩余部分是一个单词）
+```
+
+**可视化示例**：
+
+```
+示例：s = "leetcode", wordDict = ["leet", "code"]
+
+字符串索引： 0  1  2  3  4  5  6  7
+            l  e  e  t  c  o  d  e
+           [0][1][2][3][4][5][6][7]
+
+DP 数组索引：0  1  2  3  4  5  6  7  8
+            [空][l][le][lee][leet][leetc][leetco][leetcod][leetcode]
+
+初始状态：
+dp[0] = true  (空字符串可以被拆分)
+
+i=1: 检查 s[0..0] = "l"
+  j=0: dp[0]=true, s[0..0]="l" 不在字典中
+  dp[1] = false
+
+i=2: 检查 s[0..1] = "le"
+  j=0: dp[0]=true, s[0..1]="le" 不在字典中
+  j=1: dp[1]=false, 跳过
+  dp[2] = false
+
+i=3: 检查 s[0..2] = "lee"
+  j=0: dp[0]=true, s[0..2]="lee" 不在字典中
+  j=1,2: dp[1]=false, dp[2]=false, 跳过
+  dp[3] = false
+
+i=4: 检查 s[0..3] = "leet"
+  j=0: dp[0]=true, s[0..3]="leet" 在字典中！✓
+  dp[4] = true
+
+i=5: 检查 s[0..4] = "leetc"
+  j=0: dp[0]=true, s[0..4]="leetc" 不在字典中
+  j=1,2,3: dp[1]=false, dp[2]=false, dp[3]=false, 跳过
+  j=4: dp[4]=true, s[4..4]="c" 不在字典中
+  dp[5] = false
+
+i=6: 检查 s[0..5] = "leetco"
+  j=0: dp[0]=true, s[0..5]="leetco" 不在字典中
+  j=1,2,3: dp[1]=false, dp[2]=false, dp[3]=false, 跳过
+  j=4: dp[4]=true, s[4..5]="co" 不在字典中
+  j=5: dp[5]=false, 跳过
+  dp[6] = false
+
+i=7: 检查 s[0..6] = "leetcod"
+  j=0: dp[0]=true, s[0..6]="leetcod" 不在字典中
+  j=1,2,3: dp[1]=false, dp[2]=false, dp[3]=false, 跳过
+  j=4: dp[4]=true, s[4..6]="cod" 不在字典中
+  j=5,6: dp[5]=false, dp[6]=false, 跳过
+  dp[7] = false
+
+i=8: 检查 s[0..7] = "leetcode"
+  j=0: dp[0]=true, s[0..7]="leetcode" 不在字典中
+  j=1,2,3: dp[1]=false, dp[2]=false, dp[3]=false, 跳过
+  j=4: dp[4]=true, s[4..7]="code" 在字典中！✓
+  dp[8] = true
+
+最终结果：dp[8] = true，字符串可以被拆分
+```
+
+**关键理解**：
+- **`i` 表示位置**：`dp[i]` 表示前 `i` 个字符（`s[0..i-1]`）是否能被拆分
+- **`j` 表示分割点**：尝试所有可能的分割点 `j`，检查：
+  - 前 `j` 个字符是否能被拆分（`dp[j] == true`）
+  - 从 `j` 到 `i-1` 的子串是否是一个单词（`s.substring(j, i)` 在字典中）
+- **一旦找到有效的分割点，就可以 `break`**：因为只需要知道能否拆分，不需要找到所有拆分方式
+
+```java
+class Solution {
+    public boolean wordBreak(String s, List<String> wordDict) {
+        int n = s.length();
+        // 使用 HashSet 提高查找效率，O(1) 查找
+        Set<String> words = new HashSet<>(wordDict);
+        // dp[i] 表示 s 的前 i 个字符（s[0..i-1]）是否能被 wordDict 拆分
+        boolean[] dp = new boolean[n + 1];
+        // 基础情况：空字符串可以被拆分
+        dp[0] = true;
+
+        // i 表示当前考虑的位置，从 1 到 n
+        // dp[i] 表示前 i 个字符（s[0..i-1]）是否能被拆分
+        for (int i = 1; i <= n; i++) {
+            // j 表示分割点，尝试所有可能的分割位置（0 到 i-1）
+            // 检查前 j 个字符是否能被拆分，且 s[j..i-1] 是否是一个单词
+            for (int j = 0; j < i; j++) {
+                // 如果前 j 个字符能被拆分，且 s[j..i-1] 在字典中
+                if (dp[j] && words.contains(s.substring(j, i))) {
+                    dp[i] = true;
+                    // 找到一种拆分方式即可，提前退出
+                    break;
+                }
+            }
+        }
+
+        // dp[n] 表示整个字符串 s 是否能被拆分
+        return dp[n];
+    }
+}
+
+// time: O(n²), n 是字符串长度，外层循环 n 次，内层循环最多 n 次
+// space: O(n), dp 数组的空间，加上 HashSet 的空间 O(m)，m 是字典大小
+```
+
+**执行过程可视化（简化版）**：
+
+```
+s = "leetcode", wordDict = ["leet", "code"]
+
+i=1: 检查 "l"
+  j=0: dp[0]=true, "l" 不在字典 → dp[1]=false
+
+i=2: 检查 "le"
+  j=0: dp[0]=true, "le" 不在字典 → dp[2]=false
+
+i=3: 检查 "lee"
+  j=0: dp[0]=true, "lee" 不在字典 → dp[3]=false
+
+i=4: 检查 "leet"
+  j=0: dp[0]=true, "leet" 在字典 ✓ → dp[4]=true
+
+i=5: 检查 "leetc"
+  j=0: dp[0]=true, "leetc" 不在字典
+  j=4: dp[4]=true, "c" 不在字典 → dp[5]=false
+
+i=6: 检查 "leetco"
+  j=0: dp[0]=true, "leetco" 不在字典
+  j=4: dp[4]=true, "co" 不在字典 → dp[6]=false
+
+i=7: 检查 "leetcod"
+  j=0: dp[0]=true, "leetcod" 不在字典
+  j=4: dp[4]=true, "cod" 不在字典 → dp[7]=false
+
+i=8: 检查 "leetcode"
+  j=0: dp[0]=true, "leetcode" 不在字典
+  j=4: dp[4]=true, "code" 在字典 ✓ → dp[8]=true
+
+返回：dp[8] = true
+```
+
+**关键要点**：
+- ✅ **DP 状态**：`dp[i]` 表示前 `i` 个字符是否能被拆分
+- ✅ **索引含义**：
+  - `i`：当前考虑的位置，表示前 `i` 个字符
+  - `j`：分割点，尝试所有可能的分割位置
+- ✅ **状态转移**：`dp[i] = true` 当且仅当存在 `j` 使得 `dp[j] == true` 且 `s[j..i-1]` 在字典中
+- ✅ **优化**：使用 `HashSet` 提高查找效率，找到有效分割点后 `break`
+
+**复杂度分析**：
+- **时间复杂度**：O(n²)，外层循环 n 次，内层循环最多 n 次，`substring` 操作 O(n)
+- **空间复杂度**：O(n + m)，`dp` 数组 O(n)，`HashSet` O(m)（m 是字典大小）
+
 ### 141. 环形链表
 
 [LT.141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
