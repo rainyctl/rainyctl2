@@ -11,6 +11,7 @@ tags = ["leetcode", "algorithm"]
 
 [extra]
 toc = true
+mermaid = true
 +++
 
 ## 引言
@@ -50,7 +51,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 16 | <input type='checkbox' checked> | 152 | M | 动态规划, 数组 | [乘积最大子数组](https://leetcode.cn/problems/maximum-product-subarray/) | [Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/) |
 | 17 | <input type='checkbox' checked> | 148 | M | 链表, 归并排序, 快慢指针 | [排序链表](https://leetcode.cn/problems/sort-list/) | [Sort List](https://leetcode.com/problems/sort-list/) |
 | 18 | <input type='checkbox' checked> | 146 | M | 哈希表, 双向链表, LRU | [LRU缓存](https://leetcode.cn/problems/lru-cache/) | [LRU Cache](https://leetcode.com/problems/lru-cache/) |
-| 19 | <input type='checkbox'> | 142 | M | 链表, 快慢指针, 数学 | [环形链表II](https://leetcode.cn/problems/linked-list-cycle-ii/) | [Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/) |
+| 19 | <input type='checkbox' checked> | 142 | M | 链表, 快慢指针, 数学 | [环形链表II](https://leetcode.cn/problems/linked-list-cycle-ii/) | [Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/) |
 | 20 | <input type='checkbox'> | 141 | E | 链表, 快慢指针, 哈希表 | [环形链表](https://leetcode.cn/problems/linked-list-cycle/) | [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/) |
 | 21 | <input type='checkbox'> | 139 | M | 动态规划, 字符串 | [单词拆分](https://leetcode.cn/problems/word-break/) | [Word Break](https://leetcode.com/problems/word-break/) |
 | 22 | <input type='checkbox'> | 136 | E | 位运算, 异或 | [只出现一次的数字](https://leetcode.cn/problems/single-number/) | [Single Number](https://leetcode.com/problems/single-number/) |
