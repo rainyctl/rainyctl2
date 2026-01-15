@@ -2782,17 +2782,6 @@ graph TB
 {% end %}
 
 ```java
-/**
- * Definition for singly-linked list.
- * class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode(int x) {
- *         val = x;
- *         next = null;
- *     }
- * }
- */
 public class Solution {
     public ListNode detectCycle(ListNode head) {
         ListNode slow = head;
@@ -2823,6 +2812,17 @@ public class Solution {
         return null;
     }
 }
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
 
 // time: O(n), n 是链表长度
 // space: O(1), 只使用了常数额外空间
@@ -2957,17 +2957,6 @@ graph TB
 {% end %}
 
 ```java
-/**
- * Definition for singly-linked list.
- * class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode(int x) {
- *         val = x;
- *         next = null;
- *     }
- * }
- */
 public class Solution {
     public boolean hasCycle(ListNode head) {
         ListNode slow = head;
@@ -2988,6 +2977,17 @@ public class Solution {
         return false;
     }
 }
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
 
 // time: O(n), n 是链表长度
 // space: O(1), 只使用了常数额外空间
