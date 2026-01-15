@@ -2644,3 +2644,211 @@ class LRUCache {
 **复杂度分析**：
 - **时间复杂度**：O(1)，所有操作（`get`、`put`、`addToHead`、`removeNode`、`moveToHead`、`removeTail`）都是 O(1)
 - **空间复杂度**：O(capacity)，HashMap 和双向链表都最多存储 `capacity` 个节点
+
+### 141. 环形链表
+
+[LT.141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
+
+这道题是问题 142 的简化版本，只需要判断链表中是否存在环，不需要找到环的入口。同样使用**Floyd 判圈算法**（快慢指针）。
+
+**思考过程**：
+1. **快慢指针**：slow 每次走 1 步，fast 每次走 2 步
+2. **检测相遇**：如果链表中有环，fast 必然会追上 slow，两者会相遇
+3. **无环情况**：如果链表中没有环，fast 会先走到 `null`
+
+**核心思想**：
+- **有环**：fast 和 slow 都会进入环，fast 速度更快，最终会追上 slow
+- **无环**：fast 会先到达链表末尾（`null`），不会相遇
+
+**可视化示例**：
+
+**情况一：有环**
+
+{% mermaid() %}
+graph TB
+    subgraph "初始状态"
+        H1[head] --> N1[节点1]
+        N1 --> N2[节点2]
+        N2 --> N3[节点3]
+        N3 --> N4[节点4]
+        N4 --> N5[节点5]
+        N5 --> N3
+        
+        S1[slow = head]
+        F1[fast = head]
+    end
+    
+    subgraph "移动过程"
+        H2[head] --> N6[节点1]
+        N6 --> N7[节点2]
+        N7 --> N8[节点3]
+        N8 --> N9[节点4]
+        N9 --> N10[节点5]
+        N10 --> N8
+        
+        S2[slow 在节点2]
+        F2[fast 在节点4]
+        NOTE1[fast 追上 slow]
+    end
+    
+    subgraph "相遇（有环）"
+        H3[head] --> N11[节点1]
+        N11 --> N12[节点2]
+        N12 --> N13[节点3]
+        N13 --> N14[节点4]
+        N14 --> N15[节点5]
+        N15 --> N13
+        
+        MEET[slow 和 fast<br/>在节点4相遇]
+        RESULT1[返回 true]
+        
+        style MEET fill:#ffcccc
+        style RESULT1 fill:#ccffcc
+    end
+{% end %}
+
+**情况二：无环**
+
+{% mermaid() %}
+graph TB
+    subgraph "初始状态"
+        H4[head] --> N16[节点1]
+        N16 --> N17[节点2]
+        N17 --> N18[节点3]
+        N18 --> N19[节点4]
+        N19 --> NULL1[NULL]
+        
+        S3[slow = head]
+        F3[fast = head]
+    end
+    
+    subgraph "移动过程"
+        H5[head] --> N20[节点1]
+        N20 --> N21[节点2]
+        N21 --> N22[节点3]
+        N22 --> N23[节点4]
+        N23 --> NULL2[NULL]
+        
+        S4[slow 在节点2]
+        F4[fast 在节点4]
+        NOTE2[fast 先到达末尾]
+    end
+    
+    subgraph "fast 到达 NULL（无环）"
+        H6[head] --> N24[节点1]
+        N24 --> N25[节点2]
+        N25 --> N26[节点3]
+        N26 --> N27[节点4]
+        N27 --> NULL3[NULL]
+        
+        F5[fast = NULL]
+        RESULT2[返回 false]
+        
+        style NULL3 fill:#ffcccc
+        style RESULT2 fill:#ffcccc
+    end
+{% end %}
+
+```java
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public boolean hasCycle(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head;
+
+        // 使用快慢指针检测环
+        while (fast != null && fast.next != null) {
+            slow = slow.next;        // slow 每次走 1 步
+            fast = fast.next.next;   // fast 每次走 2 步
+
+            // 如果 slow 和 fast 相遇，说明存在环
+            if (slow == fast) {
+                return true;
+            }
+        }
+
+        // 如果 fast 走到 null，说明没有环
+        return false;
+    }
+}
+
+// time: O(n), n 是链表长度
+// space: O(1), 只使用了常数额外空间
+```
+
+**执行过程可视化**：
+
+```
+情况一：有环
+链表：head -> 1 -> 2 -> 3 -> 4 -> 5 -> 3 (形成环)
+                    ↑________________|
+
+初始：slow = head, fast = head
+
+第1步：slow = 1, fast = 2
+第2步：slow = 2, fast = 4
+第3步：slow = 3, fast = 3 (相遇！)
+返回：true
+
+情况二：无环
+链表：head -> 1 -> 2 -> 3 -> 4 -> NULL
+
+初始：slow = head, fast = head
+
+第1步：slow = 1, fast = 2
+第2步：slow = 2, fast = 4
+第3步：slow = 3, fast = NULL (fast.next 为 null，退出循环)
+返回：false
+```
+
+**其他解法对比**：
+
+#### 方法二：哈希表（HashSet）
+
+```java
+public class Solution {
+    public boolean hasCycle(ListNode head) {
+        Set<ListNode> visited = new HashSet<>();
+        ListNode cur = head;
+        
+        while (cur != null) {
+            if (visited.contains(cur)) {
+                return true; // 遇到已访问的节点，说明有环
+            }
+            visited.add(cur);
+            cur = cur.next;
+        }
+        
+        return false; // 遍历完没有重复，说明无环
+    }
+}
+// time: O(n)
+// space: O(n), 需要存储所有节点
+```
+
+**方法对比**：
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+|------|-----------|-----------|------|
+| **快慢指针（你的方法）** | O(n) | O(1) | ✅ 最优，无需额外空间 |
+| 哈希表 | O(n) | O(n) | 需要额外空间存储节点 |
+
+**关键要点**：
+- ✅ **Floyd 判圈算法**：使用快慢指针检测环
+- ✅ **有环必相遇**：如果存在环，fast 必然会追上 slow
+- ✅ **无环检测**：fast 会先到达 `null`，循环退出
+- ✅ **空间优化**：O(1) 空间，比哈希表方法更优
+
+**复杂度分析**：
+- **时间复杂度**：O(n)，最坏情况下需要遍历整个链表
+- **空间复杂度**：O(1)，只使用了常数额外空间（两个指针）
