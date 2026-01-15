@@ -2314,7 +2314,7 @@ class Solution {
 **数据结构示意图**：
 
 {% mermaid() %}
-graph LR
+graph TB
     H[head<br/>dummy] <--> N1[node1<br/>key,value]
     N1 <--> N2[node2<br/>key,value]
     N2 <--> N3[node3<br/>key,value]
