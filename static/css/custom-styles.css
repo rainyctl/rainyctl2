@@ -1,3 +1,22 @@
 #heartbeat .highlight {
   stroke: lime;
 }
+
+/* Make Mermaid diagrams wider */
+.prose pre.mermaid {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.prose pre.mermaid svg {
+    width: 100% !important;
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Ensure Mermaid diagrams are centered and responsive */
+.prose pre.mermaid {
+    margin: 1.5em auto;
+    padding: 1em;
+}
