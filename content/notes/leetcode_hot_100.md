@@ -2703,96 +2703,82 @@ graph TB
 
 **阶段一：检测环（快慢指针相遇）**
 
+初始状态：slow 和 fast 都在 head
+
 {% mermaid() %}
 graph TB
-    subgraph "初始状态"
-        H1[head] --> N1[节点1]
-        N1 --> N2[节点2]
-        N2 --> E1[环入口]
-        E1 --> N3[节点3]
-        N3 --> N4[节点4]
-        N4 --> N5[节点5]
-        N5 --> E1
-        
-        S1[slow = head]
-        F1[fast = head]
-    end
+    H[head] --> N1[节点1]
+    N1 --> N2[节点2]
+    N2 --> E[环入口]
+    E --> N3[节点3]
+    N3 --> N4[节点4]
+    N4 --> N5[节点5]
+    N5 --> E
     
-    subgraph "相遇前"
-        H2[head] --> N6[节点1]
-        N6 --> N7[节点2]
-        N7 --> E2[环入口]
-        E2 --> N8[节点3]
-        N8 --> N9[节点4]
-        N9 --> N10[节点5]
-        N10 --> E2
-        
-        S2[slow 在节点2]
-        F2[fast 在节点4]
-        NOTE1[fast 追上 slow]
-    end
+    S[slow = head]
+    F[fast = head]
     
-    subgraph "相遇点"
-        H3[head] --> N11[节点1]
-        N11 --> N12[节点2]
-        N12 --> E3[环入口]
-        E3 --> N13[节点3]
-        N13 --> MEET[相遇点]
-        MEET --> N14[节点5]
-        N14 --> E3
-        
-        S3[slow 和 fast<br/>在相遇点相遇]
-        F3[相遇点]
-        
-        style MEET fill:#ffcccc
-    end
+    style H fill:#e1f5ff
+    style E fill:#ffcccc
+    style S fill:#ccffcc
+    style F fill:#ccffcc
+{% end %}
+
+相遇点：slow 和 fast 在环中相遇
+
+{% mermaid() %}
+graph TB
+    H1[head] --> N1[节点1]
+    N1 --> N2[节点2]
+    N2 --> E1[环入口]
+    E1 --> N3[节点3]
+    N3 --> MEET[相遇点]
+    MEET --> N4[节点5]
+    N4 --> E1
+    
+    style MEET fill:#ffcccc
+    style E1 fill:#ffcccc
 {% end %}
 
 **阶段二：寻找环入口（两个指针从 head 和相遇点出发）**
 
+阶段二开始：p1 从 head 出发，p2 从相遇点出发
+
 {% mermaid() %}
 graph TB
-    subgraph "阶段二开始"
-        H4[head] --> N15[节点1]
-        N15 --> N16[节点2]
-        N16 --> E4[环入口]
-        E4 --> N17[节点3]
-        N17 --> MEET1[相遇点]
-        MEET1 --> N18[节点5]
-        N18 --> E4
-        
-        P1[p1 = head<br/>从头开始]
-        P2[p2 = 相遇点<br/>从相遇点开始]
-    end
+    H[head] --> N1[节点1]
+    N1 --> N2[节点2]
+    N2 --> E[环入口]
+    E --> N3[节点3]
+    N3 --> MEET[相遇点]
+    MEET --> N4[节点5]
+    N4 --> E
     
-    subgraph "移动过程"
-        H5[head] --> N19[节点1]
-        N19 --> N20[节点2]
-        N20 --> E5[环入口]
-        E5 --> N21[节点3]
-        N21 --> MEET2[相遇点]
-        MEET2 --> N22[节点5]
-        N22 --> E5
-        
-        P3[p1 移动到节点1]
-        P4[p2 移动到节点5]
-        NOTE2[同时移动，每次各走 1 步]
-    end
+    P1[p1 = head]
+    P2[p2 = 相遇点]
     
-    subgraph "相遇在环入口"
-        H6[head] --> N23[节点1]
-        N23 --> N24[节点2]
-        N24 --> E6[环入口]
-        E6 --> N25[节点3]
-        N25 --> MEET3[相遇点]
-        MEET3 --> N26[节点5]
-        N26 --> E6
-        
-        P5[p1 和 p2<br/>在环入口相遇]
-        P6[返回环入口]
-        
-        style E6 fill:#ffcccc
-    end
+    style E fill:#ffcccc
+    style MEET fill:#fff4e6
+    style P1 fill:#ccffcc
+    style P2 fill:#ccffcc
+{% end %}
+
+最终相遇在环入口：p1 和 p2 在环入口相遇
+
+{% mermaid() %}
+graph TB
+    H1[head] --> N1[节点1]
+    N1 --> N2[节点2]
+    N2 --> E[环入口]
+    E --> N3[节点3]
+    N3 --> MEET1[相遇点]
+    MEET1 --> N4[节点5]
+    N4 --> E
+    
+    P3[p1 和 p2<br/>在环入口相遇]
+    
+    style E fill:#ffcccc
+    style P3 fill:#ccffcc
 {% end %}
 
 ```java
@@ -2899,89 +2885,75 @@ p1 和 p2 在节点 3 相遇，节点 3 就是环入口
 
 **情况一：有环**
 
+初始状态：slow 和 fast 都在 head
+
 {% mermaid() %}
 graph TB
-    subgraph "初始状态"
-        H1[head] --> N1[节点1]
-        N1 --> N2[节点2]
-        N2 --> N3[节点3]
-        N3 --> N4[节点4]
-        N4 --> N5[节点5]
-        N5 --> N3
-        
-        S1[slow = head]
-        F1[fast = head]
-    end
+    H[head] --> N1[节点1]
+    N1 --> N2[节点2]
+    N2 --> N3[节点3]
+    N3 --> N4[节点4]
+    N4 --> N5[节点5]
+    N5 --> N3
     
-    subgraph "移动过程"
-        H2[head] --> N6[节点1]
-        N6 --> N7[节点2]
-        N7 --> N8[节点3]
-        N8 --> N9[节点4]
-        N9 --> N10[节点5]
-        N10 --> N8
-        
-        S2[slow 在节点2]
-        F2[fast 在节点4]
-        NOTE1[fast 追上 slow]
-    end
+    S[slow = head]
+    F[fast = head]
     
-    subgraph "相遇（有环）"
-        H3[head] --> N11[节点1]
-        N11 --> N12[节点2]
-        N12 --> N13[节点3]
-        N13 --> N14[节点4]
-        N14 --> N15[节点5]
-        N15 --> N13
-        
-        MEET[slow 和 fast<br/>在节点4相遇]
-        RESULT1[返回 true]
-        
-        style MEET fill:#ffcccc
-        style RESULT1 fill:#ccffcc
-    end
+    style S fill:#ccffcc
+    style F fill:#ccffcc
+{% end %}
+
+相遇点：slow 和 fast 在环中相遇，返回 true
+
+{% mermaid() %}
+graph TB
+    H1[head] --> N1[节点1]
+    N1 --> N2[节点2]
+    N2 --> N3[节点3]
+    N3 --> MEET[相遇点]
+    MEET --> N4[节点5]
+    N4 --> N3
+    
+    RESULT[返回 true]
+    
+    style MEET fill:#ffcccc
+    style RESULT fill:#ccffcc
 {% end %}
 
 **情况二：无环**
 
+初始状态：slow 和 fast 都在 head
+
 {% mermaid() %}
 graph TB
-    subgraph "初始状态"
-        H4[head] --> N16[节点1]
-        N16 --> N17[节点2]
-        N17 --> N18[节点3]
-        N18 --> N19[节点4]
-        N19 --> NULL1[NULL]
-        
-        S3[slow = head]
-        F3[fast = head]
-    end
+    H[head] --> N1[节点1]
+    N1 --> N2[节点2]
+    N2 --> N3[节点3]
+    N3 --> N4[节点4]
+    N4 --> NULL[NULL]
     
-    subgraph "移动过程"
-        H5[head] --> N20[节点1]
-        N20 --> N21[节点2]
-        N21 --> N22[节点3]
-        N22 --> N23[节点4]
-        N23 --> NULL2[NULL]
-        
-        S4[slow 在节点2]
-        F4[fast 在节点4]
-        NOTE2[fast 先到达末尾]
-    end
+    S[slow = head]
+    F[fast = head]
     
-    subgraph "fast 到达 NULL（无环）"
-        H6[head] --> N24[节点1]
-        N24 --> N25[节点2]
-        N25 --> N26[节点3]
-        N26 --> N27[节点4]
-        N27 --> NULL3[NULL]
-        
-        F5[fast = NULL]
-        RESULT2[返回 false]
-        
-        style NULL3 fill:#ffcccc
-        style RESULT2 fill:#ffcccc
-    end
+    style S fill:#ccffcc
+    style F fill:#ccffcc
+{% end %}
+
+fast 到达 NULL：fast 先到达末尾，返回 false
+
+{% mermaid() %}
+graph TB
+    H1[head] --> N1[节点1]
+    N1 --> N2[节点2]
+    N2 --> N3[节点3]
+    N3 --> N4[节点4]
+    N4 --> NULL[NULL]
+    
+    F[fast = NULL]
+    RESULT[返回 false]
+    
+    style NULL fill:#ffcccc
+    style RESULT fill:#ffcccc
 {% end %}
 
 ```java
