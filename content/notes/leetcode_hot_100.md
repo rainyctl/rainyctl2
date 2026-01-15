@@ -2645,6 +2645,241 @@ class LRUCache {
 - **时间复杂度**：O(1)，所有操作（`get`、`put`、`addToHead`、`removeNode`、`moveToHead`、`removeTail`）都是 O(1)
 - **空间复杂度**：O(capacity)，HashMap 和双向链表都最多存储 `capacity` 个节点
 
+### 142. 环形链表II
+
+[LT.142. Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/)
+
+这道题的核心思想是使用**Floyd 判圈算法**（Floyd Cycle Detection Algorithm），也称为"龟兔赛跑算法"。算法分为两个阶段：第一阶段检测是否有环，第二阶段找到环的入口。
+
+**思考过程**：
+1. **阶段一：检测环**：使用快慢指针，slow 每次走 1 步，fast 每次走 2 步
+   - 如果链表中没有环：fast 会先走到 `null`，不会相遇
+   - 如果链表中有环：fast 必然会追上 slow，最终两者会相遇
+2. **阶段二：寻找环入口**：当两个指针相遇后，从 head 和相遇点分别出发，每次各走 1 步，最终会在环入口相遇
+
+**核心思想 - 数学证明**：
+
+假设：
+- `L` = 从 head 到环入口的距离
+- `C` = 环的长度
+- `x` = 从环入口到相遇点的距离
+
+当 slow 和 fast 相遇时：
+- slow 走的距离：`L + x`
+- fast 走的距离：`L + x + nC`（n 是 fast 在环中多走的圈数）
+
+由于 fast 的速度是 slow 的 2 倍：
+```
+2(L + x) = L + x + nC
+2L + 2x = L + x + nC
+L + x = nC
+L = nC - x = (n-1)C + (C - x)
+```
+
+这意味着：
+- **从 head 到环入口的距离 = 从相遇点到环入口的距离（可能加上整数倍的环长）**
+- 因此，从 head 和相遇点同时出发，每次各走 1 步，最终会在环入口相遇
+
+**可视化示例**：
+
+{% mermaid() %}
+graph TB
+    H[head] --> N1[节点1]
+    N1 --> N2[节点2]
+    N2 --> E[环入口]
+    E --> N3[节点3]
+    N3 --> N4[节点4]
+    N4 --> N5[节点5]
+    N5 --> E
+    
+    style H fill:#e1f5ff
+    style E fill:#ffcccc
+    style N1 fill:#fff4e6
+    style N2 fill:#fff4e6
+    style N3 fill:#fff4e6
+    style N4 fill:#fff4e6
+    style N5 fill:#fff4e6
+{% end %}
+
+**阶段一：检测环（快慢指针相遇）**
+
+{% mermaid() %}
+graph TB
+    subgraph "初始状态"
+        H1[head] --> N1[节点1]
+        N1 --> N2[节点2]
+        N2 --> E1[环入口]
+        E1 --> N3[节点3]
+        N3 --> N4[节点4]
+        N4 --> N5[节点5]
+        N5 --> E1
+        
+        S1[slow = head]
+        F1[fast = head]
+    end
+    
+    subgraph "相遇前"
+        H2[head] --> N6[节点1]
+        N6 --> N7[节点2]
+        N7 --> E2[环入口]
+        E2 --> N8[节点3]
+        N8 --> N9[节点4]
+        N9 --> N10[节点5]
+        N10 --> E2
+        
+        S2[slow 在节点2]
+        F2[fast 在节点4]
+        NOTE1[fast 追上 slow]
+    end
+    
+    subgraph "相遇点"
+        H3[head] --> N11[节点1]
+        N11 --> N12[节点2]
+        N12 --> E3[环入口]
+        E3 --> N13[节点3]
+        N13 --> MEET[相遇点]
+        MEET --> N14[节点5]
+        N14 --> E3
+        
+        S3[slow 和 fast<br/>在相遇点相遇]
+        F3[相遇点]
+        
+        style MEET fill:#ffcccc
+    end
+{% end %}
+
+**阶段二：寻找环入口（两个指针从 head 和相遇点出发）**
+
+{% mermaid() %}
+graph TB
+    subgraph "阶段二开始"
+        H4[head] --> N15[节点1]
+        N15 --> N16[节点2]
+        N16 --> E4[环入口]
+        E4 --> N17[节点3]
+        N17 --> MEET1[相遇点]
+        MEET1 --> N18[节点5]
+        N18 --> E4
+        
+        P1[p1 = head<br/>从头开始]
+        P2[p2 = 相遇点<br/>从相遇点开始]
+    end
+    
+    subgraph "移动过程"
+        H5[head] --> N19[节点1]
+        N19 --> N20[节点2]
+        N20 --> E5[环入口]
+        E5 --> N21[节点3]
+        N21 --> MEET2[相遇点]
+        MEET2 --> N22[节点5]
+        N22 --> E5
+        
+        P3[p1 移动到节点1]
+        P4[p2 移动到节点5]
+        NOTE2[同时移动，每次各走 1 步]
+    end
+    
+    subgraph "相遇在环入口"
+        H6[head] --> N23[节点1]
+        N23 --> N24[节点2]
+        N24 --> E6[环入口]
+        E6 --> N25[节点3]
+        N25 --> MEET3[相遇点]
+        MEET3 --> N26[节点5]
+        N26 --> E6
+        
+        P5[p1 和 p2<br/>在环入口相遇]
+        P6[返回环入口]
+        
+        style E6 fill:#ffcccc
+    end
+{% end %}
+
+```java
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head;
+
+        // 阶段一：检测是否有环
+        while (fast != null && fast.next != null) {
+            slow = slow.next;        // slow 每次走 1 步
+            fast = fast.next.next;   // fast 每次走 2 步
+
+            // 如果 slow 和 fast 相遇，说明存在环
+            if (slow == fast) {
+                // 阶段二：寻找环入口
+                // 从 head 和相遇点分别出发，每次各走 1 步
+                ListNode p1 = head;
+                ListNode p2 = fast;  // p2 从相遇点出发
+                
+                // 当 p1 和 p2 相遇时，就是环的入口
+                while (p1 != p2) {
+                    p1 = p1.next;
+                    p2 = p2.next;
+                }
+                return p1; // 返回环入口
+            }
+        }
+
+        // 如果 fast 走到 null，说明没有环
+        return null;
+    }
+}
+
+// time: O(n), n 是链表长度
+// space: O(1), 只使用了常数额外空间
+```
+
+**执行过程可视化**：
+
+```
+示例链表：head -> 1 -> 2 -> 3 -> 4 -> 5 -> 3 (形成环)
+                         ↑________________|
+
+阶段一：检测环
+----------------------------------------------------------
+初始：slow = head, fast = head
+
+第1步：slow = 1, fast = 2
+第2步：slow = 2, fast = 4
+第3步：slow = 3, fast = 3 (相遇！)
+
+相遇点在节点 3，说明存在环
+
+阶段二：寻找环入口
+----------------------------------------------------------
+初始：p1 = head, p2 = 相遇点(节点3)
+
+第1步：p1 = 1, p2 = 4
+第2步：p1 = 2, p2 = 5
+第3步：p1 = 3, p2 = 3 (相遇！)
+
+p1 和 p2 在节点 3 相遇，节点 3 就是环入口
+返回节点 3
+```
+
+**关键要点**：
+- ✅ **Floyd 判圈算法**：使用快慢指针检测环
+- ✅ **两阶段算法**：先检测环，再找入口
+- ✅ **数学证明**：L = nC - x，从 head 到入口的距离 = 从相遇点到入口的距离
+- ✅ **时间复杂度**：O(n)，每个节点最多被访问两次
+
+**复杂度分析**：
+- **时间复杂度**：O(n)，最坏情况下需要遍历整个链表
+- **空间复杂度**：O(1)，只使用了常数额外空间（两个指针）
+
 ### 141. 环形链表
 
 [LT.141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
