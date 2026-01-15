@@ -2325,35 +2325,36 @@ head (dummy) <-> node1 <-> node2 <-> node3 <-> tail (dummy)
 
 **步骤详解**：
 
-{% mermaid() %}
-graph TB
-    subgraph "初始状态"
-        H1[head] <--> N1[node1] <--> N2[node2] <--> T1[tail]
-        NEW[new node]
-    end
-    
-    subgraph "步骤1: node.prev = head"
-        H2[head] -.->|prev| NEW
-        NEW -.->|next| N3[node1]
-        N3 <--> N4[node2] <--> T2[tail]
-    end
-    
-    subgraph "步骤2: node.next = head.next"
-        H3[head] -.->|prev| NEW2
-        NEW2 -->|next| N5[node1]
-        N5 <--> N6[node2] <--> T3[tail]
-    end
-    
-    subgraph "步骤3: head.next.prev = node"
-        H4[head] -.->|prev| NEW3
-        NEW3 <-->|双向链接| N7[node1]
-        N7 <--> N8[node2] <--> T4[tail]
-    end
-    
-    subgraph "最终状态: head.next = node"
-        H5[head] <--> NEW4[new node] <--> N9[node1] <--> N10[node2] <--> T5[tail]
-    end
-{% end %}
+```
+初始状态：
+head <-> node1 <-> node2 <-> tail
+        ↑
+      要插入的 node
+
+步骤1：设置 node 的 prev 指向 head
+node.prev = head
+head <-> node  (node.prev = head)
+        <-> node1 <-> node2 <-> tail
+
+步骤2：设置 node 的 next 指向 head.next（即原来的第一个节点）
+node.next = head.next
+head <-> node -> node1 <-> node2 <-> tail
+        <-       ↑
+        (node.prev = head, node.next = node1)
+
+步骤3：让 node1 的 prev 指向 node
+head.next.prev = node
+head <-> node <-> node1 <-> node2 <-> tail
+        <-      <-      <- 
+
+步骤4：让 head 的 next 指向 node
+head.next = node
+head -> node <-> node1 <-> node2 <-> tail
+     <-      <-      <- 
+
+最终状态：
+head <-> node <-> node1 <-> node2 <-> tail
+```
 
 **代码对应**：
 ```java
