@@ -9,6 +9,7 @@ tags = ["leetcode", "algorithm"]
 
 [extra]
 toc = true
+mermaid = true
 +++
 
 ## 引言
