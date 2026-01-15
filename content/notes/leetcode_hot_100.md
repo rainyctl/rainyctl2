@@ -3,6 +3,8 @@ title = "LeetCode Hot 100"
 description = "LeetCode Hot 100 Problem List (Chinese & English)"
 date = 2026-01-09
 updated = 2026-01-09
+template = "post.html"
+insert_anchor_links = "right"
 
 [taxonomies]
 tags = ["leetcode", "algorithm"]
