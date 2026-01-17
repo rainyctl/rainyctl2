@@ -55,7 +55,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 20 | <input type='checkbox' checked> | 141 | E | 链表, 快慢指针, 哈希表 | [环形链表](https://leetcode.cn/problems/linked-list-cycle/) | [Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/) |
 | 21 | <input type='checkbox' checked> | 139 | M | 动态规划, 字符串 | [单词拆分](https://leetcode.cn/problems/word-break/) | [Word Break](https://leetcode.com/problems/word-break/) |
 | 22 | <input type='checkbox' checked> | 136 | E | 位运算, 异或 | [只出现一次的数字](https://leetcode.cn/problems/single-number/) | [Single Number](https://leetcode.com/problems/single-number/) |
-| 23 | <input type='checkbox'> | 647 | M | 字符串, 动态规划, 中心扩展 | [回文子串](https://leetcode.cn/problems/palindromic-substrings/) | [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/) |
+| 23 | <input type='checkbox' checked> | 647 | M | 字符串, 动态规划, 中心扩展 | [回文子串](https://leetcode.cn/problems/palindromic-substrings/) | [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/) |
 | 24 | <input type='checkbox'> | 128 | M | 数组, 哈希表, 并查集 | [最长连续序列](https://leetcode.cn/problems/longest-consecutive-sequence/) | [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/) |
 | 25 | <input type='checkbox'> | 124 | H | 二叉树, DFS, 递归 | [二叉树中的最大路径和](https://leetcode.cn/problems/binary-tree-maximum-path-sum/) | [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/) |
 | 26 | <input type='checkbox'> | 322 | M | 动态规划, 完全背包 | [零钱兑换](https://leetcode.cn/problems/coin-change/) | [Coin Change](https://leetcode.com/problems/coin-change/) |
@@ -3243,6 +3243,286 @@ class Solution {
 **复杂度分析**：
 - **时间复杂度**：O(n)，需要遍历一次数组
 - **空间复杂度**：O(1)，只使用了常数额外空间（变量 `res`）
+
+### 647. 回文子串
+
+[LT.647. Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
+
+这道题的核心思想是使用**中心扩展算法（Center Expansion）**，从每个可能的中心位置向两边扩展，统计所有回文子串的数量。
+
+**思考过程**：
+1. **问题理解**：统计字符串中所有回文子串的数量（包括单个字符）
+2. **关键洞察**：每个回文子串都有一个中心，可以从中心向两边扩展
+3. **两种情况**：
+   - **奇数长度**：中心是一个字符（如 "aba"，中心是 'b'）
+   - **偶数长度**：中心是两个字符之间（如 "abba"，中心在两个 'b' 之间）
+4. **解决方案**：遍历每个可能的中心位置，向两边扩展，统计回文子串
+
+**核心思想 - 中心扩展算法**：
+
+**中心扩展的特点**：
+1. **奇数长度回文**：中心在单个字符上，如 "aba"，中心在索引 1 的 'b'
+2. **偶数长度回文**：中心在两个字符之间，如 "abba"，中心在索引 1 和 2 之间
+3. **扩展规则**：从中心向两边同时扩展，如果左右字符相同，则继续扩展；否则停止
+
+**为什么需要两种扩展？**
+
+回文串有两种可能的形式：
+- **奇数长度**：`a b a`（中心在字符 'b' 上）
+- **偶数长度**：`a b b a`（中心在两个 'b' 之间）
+
+因此需要两种扩展方式：
+- `expand(i, i)`：以字符 `i` 为中心，检查奇数长度回文
+- `expand(i, i + 1)`：以字符 `i` 和 `i + 1` 之间为中心，检查偶数长度回文
+
+**可视化示例**：
+
+```
+示例：s = "abc"
+所有回文子串：a, b, c（共 3 个）
+
+i=0 (字符 'a'):
+  奇数扩展：expand(0, 0)
+    left=0, right=0: 'a' == 'a' ✓, count=1
+    left=-1, right=1: 越界，停止
+    返回 1
+
+  偶数扩展：expand(0, 1)
+    left=0, right=1: 'a' == 'b' ✗, 停止
+    返回 0
+
+i=1 (字符 'b'):
+  奇数扩展：expand(1, 1)
+    left=1, right=1: 'b' == 'b' ✓, count=1
+    left=0, right=2: 'a' == 'c' ✗, 停止
+    返回 1
+
+  偶数扩展：expand(1, 2)
+    left=1, right=2: 'b' == 'c' ✗, 停止
+    返回 0
+
+i=2 (字符 'c'):
+  奇数扩展：expand(2, 2)
+    left=2, right=2: 'c' == 'c' ✓, count=1
+    left=1, right=3: 越界，停止
+    返回 1
+
+  偶数扩展：expand(2, 3)
+    left=2, right=3: 越界（right >= n），停止
+    返回 0
+
+总计数：1 + 0 + 1 + 0 + 1 + 0 = 3 ✓
+```
+
+**更复杂的示例**：
+
+```
+示例：s = "aaa"
+所有回文子串：a, a, a, aa, aa, aaa（共 6 个）
+
+i=0 (字符 'a'):
+  奇数扩展：expand(0, 0)
+    left=0, right=0: 'a' == 'a' ✓, count=1
+    left=-1, right=1: 越界，停止
+    返回 1（找到 "a"）
+
+  偶数扩展：expand(0, 1)
+    left=0, right=1: 'a' == 'a' ✓, count=1
+    left=-1, right=2: 越界，停止
+    返回 1（找到 "aa"）
+
+i=1 (字符 'a'):
+  奇数扩展：expand(1, 1)
+    left=1, right=1: 'a' == 'a' ✓, count=1
+    left=0, right=2: 'a' == 'a' ✓, count=2
+    left=-1, right=3: 越界，停止
+    返回 2（找到 "a", "aaa"）
+
+  偶数扩展：expand(1, 2)
+    left=1, right=2: 'a' == 'a' ✓, count=1
+    left=0, right=3: 越界，停止
+    返回 1（找到 "aa"）
+
+i=2 (字符 'a'):
+  奇数扩展：expand(2, 2)
+    left=2, right=2: 'a' == 'a' ✓, count=1
+    left=1, right=3: 越界，停止
+    返回 1（找到 "a"）
+
+  偶数扩展：expand(2, 3)
+    left=2, right=3: 越界，停止
+    返回 0
+
+总计数：1 + 1 + 2 + 1 + 1 + 0 = 6 ✓
+```
+
+```java
+class Solution {
+    public int countSubstrings(String s) {
+        int n = s.length();
+        int count = 0;
+        
+        // 遍历每个可能的中心位置
+        for (int i = 0; i < n; i++) {
+            // 情况1：奇数长度的回文串，中心在字符 i 上
+            // 例如 "aba"，中心在 'b'（索引1）
+            count += expand(s, i, i);
+            
+            // 情况2：偶数长度的回文串，中心在字符 i 和 i+1 之间
+            // 例如 "abba"，中心在两个 'b' 之间（索引1和2之间）
+            count += expand(s, i, i + 1);
+        }
+        return count;
+    }
+
+    /**
+     * 从中心位置向两边扩展，统计回文子串的数量
+     * @param s 字符串
+     * @param left 左边界（包含）
+     * @param right 右边界（包含）
+     * @return 以 (left, right) 为中心的回文子串数量
+     */
+    private int expand(String s, int left, int right) {
+        int n = s.length();
+        int count = 0;
+        
+        // 向两边扩展，直到字符不匹配或越界
+        while (left >= 0 && right < n && s.charAt(left) == s.charAt(right)) {
+            count++;      // 找到一个回文子串
+            left--;       // 向左扩展
+            right++;      // 向右扩展
+        }
+        
+        return count;
+    }
+}
+
+// time: O(n²), 外层循环 n 次，每次 expand 最多 O(n)
+// space: O(1), 只使用了常数额外空间
+```
+
+**执行过程可视化**：
+
+```
+示例：s = "aba"
+所有回文子串：a, b, a, aba（共 4 个）
+
+i=0 (字符 'a'):
+  奇数扩展：expand(0, 0)
+    初始：left=0, right=0, count=0
+    第1次：s[0]=='a'==s[0] ✓, count=1, left=-1, right=1
+    检查：left=-1 < 0，停止
+    返回 1（找到 "a"）
+
+  偶数扩展：expand(0, 1)
+    初始：left=0, right=1, count=0
+    第1次：s[0]=='a'==s[1]=='b' ✗，停止
+    返回 0
+
+i=1 (字符 'b'):
+  奇数扩展：expand(1, 1)
+    初始：left=1, right=1, count=0
+    第1次：s[1]=='b'==s[1] ✓, count=1, left=0, right=2
+    第2次：s[0]=='a'==s[2]=='a' ✓, count=2, left=-1, right=3
+    检查：left=-1 < 0，停止
+    返回 2（找到 "b", "aba"）
+
+  偶数扩展：expand(1, 2)
+    初始：left=1, right=2, count=0
+    第1次：s[1]=='b'==s[2]=='a' ✗，停止
+    返回 0
+
+i=2 (字符 'a'):
+  奇数扩展：expand(2, 2)
+    初始：left=2, right=2, count=0
+    第1次：s[2]=='a'==s[2] ✓, count=1, left=1, right=3
+    检查：right=3 >= n=3，停止
+    返回 1（找到 "a"）
+
+  偶数扩展：expand(2, 3)
+    初始：left=2, right=3, count=0
+    检查：right=3 >= n=3，停止
+    返回 0
+
+总计数：1 + 0 + 2 + 0 + 1 + 0 = 4 ✓
+```
+
+**其他解法对比**：
+
+#### 方法二：动态规划
+
+```java
+class Solution {
+    public int countSubstrings(String s) {
+        int n = s.length();
+        boolean[][] dp = new boolean[n][n];
+        int count = 0;
+        
+        // dp[i][j] 表示 s[i..j] 是否是回文串
+        // 从下往上、从左往右填充 dp 数组
+        
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = i; j < n; j++) {
+                // 单个字符一定是回文
+                if (i == j) {
+                    dp[i][j] = true;
+                    count++;
+                }
+                // 两个字符相同，也是回文
+                else if (j == i + 1 && s.charAt(i) == s.charAt(j)) {
+                    dp[i][j] = true;
+                    count++;
+                }
+                // 长度 >= 3：两端字符相同，且中间部分是回文
+                else if (s.charAt(i) == s.charAt(j) && dp[i + 1][j - 1]) {
+                    dp[i][j] = true;
+                    count++;
+                }
+            }
+        }
+        
+        return count;
+    }
+}
+// time: O(n²)
+// space: O(n²), 需要 dp 数组
+```
+
+**方法对比**：
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+|------|-----------|-----------|------|
+| **中心扩展（你的方法）** | O(n²) | O(1) | ✅ 最优空间复杂度，思路直观 |
+| 动态规划 | O(n²) | O(n²) | 需要额外空间存储状态 |
+
+**关键要点**：
+- ✅ **中心扩展算法**：从每个可能的中心向两边扩展
+- ✅ **两种中心**：单个字符（奇数长度）和两个字符之间（偶数长度）
+- ✅ **扩展规则**：左右字符相同时继续扩展，否则停止
+- ✅ **空间优化**：O(1) 空间，比动态规划方法更优
+- ✅ **边界检查**：`left >= 0 && right < n` 防止越界
+
+**为什么这种方法有效？**
+
+1. **完备性**：每个回文子串都有一个中心，所有可能的中心都被考虑到了
+   - 奇数长度：n 个中心位置（每个字符）
+   - 偶数长度：n-1 个中心位置（每两个字符之间）
+   - 总共：n + (n-1) = 2n-1 个中心位置
+
+2. **正确性**：从中心向两边扩展，只统计满足回文条件的子串
+   - 如果 `s[left] == s[right]`，则 `s[left..right]` 是回文
+   - 继续扩展可以找到更长的回文子串
+
+3. **避免重复**：每个中心独立扩展，不会重复计数
+   - `expand(i, i)` 统计以字符 i 为中心的所有奇数长度回文
+   - `expand(i, i+1)` 统计以 i 和 i+1 之间为中心的所有偶数长度回文
+
+**复杂度分析**：
+- **时间复杂度**：O(n²)
+  - 外层循环：O(n)，遍历每个可能的中心位置
+  - `expand` 函数：最坏情况下每个中心扩展 O(n) 次（如 "aaa...aaa"）
+  - 总体：O(n) × O(n) = O(n²)
+- **空间复杂度**：O(1)，只使用了常数额外空间（变量 `count`）
 
 ### 141. 环形链表
 
