@@ -57,7 +57,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 22 | <input type='checkbox' checked> | 136 | E | 位运算, 异或 | [只出现一次的数字](https://leetcode.cn/problems/single-number/) | [Single Number](https://leetcode.com/problems/single-number/) |
 | 23 | <input type='checkbox' checked> | 647 | M | 字符串, 动态规划, 中心扩展 | [回文子串](https://leetcode.cn/problems/palindromic-substrings/) | [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/) |
 | 24 | <input type='checkbox' checked> | 128 | M | 数组, 哈希表, 并查集 | [最长连续序列](https://leetcode.cn/problems/longest-consecutive-sequence/) | [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/) |
-| 25 | <input type='checkbox'> | 124 | H | 二叉树, DFS, 递归 | [二叉树中的最大路径和](https://leetcode.cn/problems/binary-tree-maximum-path-sum/) | [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/) |
+| 25 | <input type='checkbox' checked> | 124 | H | 二叉树, DFS, 递归 | [二叉树中的最大路径和](https://leetcode.cn/problems/binary-tree-maximum-path-sum/) | [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/) |
 | 26 | <input type='checkbox'> | 322 | M | 动态规划, 完全背包 | [零钱兑换](https://leetcode.cn/problems/coin-change/) | [Coin Change](https://leetcode.com/problems/coin-change/) |
 | 27 | <input type='checkbox'> | 494 | M | 动态规划, 背包问题 | [目标和](https://leetcode.cn/problems/target-sum/) | [Target Sum](https://leetcode.com/problems/target-sum/) |
 | 28 | <input type='checkbox'> | 461 | E | 位运算, 异或 | [汉明距离](https://leetcode.cn/problems/hamming-distance/) | [Hamming Distance](https://leetcode.com/problems/hamming-distance/) |
@@ -3995,3 +3995,257 @@ class Solution {
   - 扩展过程：每个数字最多参与一次扩展，总共 O(n)
   - 总体：O(n) + O(n) + O(n) = O(n)
 - **空间复杂度**：O(n)，HashSet 存储所有数字
+
+### 124. 二叉树中的最大路径和
+
+[LT.124. Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
+
+这道题的核心思想是使用**后序遍历（Post-order Traversal）**，从下往上计算每个节点能够贡献的最大路径和。关键在于区分"向上返回的单边路径"和"以当前节点为转折点的完整路径"。
+
+**思考过程**：
+1. **问题理解**：找到二叉树中任意节点到任意节点的路径，使得路径上节点值的和最大
+2. **关键洞察**：
+   - 路径可以在任意节点"转折"（经过该节点）
+   - 对于每个节点，可以有两种路径：
+     - **向上返回的路径**：只能是一条单边路径（不能分叉），供父节点使用
+     - **以当前节点为转折点的路径**：可以包含左右子树（`node.val + left + right`）
+3. **解决方案**：使用后序遍历，自底向上计算每个节点的最大贡献
+
+**核心思想 - 后序遍历 + 路径贡献**：
+
+**关键区分**：
+- **`dfs` 返回值**：从当前节点**向上**能提供的最大单边路径（只能选左边或右边，不能同时选）
+- **全局最大值更新**：以当前节点为**转折点**的完整路径（`node.val + left + right`）
+
+**为什么使用后序遍历？**
+
+后序遍历（左右根）能够保证在计算当前节点时，左右子树的结果已经计算好了，可以自底向上逐步构建答案。
+
+**为什么 `dfs` 只返回单边路径？**
+
+因为路径向上传递时，只能是一条路径，不能分叉。如果同时选择左右子树，路径就会"分叉"，无法向上传递。
+
+**可视化示例**：
+
+```
+示例树：
+     -10
+    /    \
+   9     20
+        /   \
+      15     7
+
+后序遍历过程：
+
+节点 9：
+  left = dfs(9.left) = dfs(null) = 0
+  right = dfs(9.right) = dfs(null) = 0
+  curPath = 9 + 0 + 0 = 9
+  maxSum = max(MIN_VALUE, 9) = 9
+  返回：9 + max(0, 0) = 9（向上只能返回单边路径）
+
+节点 15：
+  left = dfs(15.left) = 0
+  right = dfs(15.right) = 0
+  curPath = 15 + 0 + 0 = 15
+  maxSum = max(9, 15) = 15
+  返回：15 + max(0, 0) = 15
+
+节点 7：
+  left = dfs(7.left) = 0
+  right = dfs(7.right) = 0
+  curPath = 7 + 0 + 0 = 7
+  maxSum = max(15, 7) = 15
+  返回：7 + max(0, 0) = 7
+
+节点 20：
+  left = dfs(20.left) = dfs(15) = 15（15的贡献）
+  right = dfs(20.right) = dfs(7) = 7（7的贡献）
+  curPath = 20 + 15 + 7 = 42（以20为转折点的完整路径）
+  maxSum = max(15, 42) = 42 ✓
+  返回：20 + max(15, 7) = 35（向上只能返回单边路径：20->15 或 20->7）
+
+节点 -10：
+  left = dfs(-10.left) = dfs(9) = 9
+  right = dfs(-10.right) = dfs(20) = 35（20返回的单边路径）
+  curPath = -10 + 9 + 35 = 34
+  maxSum = max(42, 34) = 42
+  返回：-10 + max(9, 35) = 25（向上返回 -10->20->15）
+
+最终结果：maxSum = 42（路径：15 -> 20 -> 7）
+```
+
+**为什么要 `Math.max(x, 0)`？**
+
+如果子树的贡献是负数，加上它只会让路径变小，所以应该舍弃（视为0）。这样保证向上返回的贡献值至少是当前节点本身的值。
+
+```
+示例：节点值为负数
+   5
+  / \
+-3   4
+
+如果节点 -3 的贡献是 -3：
+  left = -3（负数）
+  curPath = 5 + (-3) + 4 = 6
+
+如果舍弃负数（视为0）：
+  left = max(-3, 0) = 0
+  curPath = 5 + 0 + 4 = 9 ✓（更优）
+```
+
+```java
+class Solution {
+    // 全局最大值，记录所有可能路径中的最大值
+    private int maxSum = Integer.MIN_VALUE;
+
+    public int maxPathSum(TreeNode root) {
+        dfs(root);
+        return maxSum;
+    }
+    
+    /**
+     * 后序遍历：计算从当前节点向上能提供的最大单边路径
+     * @param node 当前节点
+     * @return 从当前节点向上能提供的最大单边路径和（只能选择左或右，不能同时选）
+     */
+    private int dfs(TreeNode node) {
+        // 空节点贡献为 0
+        if (node == null) {
+            return 0;
+        }
+        
+        // 计算左右子树的最大贡献（负数直接舍弃，视为0）
+        // 如果贡献是负数，加上它只会让路径变小，所以舍弃
+        int left = Math.max(dfs(node.left), 0);
+        int right = Math.max(dfs(node.right), 0);
+        
+        // 以当前节点为转折点的完整路径（可以包含左右子树）
+        // 这是所有可能路径中的一种，用来更新全局最大值
+        int curPath = node.val + left + right;
+        maxSum = Math.max(maxSum, curPath);
+        
+        // 向上返回单边路径（只能选择左或右，不能同时选）
+        // 因为路径向上传递时不能分叉
+        return node.val + Math.max(left, right);
+    }
+}
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+
+// time: O(n), 每个节点访问一次
+// space: O(h), 递归栈高度，h 为树的高度（最坏情况下 O(n)，平衡树 O(log n)）
+```
+
+**执行过程可视化**：
+
+```
+示例树：
+       -10
+      /    \
+     9     20
+          /   \
+        15     7
+
+后序遍历过程（自底向上）：
+
+1. 访问节点 9（叶子节点）
+   left = 0, right = 0
+   curPath = 9 + 0 + 0 = 9
+   maxSum = max(MIN_VALUE, 9) = 9
+   返回：9 + max(0, 0) = 9
+
+2. 访问节点 15（叶子节点）
+   left = 0, right = 0
+   curPath = 15 + 0 + 0 = 15
+   maxSum = max(9, 15) = 15
+   返回：15 + max(0, 0) = 15
+
+3. 访问节点 7（叶子节点）
+   left = 0, right = 0
+   curPath = 7 + 0 + 0 = 7
+   maxSum = max(15, 7) = 15
+   返回：7 + max(0, 0) = 7
+
+4. 访问节点 20（内部节点）
+   left = 15（来自节点15的返回值）
+   right = 7（来自节点7的返回值）
+   curPath = 20 + 15 + 7 = 42（以20为转折点）
+   maxSum = max(15, 42) = 42 ✓
+   返回：20 + max(15, 7) = 35（向上只能返回单边）
+
+5. 访问节点 -10（根节点）
+   left = 9（来自节点9的返回值）
+   right = 35（来自节点20的返回值）
+   curPath = -10 + 9 + 35 = 34
+   maxSum = max(42, 34) = 42
+   返回：-10 + max(9, 35) = 25
+
+最终结果：maxSum = 42（路径：15 -> 20 -> 7）
+```
+
+**关键要点**：
+
+1. **后序遍历**：保证在处理当前节点时，左右子树的结果已计算好
+2. **返回值 vs 全局最大值**：
+   - **返回值**：单边路径（供父节点使用）
+   - **全局最大值**：完整路径（以当前节点为转折点）
+3. **负数处理**：`Math.max(x, 0)` 舍弃负贡献
+4. **路径不能分叉**：向上返回时只能选择左或右
+
+**面试常见追问**：
+
+**Q1：为什么不能返回左右之和？**
+
+👉 **因为向上只能是一条路径，不能分叉**
+
+如果返回 `node.val + left + right`，路径就会在节点处"分叉"，无法向上传递。父节点无法同时使用左右两条路径，所以只能返回单边路径的最大值。
+
+**示例**：
+```
+    A
+   / \
+  B   C
+
+如果 B 返回 left + right（分叉路径），A 无法使用
+A 只能选择：A + max(B的贡献, C的贡献)
+```
+
+**Q2：为什么要 `Math.max(x, 0)`？**
+
+👉 **因为负贡献只会让路径变小**
+
+如果子树的路径和为负数，加上它只会降低整体路径和。因此，当贡献为负时应该舍弃（视为0），只使用当前节点本身的值。
+
+**示例**：
+```
+节点 5，左子树贡献 -3，右子树贡献 4
+
+如果不舍弃负数：
+  curPath = 5 + (-3) + 4 = 6
+  返回：5 + max(-3, 4) = 9
+
+如果舍弃负数（视为0）：
+  curPath = 5 + 0 + 4 = 9 ✓（更优）
+  返回：5 + max(0, 4) = 9
+```
+
+**复杂度分析**：
+- **时间复杂度**：O(n)，每个节点访问一次
+- **空间复杂度**：O(h)，递归栈高度
+  - 最坏情况：O(n)（树退化为链表）
+  - 平衡树：O(log n)
+
