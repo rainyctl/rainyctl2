@@ -56,7 +56,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 21 | <input type='checkbox' checked> | 139 | M | 动态规划, 字符串 | [单词拆分](https://leetcode.cn/problems/word-break/) | [Word Break](https://leetcode.com/problems/word-break/) |
 | 22 | <input type='checkbox' checked> | 136 | E | 位运算, 异或 | [只出现一次的数字](https://leetcode.cn/problems/single-number/) | [Single Number](https://leetcode.com/problems/single-number/) |
 | 23 | <input type='checkbox' checked> | 647 | M | 字符串, 动态规划, 中心扩展 | [回文子串](https://leetcode.cn/problems/palindromic-substrings/) | [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/) |
-| 24 | <input type='checkbox'> | 128 | M | 数组, 哈希表, 并查集 | [最长连续序列](https://leetcode.cn/problems/longest-consecutive-sequence/) | [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/) |
+| 24 | <input type='checkbox' checked> | 128 | M | 数组, 哈希表, 并查集 | [最长连续序列](https://leetcode.cn/problems/longest-consecutive-sequence/) | [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/) |
 | 25 | <input type='checkbox'> | 124 | H | 二叉树, DFS, 递归 | [二叉树中的最大路径和](https://leetcode.cn/problems/binary-tree-maximum-path-sum/) | [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/) |
 | 26 | <input type='checkbox'> | 322 | M | 动态规划, 完全背包 | [零钱兑换](https://leetcode.cn/problems/coin-change/) | [Coin Change](https://leetcode.com/problems/coin-change/) |
 | 27 | <input type='checkbox'> | 494 | M | 动态规划, 背包问题 | [目标和](https://leetcode.cn/problems/target-sum/) | [Target Sum](https://leetcode.com/problems/target-sum/) |
@@ -3523,6 +3523,284 @@ class Solution {
   - `expand` 函数：最坏情况下每个中心扩展 O(n) 次（如 "aaa...aaa"）
   - 总体：O(n) × O(n) = O(n²)
 - **空间复杂度**：O(1)，只使用了常数额外空间（变量 `count`）
+
+### 128. 最长连续序列
+
+[LT.128. Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
+
+这道题的核心思想是使用**哈希集合（HashSet）**来存储所有数字，然后只从每个连续序列的**最小数字**开始扩展，这样确保每个数字最多被访问一次，时间复杂度为 O(n)。
+
+**思考过程**：
+1. **问题理解**：找出数组中最长连续数字序列的长度（不要求元素在原数组中是连续的）
+2. **关键洞察**：
+   - 使用 HashSet 存储所有数字，实现 O(1) 查找
+   - 只从每个连续序列的**最小数字**开始扩展（即 `num - 1` 不在集合中）
+   - 这样可以确保每个数字只被访问一次
+3. **解决方案**：遍历 HashSet，对于每个可能的起始数字（`num - 1` 不在集合中），向右扩展直到序列结束
+
+**核心思想 - 只从最小数字开始扩展**：
+
+**为什么只从最小数字开始？**
+
+每个连续序列都有一个最小数字。如果我们只从这个最小数字开始扩展，那么：
+- **序列中的其他数字**：它们的 `num - 1` 都在集合中，所以不会作为起始点
+- **避免重复计算**：每个连续序列只会被计算一次，从它的最小数字开始
+- **保证线性时间**：每个数字最多被访问两次（检查是否起始点 + 扩展时访问一次）
+
+**可视化示例**：
+
+```
+示例：nums = [100, 4, 200, 1, 3, 2]
+连续序列：
+  - [1, 2, 3, 4]：长度为 4
+  - [100]：长度为 1
+  - [200]：长度为 1
+
+HashSet = {100, 4, 200, 1, 3, 2}
+
+遍历过程：
+
+num = 100:
+  检查：set.contains(100 - 1) = set.contains(99) = false ✓
+  100 是起始点（[100] 的最小数字）
+  扩展：cur = 100
+    - set.contains(101) = false，停止
+  长度：len = 1
+  maxLen = max(0, 1) = 1
+
+num = 4:
+  检查：set.contains(4 - 1) = set.contains(3) = true ✗
+  4 不是起始点（3 在集合中，说明 4 不是最小数字）
+  跳过，继续下一个
+
+num = 200:
+  检查：set.contains(200 - 1) = set.contains(199) = false ✓
+  200 是起始点（[200] 的最小数字）
+  扩展：cur = 200
+    - set.contains(201) = false，停止
+  长度：len = 1
+  maxLen = max(1, 1) = 1
+
+num = 1:
+  检查：set.contains(1 - 1) = set.contains(0) = false ✓
+  1 是起始点（[1, 2, 3, 4] 的最小数字）
+  扩展：cur = 1
+    - set.contains(2) = true ✓, len = 2, cur = 2
+    - set.contains(3) = true ✓, len = 3, cur = 3
+    - set.contains(4) = true ✓, len = 4, cur = 4
+    - set.contains(5) = false，停止
+  长度：len = 4
+  maxLen = max(1, 4) = 4
+
+num = 3:
+  检查：set.contains(3 - 1) = set.contains(2) = true ✗
+  3 不是起始点（2 在集合中）
+  跳过，继续下一个
+
+num = 2:
+  检查：set.contains(2 - 1) = set.contains(1) = true ✗
+  2 不是起始点（1 在集合中）
+  跳过，继续下一个
+
+最终结果：maxLen = 4 ✓
+```
+
+**为什么时间复杂度是 O(n)？**
+
+这是这道题最关键的洞察。虽然看起来有两层循环，但实际上**每个数字最多被访问常数次**：
+
+1. **HashSet 构建**：O(n) 时间
+2. **外层循环**：遍历 HashSet 中的 n 个数字，O(n)
+3. **起始点检查**：每个数字检查一次 `set.contains(num - 1)`，O(1)，总共 O(n)
+4. **扩展过程**：每个数字最多参与一次扩展（当它作为某个序列的一部分时）
+
+**关键证明：每个数字最多被访问 O(1) 次**
+
+- **情况1：数字是某个序列的最小数字**
+  - 在外层循环中访问一次（检查 `num - 1`）
+  - 在扩展过程中访问一次（从它开始扩展）
+  - 总共：2 次
+
+- **情况2：数字不是序列的最小数字（`num - 1` 在集合中）**
+  - 在外层循环中访问一次（检查 `num - 1`，发现存在，跳过）
+  - 在扩展过程中访问一次（当从最小数字扩展时遇到它）
+  - 总共：2 次
+
+**重要观察**：
+- 每个连续序列只被计算一次（从最小数字开始）
+- 序列中的每个数字最多被访问两次（检查 + 扩展）
+- 因此总时间复杂度为 O(n)
+
+**更详细的分析**：
+
+```
+示例：nums = [3, 1, 2, 5, 4]
+连续序列：[1, 2, 3, 4, 5]，长度为 5
+
+HashSet = {3, 1, 2, 5, 4}
+
+访问计数：
+
+数字 1：
+  - 外层循环：检查 set.contains(0) = false，是起始点（访问1次）
+  - 扩展过程：从 1 开始扩展（访问1次）
+  - 总计：2 次
+
+数字 2：
+  - 外层循环：检查 set.contains(1) = true，不是起始点，跳过（访问1次）
+  - 扩展过程：从 1 扩展时访问 2（访问1次）
+  - 总计：2 次
+
+数字 3：
+  - 外层循环：检查 set.contains(2) = true，不是起始点，跳过（访问1次）
+  - 扩展过程：从 1 扩展时访问 3（访问1次）
+  - 总计：2 次
+
+数字 4：
+  - 外层循环：检查 set.contains(3) = true，不是起始点，跳过（访问1次）
+  - 扩展过程：从 1 扩展时访问 4（访问1次）
+  - 总计：2 次
+
+数字 5：
+  - 外层循环：检查 set.contains(4) = true，不是起始点，跳过（访问1次）
+  - 扩展过程：从 1 扩展时访问 5（访问1次）
+  - 总计：2 次
+
+总访问次数：5 个数字 × 2 次 = 10 次 = O(n) ✓
+```
+
+```java
+class Solution {
+    public int longestConsecutive(int[] nums) {
+        int maxLen = 0;
+        // 将所有数字存入 HashSet，实现 O(1) 查找
+        Set<Integer> set = new HashSet<>();
+        for (int num : nums) {
+            set.add(num);
+        }
+        
+        // 遍历 HashSet 中的每个数字
+        for (int num : set) {
+            // 关键：只从每个连续序列的最小数字开始扩展
+            // 如果 num - 1 在集合中，说明 num 不是最小数字，跳过
+            if (!set.contains(num - 1)) {
+                int cur = num;      // 当前数字
+                int len = 1;        // 当前序列长度
+                
+                // 向右扩展，直到序列结束
+                while (set.contains(cur + 1)) {
+                    len++;          // 找到下一个连续数字，长度 +1
+                    cur++;          // 移动到下一个数字
+                }
+                
+                // 更新最大长度
+                maxLen = Math.max(maxLen, len);
+            }
+        }
+        return maxLen;
+    }
+}
+
+// time: O(n), 虽然有两层循环，但每个数字最多被访问 2 次（检查 + 扩展）
+// space: O(n), HashSet 存储所有数字
+```
+
+**执行过程可视化**：
+
+```
+示例：nums = [0, 3, 7, 2, 5, 8, 4, 6, 0, 1]
+连续序列：
+  - [0, 1, 2, 3, 4, 5, 6, 7, 8]：长度为 9
+  - 0 出现两次，但不影响结果
+
+HashSet = {0, 3, 7, 2, 5, 8, 4, 6, 1}
+
+遍历过程（只展示起始点的扩展）：
+
+num = 0:
+  检查：set.contains(-1) = false ✓
+  扩展：[0, 1, 2, 3, 4, 5, 6, 7, 8]
+  长度：9
+  maxLen = 9
+
+其他数字（3, 7, 2, 5, 8, 4, 6, 1）：
+  它们的 num - 1 都在集合中，跳过
+
+最终结果：maxLen = 9 ✓
+```
+
+**其他解法对比**：
+
+#### 方法二：排序（不推荐）
+
+```java
+class Solution {
+    public int longestConsecutive(int[] nums) {
+        if (nums.length == 0) return 0;
+        
+        Arrays.sort(nums);
+        int maxLen = 1;
+        int curLen = 1;
+        
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] == nums[i - 1]) {
+                continue; // 跳过重复数字
+            } else if (nums[i] == nums[i - 1] + 1) {
+                curLen++;
+                maxLen = Math.max(maxLen, curLen);
+            } else {
+                curLen = 1;
+            }
+        }
+        
+        return maxLen;
+    }
+}
+// time: O(n log n), 排序需要 O(n log n)
+// space: O(1), 如果排序算法是原地的
+```
+
+**方法对比**：
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+|------|-----------|-----------|------|
+| **HashSet（你的方法）** | O(n) | O(n) | ✅ 最优时间复杂度，思路巧妙 |
+| 排序 | O(n log n) | O(1) | 简单但时间复杂度更高 |
+
+**关键要点**：
+- ✅ **只从最小数字开始扩展**：确保每个连续序列只被计算一次
+- ✅ **HashSet 优化查找**：O(1) 时间检查数字是否存在
+- ✅ **线性时间复杂度**：每个数字最多被访问 2 次（检查起始点 + 扩展时访问）
+- ✅ **避免重复计算**：通过 `!set.contains(num - 1)` 条件确保只从最小数字开始
+
+**为什么每个数字最多访问 2 次？**
+
+1. **第一次访问**：在外层循环中，检查 `num - 1` 是否在集合中
+   - 如果不在：`num` 是起始点，开始扩展
+   - 如果在：`num` 不是起始点，跳过
+
+2. **第二次访问**：如果 `num` 是某个序列的一部分（但不是起始点）
+   - 在扩展过程中会被访问（当从最小数字扩展时遇到它）
+
+3. **起始点的数字**：会被访问两次
+   - 第一次：检查起始点条件
+   - 第二次：从它开始扩展（它自己）
+
+**关键洞察总结**：
+
+- **每个连续序列只有一个起始点**（最小数字）
+- **每个数字最多属于一个连续序列**
+- **每个序列只被计算一次**（从起始点开始）
+- **因此总时间复杂度为 O(n)**
+
+**复杂度分析**：
+- **时间复杂度**：O(n)
+  - HashSet 构建：O(n)
+  - 外层循环：O(n)，遍历 HashSet 中的 n 个数字
+  - 起始点检查：每个数字一次，O(1) 时间，总共 O(n)
+  - 扩展过程：每个数字最多参与一次扩展，总共 O(n)
+  - 总体：O(n) + O(n) + O(n) = O(n)
+- **空间复杂度**：O(n)，HashSet 存储所有数字
 
 ### 141. 环形链表
 
