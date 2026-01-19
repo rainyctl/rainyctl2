@@ -58,7 +58,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 23 | <input type='checkbox' checked> | 647 | M | 字符串, 动态规划, 中心扩展 | [回文子串](https://leetcode.cn/problems/palindromic-substrings/) | [Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/) |
 | 24 | <input type='checkbox' checked> | 128 | M | 数组, 哈希表, 并查集 | [最长连续序列](https://leetcode.cn/problems/longest-consecutive-sequence/) | [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/) |
 | 25 | <input type='checkbox' checked> | 124 | H | 二叉树, DFS, 递归 | [二叉树中的最大路径和](https://leetcode.cn/problems/binary-tree-maximum-path-sum/) | [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/) |
-| 26 | <input type='checkbox'> | 322 | M | 动态规划, 完全背包 | [零钱兑换](https://leetcode.cn/problems/coin-change/) | [Coin Change](https://leetcode.com/problems/coin-change/) |
+| 26 | <input type='checkbox' checked> | 322 | M | 动态规划, 完全背包 | [零钱兑换](https://leetcode.cn/problems/coin-change/) | [Coin Change](https://leetcode.com/problems/coin-change/) |
 | 27 | <input type='checkbox'> | 494 | M | 动态规划, 背包问题 | [目标和](https://leetcode.cn/problems/target-sum/) | [Target Sum](https://leetcode.com/problems/target-sum/) |
 | 28 | <input type='checkbox'> | 461 | E | 位运算, 异或 | [汉明距离](https://leetcode.cn/problems/hamming-distance/) | [Hamming Distance](https://leetcode.com/problems/hamming-distance/) |
 | 29 | <input type='checkbox'> | 448 | E | 数组, 哈希表, 原地算法 | [找到所有数组中消失的数字](https://leetcode.cn/problems/find-all-numbers-disappeared-in-an-array/) | [Find All Numbers Disappeared in an Array](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/) |
