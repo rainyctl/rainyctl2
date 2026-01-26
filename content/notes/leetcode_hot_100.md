@@ -59,8 +59,8 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 24 | <input type='checkbox' checked> | 128 | M | 数组, 哈希表, 并查集 | [最长连续序列](https://leetcode.cn/problems/longest-consecutive-sequence/) | [Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/) |
 | 25 | <input type='checkbox' checked> | 124 | H | 二叉树, DFS, 递归 | [二叉树中的最大路径和](https://leetcode.cn/problems/binary-tree-maximum-path-sum/) | [Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/) |
 | 26 | <input type='checkbox' checked> | 322 | M | 动态规划, 完全背包 | [零钱兑换](https://leetcode.cn/problems/coin-change/) | [Coin Change](https://leetcode.com/problems/coin-change/) |
-| 27 | <input type='checkbox'> | 494 | M | 动态规划, 背包问题 | [目标和](https://leetcode.cn/problems/target-sum/) | [Target Sum](https://leetcode.com/problems/target-sum/) |
-| 28 | <input type='checkbox'> | 461 | E | 位运算, 异或 | [汉明距离](https://leetcode.cn/problems/hamming-distance/) | [Hamming Distance](https://leetcode.com/problems/hamming-distance/) |
+| 27 | <input type='checkbox' checked> | 494 | M | 动态规划, 背包问题 | [目标和](https://leetcode.cn/problems/target-sum/) | [Target Sum](https://leetcode.com/problems/target-sum/) |
+| 28 | <input type='checkbox' checked> | 461 | E | 位运算, 异或 | [汉明距离](https://leetcode.cn/problems/hamming-distance/) | [Hamming Distance](https://leetcode.com/problems/hamming-distance/) |
 | 29 | <input type='checkbox'> | 448 | E | 数组, 哈希表, 原地算法 | [找到所有数组中消失的数字](https://leetcode.cn/problems/find-all-numbers-disappeared-in-an-array/) | [Find All Numbers Disappeared in an Array](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/) |
 | 30 | <input type='checkbox'> | 438 | M | 字符串, 滑动窗口, 哈希表 | [找到字符串中所有字母异位词](https://leetcode.cn/problems/find-all-anagrams-in-a-string/) | [Find All Anagrams in a String](https://leetcode.com/problems/find-all-anagrams-in-a-string/) |
 | 31 | <input type='checkbox'> | 437 | M | 二叉树, DFS, 前缀和 | [路径总和III](https://leetcode.cn/problems/path-sum-iii/) | [Path Sum III](https://leetcode.com/problems/path-sum-iii/) |
@@ -3438,6 +3438,213 @@ class Solution {
 - **时间复杂度**：O(n)，需要遍历一次数组
 - **空间复杂度**：O(1)，只使用了常数额外空间（变量 `res`）
 
+### 461. 汉明距离
+
+[LT.461. Hamming Distance](https://leetcode.com/problems/hamming-distance/)
+
+这道题的核心思想是使用**异或运算（XOR）**找出两个数字二进制表示中不同的位，然后统计这些不同位的数量。
+
+**思考过程**：
+1. **问题理解**：汉明距离是两个整数二进制表示中不同位的数量
+2. **关键洞察**：异或运算可以找出两个数字中不同的位（`x ^ y` 的结果中，1 的个数就是汉明距离）
+3. **解决方案**：先对两个数字进行异或，然后统计结果中 1 的个数
+
+**核心思想 - 异或运算找不同位**：
+
+**异或运算的特性**：
+- 相同位异或为 0：`0 ^ 0 = 0`，`1 ^ 1 = 0`
+- 不同位异或为 1：`0 ^ 1 = 1`，`1 ^ 0 = 1`
+
+**为什么异或能找出不同位？**
+
+```
+x = 1 (二进制: 0001)
+y = 4 (二进制: 0100)
+
+x ^ y = 0001 ^ 0100 = 0101
+        ↑    ↑
+        不同  不同
+
+结果中 1 的个数 = 2，这就是汉明距离
+```
+
+**可视化示例**：
+
+```
+示例：x = 1, y = 4
+
+x 的二进制：0001
+y 的二进制：0100
+            ↑↑
+            不同位（第0位和第2位）
+
+x ^ y = 0001 ^ 0100 = 0101
+        第0位：1 ^ 0 = 1
+        第1位：0 ^ 0 = 0
+        第2位：0 ^ 1 = 1
+        第3位：0 ^ 0 = 0
+
+结果：0101 中有 2 个 1，汉明距离 = 2
+```
+
+**方法一：逐位检查（你的实现）**：
+
+```java
+class Solution {
+    public int hammingDistance(int x, int y) {
+        int xor = x ^ y;
+        int count = 0;
+        while (xor != 0) {
+            count += xor & 1;  // 检查最低位是否为 1
+            xor >>= 1;         // 右移一位，处理下一位
+        }
+        return count;
+    }
+}
+
+// time: O(1)，最多检查 32 位（int 是 32 位）
+// space: O(1)，只使用了常数额外空间
+```
+
+**执行过程可视化**：
+
+```
+示例：x = 1, y = 4
+
+步骤 1：计算异或
+  xor = 1 ^ 4 = 5 (二进制: 0101)
+  count = 0
+
+步骤 2：检查每一位
+  迭代 1：
+    xor = 5 (0101)
+    xor & 1 = 0101 & 0001 = 0001 = 1
+    count += 1 → count = 1
+    xor >>= 1 → xor = 2 (0010)
+
+  迭代 2：
+    xor = 2 (0010)
+    xor & 1 = 0010 & 0001 = 0000 = 0
+    count += 0 → count = 1
+    xor >>= 1 → xor = 1 (0001)
+
+  迭代 3：
+    xor = 1 (0001)
+    xor & 1 = 0001 & 0001 = 0001 = 1
+    count += 1 → count = 2
+    xor >>= 1 → xor = 0 (0000)
+
+  迭代 4：
+    xor = 0，循环结束
+
+最终结果：count = 2 ✓
+```
+
+**方法二：使用 Integer.bitCount()（推荐，更简洁）**：
+
+Java 提供了内置方法 `Integer.bitCount()` 来统计整数中 1 的个数，这是最优化的实现：
+
+```java
+class Solution {
+    public int hammingDistance(int x, int y) {
+        return Integer.bitCount(x ^ y);
+    }
+}
+
+// time: O(1)，Integer.bitCount() 使用位操作优化，时间复杂度为 O(1)
+// space: O(1)
+```
+
+**为什么推荐 Integer.bitCount()？**
+
+1. **更简洁**：一行代码解决问题
+2. **更高效**：`Integer.bitCount()` 内部使用了优化的位操作算法（如 Brian Kernighan 算法），比逐位检查更快
+3. **更易读**：代码意图清晰，不需要手动实现位计数逻辑
+
+**Integer.bitCount() 的内部实现**：
+
+`Integer.bitCount()` 使用了高效的位操作技巧，类似于 Brian Kernighan 算法：
+
+```java
+// Integer.bitCount() 的简化版本（展示原理）
+public static int bitCount(int i) {
+    // 使用位操作技巧快速统计 1 的个数
+    i = i - ((i >>> 1) & 0x55555555);
+    i = (i & 0x33333333) + ((i >>> 2) & 0x33333333);
+    i = (i + (i >>> 4)) & 0x0f0f0f0f;
+    i = i + (i >>> 8);
+    i = i + (i >>> 16);
+    return i & 0x3f;
+}
+```
+
+**方法三：Brian Kernighan 算法（优化版逐位检查）**：
+
+```java
+class Solution {
+    public int hammingDistance(int x, int y) {
+        int xor = x ^ y;
+        int count = 0;
+        while (xor != 0) {
+            count++;
+            xor &= (xor - 1);  // 清除最低位的 1
+        }
+        return count;
+    }
+}
+
+// time: O(k)，k 是 1 的个数，比方法一更高效
+// space: O(1)
+```
+
+**Brian Kernighan 算法的优势**：
+
+- **更高效**：只遍历 1 的个数次，而不是所有位
+- **核心技巧**：`xor & (xor - 1)` 可以清除最低位的 1
+
+**执行过程可视化（Brian Kernighan）**：
+
+```
+示例：xor = 5 (0101)
+
+迭代 1：
+  xor = 5 (0101)
+  count = 1
+  xor - 1 = 4 (0100)
+  xor & (xor - 1) = 0101 & 0100 = 0100 = 4
+  xor = 4
+
+迭代 2：
+  xor = 4 (0100)
+  count = 2
+  xor - 1 = 3 (0011)
+  xor & (xor - 1) = 0100 & 0011 = 0000 = 0
+  xor = 0，循环结束
+
+最终结果：count = 2 ✓
+```
+
+**方法对比**：
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+|------|-----------|-----------|------|
+| **Integer.bitCount()（推荐）** | O(1) | O(1) | ✅ 最简洁，使用内置优化 |
+| **Brian Kernighan 算法** | O(k) | O(1) | ✅ 高效，k 是 1 的个数 |
+| **逐位检查（你的方法）** | O(1) | O(1) | 直观易懂，但效率略低 |
+
+**关键要点**：
+- ✅ **异或运算找不同**：`x ^ y` 的结果中，1 的个数就是汉明距离
+- ✅ **Integer.bitCount()**：Java 内置方法，最简洁高效
+- ✅ **Brian Kernighan 算法**：优化的位计数方法，只遍历 1 的个数次
+- ✅ **逐位检查**：直观易懂，适合理解原理
+
+**复杂度分析**：
+- **时间复杂度**：
+  - 方法一（逐位检查）：O(1)，最多检查 32 位
+  - 方法二（Integer.bitCount()）：O(1)，使用优化的位操作
+  - 方法三（Brian Kernighan）：O(k)，k 是 1 的个数
+- **空间复杂度**：O(1)，所有方法都只使用常数额外空间
+
 ### 647. 回文子串
 
 [LT.647. Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
@@ -4248,4 +4455,174 @@ A 只能选择：A + max(B的贡献, C的贡献)
 - **空间复杂度**：O(h)，递归栈高度
   - 最坏情况：O(n)（树退化为链表）
   - 平衡树：O(log n)
+
+### 494. 目标和
+
+[LT.494. Target Sum](https://leetcode.com/problems/target-sum/)
+
+这道题的核心思想是将**目标和问题**转换为**子集和问题（0-1背包）**，使用动态规划求解。
+
+**思考过程**：
+1. **问题理解**：给数组中的每个数字添加 `+` 或 `-`，使得表达式结果等于 `target`
+2. **关键洞察**：将问题转换为：找到子集，使得子集和等于 `(sum + target) / 2`
+3. **转换原理**：
+   - 设正数子集和为 `pos`，负数子集和为 `neg`
+   - 有：`pos - neg = target` 且 `pos + neg = sum`
+   - 解得：`pos = (sum + target) / 2`
+4. **解决方案**：使用 DP 统计有多少种方式可以组成和为 `pos` 的子集
+
+**核心思想 - 问题转换**：
+
+**原始问题**：
+- 给每个数字添加 `+` 或 `-`，使得表达式结果等于 `target`
+- 例如：`nums = [1,1,1,1,1]`, `target = 3`
+  - 一种方案：`+1 +1 +1 +1 -1 = 3`
+
+**转换后的子集和问题**：
+- 设正数子集和为 `pos`，负数子集和为 `neg`
+- 约束条件：
+  - `pos - neg = target`（表达式结果）
+  - `pos + neg = sum`（所有数字的和）
+- 解方程组：
+  ```
+  pos - neg = target
+  pos + neg = sum
+  ────────────────
+  2 * pos = sum + target
+  pos = (sum + target) / 2
+  ```
+- 因此，问题转换为：**找到有多少个子集，其和为 `(sum + target) / 2`**
+
+**边界条件检查**：
+1. `sum < Math.abs(target)`：无法达到目标（所有数字都取同号也无法达到）
+2. `(sum + target) % 2 != 0`：`pos` 不是整数，无解
+
+**DP 状态定义**：
+- `dp[j]` 表示：有多少种方式可以组成和为 `j` 的子集
+- `dp[0] = 1`：不选任何数字，和为 0，有 1 种方式（基础情况）
+
+**状态转移方程**：
+```
+对于每个数字 num：
+  对于 j 从 p 到 num（倒序）：
+    dp[j] += dp[j - num]
+```
+
+**为什么倒序遍历？**
+- 这是 0-1 背包问题的经典优化
+- 正序遍历会导致同一个数字被使用多次（完全背包）
+- 倒序遍历保证每个数字只使用一次（0-1 背包）
+
+**可视化示例**：
+
+```
+示例：nums = [1,1,1,1,1], target = 3
+
+步骤 1：计算 sum 和 p
+  sum = 1 + 1 + 1 + 1 + 1 = 5
+  p = (5 + 3) / 2 = 4
+  问题转换为：找到有多少个子集，其和为 4
+
+步骤 2：初始化 DP
+  dp[0] = 1  (不选任何数字，和为 0，有 1 种方式，这是基础情况)
+  dp[1..4] = 0
+
+步骤 3：处理每个数字（倒序更新）
+
+处理 num = 1：
+  j=4: dp[4] += dp[3] = 0 + 0 = 0
+  j=3: dp[3] += dp[2] = 0 + 0 = 0
+  j=2: dp[2] += dp[1] = 0 + 0 = 0
+  j=1: dp[1] += dp[0] = 0 + 1 = 1
+  结果：dp = [1, 1, 0, 0, 0]
+
+处理 num = 1（第二个）：
+  j=4: dp[4] += dp[3] = 0 + 0 = 0
+  j=3: dp[3] += dp[2] = 0 + 0 = 0
+  j=2: dp[2] += dp[1] = 0 + 1 = 1
+  j=1: dp[1] += dp[0] = 1 + 1 = 2
+  结果：dp = [1, 2, 1, 0, 0]
+
+处理 num = 1（第三个）：
+  j=4: dp[4] += dp[3] = 0 + 0 = 0
+  j=3: dp[3] += dp[2] = 0 + 1 = 1
+  j=2: dp[2] += dp[1] = 1 + 2 = 3
+  j=1: dp[1] += dp[0] = 2 + 1 = 3
+  结果：dp = [1, 3, 3, 1, 0]
+
+处理 num = 1（第四个）：
+  j=4: dp[4] += dp[3] = 0 + 1 = 1
+  j=3: dp[3] += dp[2] = 1 + 3 = 4
+  j=2: dp[2] += dp[1] = 3 + 3 = 6
+  j=1: dp[1] += dp[0] = 3 + 1 = 4
+  结果：dp = [1, 4, 6, 4, 1]
+
+处理 num = 1（第五个）：
+  j=4: dp[4] += dp[3] = 1 + 4 = 5
+  j=3: dp[3] += dp[2] = 4 + 6 = 10
+  j=2: dp[2] += dp[1] = 6 + 4 = 10
+  j=1: dp[1] += dp[0] = 4 + 1 = 5
+  结果：dp = [1, 5, 10, 10, 5]
+
+最终结果：dp[4] = 5
+表示有 5 种方式可以组成和为 4 的子集
+对应原问题：有 5 种方式可以达到 target = 3
+```
+
+```java
+class Solution {
+    public int findTargetSumWays(int[] nums, int target) {
+        int sum = 0;
+        for (int num : nums) sum += num;
+        // 边界检查：无法达到目标
+        if (sum < Math.abs(target) || (sum + target) % 2 != 0) {
+            return 0;
+        }
+        // 转换为子集和问题：找到和为 p 的子集数量
+        int p = (sum + target) / 2;
+        int p = (sum + target) / 2;
+        int dp[] = new int[p + 1];
+        dp[0] = 1;
+        // 处理每个数字
+        for (int num : nums) {
+            // 倒序遍历，保证每个数字只使用一次（0-1 背包）
+            for (int j = p; j >= num; j--) {
+                // 状态转移：选择当前数字 num，需要从 dp[j - num] 转移过来
+                dp[j] += dp[j - num];
+            }
+        }
+        return dp[p];
+    }
+}
+
+// time: O(n * p)，n 是数组长度，p = (sum + target) / 2
+// space: O(p)，DP 数组的空间
+```
+
+**关键要点**：
+- ✅ **问题转换**：将目标和问题转换为子集和问题（0-1 背包）
+- ✅ **数学推导**：`pos = (sum + target) / 2`，其中 `pos` 是正数子集和
+- ✅ **边界检查**：`sum < Math.abs(target)` 或 `(sum + target) % 2 != 0` 时无解
+- ✅ **倒序遍历**：保证每个数字只使用一次（0-1 背包特性）
+- ✅ **DP 状态**：`dp[j]` 表示组成和为 `j` 的子集数量
+
+**为什么需要倒序遍历？**
+
+这是 0-1 背包问题的经典优化。如果正序遍历，同一个数字可能被使用多次：
+
+```
+正序遍历（错误）：
+处理 num = 1：
+  j=1: dp[1] += dp[0] = 1
+  j=2: dp[2] += dp[1] = 1  (使用了同一个 1 两次！)
+  
+倒序遍历（正确）：
+处理 num = 1：
+  j=2: dp[2] += dp[1] = 0  (dp[1] 还是旧值)
+  j=1: dp[1] += dp[0] = 1  (每个数字只使用一次)
+```
+
+**复杂度分析**：
+- **时间复杂度**：O(n × p)，其中 `n` 是数组长度，`p = (sum + target) / 2`
+- **空间复杂度**：O(p)，DP 数组的空间
 
