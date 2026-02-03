@@ -4750,3 +4750,91 @@ class Solution {
 }
 ```
 
+<!-- No. 34 -->
+### 399. 除法求值
+
+[Evaluate Division](https://leetcode.com/problems/evaluate-division/)
+
+这道题可以将变量视为图中的节点，除法关系视为有向边及其权重。求 `a / b` 等价于在图中寻找从节点 `a` 到节点 `b` 的路径，并将路径上的权重相乘。
+
+**核心思想**：
+1. **建图**：
+   - 如果 `a / b = v`，则添加一条从 `a` 到 `b` 的边，权重为 `v`。
+   - 同时添加一条从 `b` 到 `a` 的边，权重为 `1.0 / v`。
+2. **DFS 搜索**：
+   - 对于每个查询 `(a, b)`，从 `a` 开始进行 DFS 搜索 `b`。
+   - 维护 `visited` 集合防止环路。
+   - 如果找到 `b`，返回路径权重的乘积；否则返回 `-1.0`。
+   - 如果起点或终点不在图中，直接返回 `-1.0`。
+
+```java
+class Solution { 
+    public double[] calcEquation(List<List<String>> equations, double[] values, List<List<String>> queries) { 
+        // 1. 构建图：a -> b (val), b -> a (1/val)
+        Map<String, Map<String, Double>> graph = buildGraph(equations, values); 
+        double[] res = new double[queries.size()]; 
+        
+        // 2. 处理每个查询
+        for (int i = 0; i < queries.size(); i++) { 
+            String a = queries.get(i).get(0); 
+            String b = queries.get(i).get(1); 
+            // 使用 DFS 寻找从 a 到 b 的路径乘积
+            res[i] = dfs(graph, a, b, new HashSet<>()); 
+        } 
+        return res; 
+    } 
+
+    private Map<String, Map<String, Double>> buildGraph(List<List<String>> equations, double[] values) { 
+        Map<String, Map<String, Double>> graph = new HashMap<>(); 
+        for (int i = 0; i < equations.size(); i++) { 
+            String a = equations.get(i).get(0); 
+            String b = equations.get(i).get(1); 
+            double value = values[i]; 
+            
+            graph.putIfAbsent(a, new HashMap<>()); 
+            graph.get(a).put(b, value); 
+            
+            graph.putIfAbsent(b, new HashMap<>()); 
+            graph.get(b).put(a, 1.0 / value); 
+        } 
+        return graph; 
+    } 
+
+    private double dfs( 
+        Map<String, Map<String, Double>> graph, 
+        String a, String b, 
+        Set<String> visited 
+    ) { 
+        // 如果节点不存在于图中，直接返回 -1.0
+        if (!graph.containsKey(a) || !graph.containsKey(b)) { 
+            return -1.0; 
+        } 
+
+        // 如果起点等于终点，结果为 1.0
+        if (a.equals(b)) { 
+            return 1.0; 
+        } 
+
+        Map<String, Double> edges = graph.get(a); 
+        visited.add(a); 
+        
+        for (Map.Entry<String, Double> entry : edges.entrySet()) { 
+            String next = entry.getKey(); 
+            double weight = entry.getValue(); 
+
+            if (visited.contains(next)) { 
+                continue; 
+            } 
+
+            double res = dfs(graph, next, b, visited); 
+            if (res != -1.0) { 
+                return weight * res; 
+            } 
+        } 
+        
+        visited.remove(a); 
+        return -1.0; 
+    } 
+}
+```
+
