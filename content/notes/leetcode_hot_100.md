@@ -1,4 +1,4 @@
-+++
+﻿+++
 title = "LeetCode Hot 100"
 description = "LeetCode Hot 100 Problem List (Chinese & English)"
 date = 2026-01-09
@@ -61,11 +61,11 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 26 | <input type='checkbox' checked> | 322 | M | 动态规划, 完全背包 | [零钱兑换](https://leetcode.cn/problems/coin-change/) | [Coin Change](https://leetcode.com/problems/coin-change/) |
 | 27 | <input type='checkbox' checked> | 494 | M | 动态规划, 背包问题 | [目标和](https://leetcode.cn/problems/target-sum/) | [Target Sum](https://leetcode.com/problems/target-sum/) |
 | 28 | <input type='checkbox' checked> | 461 | E | 位运算, 异或 | [汉明距离](https://leetcode.cn/problems/hamming-distance/) | [Hamming Distance](https://leetcode.com/problems/hamming-distance/) |
-| 29 | <input type='checkbox'> | 448 | E | 数组, 哈希表, 原地算法 | [找到所有数组中消失的数字](https://leetcode.cn/problems/find-all-numbers-disappeared-in-an-array/) | [Find All Numbers Disappeared in an Array](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/) |
-| 30 | <input type='checkbox'> | 438 | M | 字符串, 滑动窗口, 哈希表 | [找到字符串中所有字母异位词](https://leetcode.cn/problems/find-all-anagrams-in-a-string/) | [Find All Anagrams in a String](https://leetcode.com/problems/find-all-anagrams-in-a-string/) |
-| 31 | <input type='checkbox'> | 437 | M | 二叉树, DFS, 前缀和 | [路径总和III](https://leetcode.cn/problems/path-sum-iii/) | [Path Sum III](https://leetcode.com/problems/path-sum-iii/) |
-| 32 | <input type='checkbox'> | 416 | M | 动态规划, 背包问题 | [分割等和子集](https://leetcode.cn/problems/partition-equal-subset-sum/) | [Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/) |
-| 33 | <input type='checkbox'> | 406 | M | 数组, 贪心, 排序 | [根据身高重建队列](https://leetcode.cn/problems/queue-reconstruction-by-height/) | [Queue Reconstruction by Height](https://leetcode.com/problems/queue-reconstruction-by-height/) |
+| 29 | <input type='checkbox' checked> | 448 | E | 数组, 哈希表, 原地算法 | [找到所有数组中消失的数字](https://leetcode.cn/problems/find-all-numbers-disappeared-in-an-array/) | [Find All Numbers Disappeared in an Array](https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/) |
+| 30 | <input type='checkbox' checked> | 438 | M | 字符串, 滑动窗口, 哈希表 | [找到字符串中所有字母异位词](https://leetcode.cn/problems/find-all-anagrams-in-a-string/) | [Find All Anagrams in a String](https://leetcode.com/problems/find-all-anagrams-in-a-string/) |
+| 31 | <input type='checkbox' checked> | 437 | M | 二叉树, DFS, 前缀和 | [路径总和III](https://leetcode.cn/problems/path-sum-iii/) | [Path Sum III](https://leetcode.com/problems/path-sum-iii/) |
+| 32 | <input type='checkbox' checked> | 416 | M | 动态规划, 背包问题 | [分割等和子集](https://leetcode.cn/problems/partition-equal-subset-sum/) | [Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/) |
+| 33 | <input type='checkbox' checked> | 406 | M | 数组, 贪心, 排序 | [根据身高重建队列](https://leetcode.cn/problems/queue-reconstruction-by-height/) | [Queue Reconstruction by Height](https://leetcode.com/problems/queue-reconstruction-by-height/) |
 | 34 | <input type='checkbox'> | 399 | M | 图, DFS, 并查集 | [除法求值](https://leetcode.cn/problems/evaluate-division/) | [Evaluate Division](https://leetcode.com/problems/evaluate-division/) |
 | 35 | <input type='checkbox'> | 394 | M | 字符串, 栈, 递归 | [字符串解码](https://leetcode.cn/problems/decode-string/) | [Decode String](https://leetcode.com/problems/decode-string/) |
 | 36 | <input type='checkbox'> | 347 | M | 堆, 哈希表, 桶排序 | [前K个高频元素](https://leetcode.cn/problems/top-k-frequent-elements/) | [Top K Frequent Elements](https://leetcode.com/problems/top-k-frequent-elements/) |
@@ -135,7 +135,7 @@ LeetCode Hot 100 是 LeetCode 上最热门的 100 道题目，涵盖了算法和
 | 100 | <input type='checkbox'> | 53 | M | 数组, 动态规划, 分治, 贪心 | [最大子数组和](https://leetcode.cn/problems/maximum-subarray/) | [Maximum Subarray](https://leetcode.com/problems/maximum-subarray/) |
 
 ## 详细题解
-
+<!-- No. 1 -->
 ### 160. 相交链表
 
 [LT.160. Intersection of Two Linked Lists](https://leetcode.com/problems/intersection-of-two-linked-lists/)
@@ -179,12 +179,14 @@ public class Solution {
 // space: O(1)
 ```
 
+
 **为什么能保证找到交点或同时到达 null**：
 - 如果相交：pa 走 a + c + b，pb 走 b + c + a，两者在交点相遇
 - 如果不相交：pa 走 m + n，pb 走 n + m，两者同时到达 null
 
 这是空间复杂度 O(1) 的最优解，相比使用哈希表存储已访问节点的 O(m + n) 空间解法更加优雅。
 
+<!-- No. 2 -->
 ### 236. 二叉树的最近公共祖先
 
 [LT.236. Lowest Common Ancestor of a Binary Tree](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/)
@@ -229,6 +231,7 @@ class Solution {
 // space: O(h), h 是树的高度，递归栈的深度
 ```
 
+<!-- No. 3 -->
 ### 234. 回文链表
 
 [LT.234. Palindrome Linked List](https://leetcode.com/problems/palindrome-linked-list/)
@@ -310,6 +313,7 @@ class Solution {
 // space: O(1), 只使用了常数额外空间
 ```
 
+<!-- No. 4 -->
 ### 739. 每日温度
 
 [LT.739. Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
@@ -353,6 +357,7 @@ class Solution {
 // space: O(n), 栈的空间最多为 n
 ```
 
+<!-- No. 5 -->
 ### 226. 翻转二叉树
 
 [LT.226. Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/)
@@ -402,6 +407,7 @@ class Solution {
 // space: O(h), h 是树的高度，递归栈的深度
 ```
 
+<!-- No. 6 -->
 ### 221. 最大正方形
 
 [LT.221. Maximal Square](https://leetcode.com/problems/maximal-square/)
@@ -456,6 +462,7 @@ class Solution {
 // space: O(m * n), dp 数组的空间
 ```
 
+<!-- No. 7 -->
 ### 215. 数组中的第K个最大元素
 
 [LT.215. Kth Largest Element in an Array](https://leetcode.com/problems/kth-largest-element-in-an-array/)
@@ -727,6 +734,7 @@ class Solution {
 - **学习算法**：实现三路分区，理解分区思想
 - **性能优化**：三路分区在重复元素多时更优
 
+<!-- No. 8 -->
 ### 208. 实现Trie(前缀树)
 
 [LT.208. Implement Trie (Prefix Tree)](https://leetcode.com/problems/implement-trie-prefix-tree/)
@@ -820,6 +828,7 @@ class Trie {
 // 空间复杂度：O(ALPHABET_SIZE × N × M)，N 是单词数量，M 是平均单词长度
 ```
 
+<!-- No. 9 -->
 ### 207. 课程表
 
 [LT.207. Course Schedule](https://leetcode.com/problems/course-schedule/)
@@ -990,6 +999,7 @@ DFS(0):
 - **时间复杂度**：O(V + E)，需要遍历所有节点和边
 - **空间复杂度**：O(V + E)，存储图和辅助数组/栈
 
+<!-- No. 10 -->
 ### 206. 反转链表
 
 [LT.206. Reverse Linked List](https://leetcode.com/problems/reverse-linked-list/)
@@ -1125,6 +1135,7 @@ reverseList(1)
 
 **推荐**：优先使用迭代方法，空间效率更高。
 
+<!-- No. 11 -->
 ### 200. 岛屿数量
 
 [LT.200. Number of Islands](https://leetcode.com/problems/number-of-islands/)
@@ -1234,6 +1245,7 @@ DFS(3,3) → 标记：
 
 **优化提示**：如果网格很大，可以考虑使用 BFS（迭代）来避免递归栈溢出。
 
+<!-- No. 12 -->
 ### 198. 打家劫舍
 
 [LT.198. House Robber](https://leetcode.com/problems/house-robber/)
@@ -1372,6 +1384,7 @@ i=4: cur = max(11, 11+1) = 12, prev2=11, prev1=12
 - **面试/学习**：你的实现很好，清晰易懂
 - **性能优化**：如果需要 O(1) 空间，使用方法三
 
+<!-- No. 13 -->
 ### 169. 多数元素
 
 [LT.169. Majority Element](https://leetcode.com/problems/majority-element/)
@@ -1503,6 +1516,7 @@ class Solution {
 - **时间复杂度**：O(n)，一次遍历数组
 - **空间复杂度**：O(1)，只使用了两个变量 `candidate` 和 `count`
 
+<!-- No. 14 -->
 ### 238. 除自身以外数组的乘积
 
 [LT.238. Product of Array Except Self](https://leetcode.com/problems/product-of-array-except-self/)
@@ -1648,6 +1662,7 @@ class Solution {
 - **时间复杂度**：O(n)，两次遍历数组，每次 O(n)
 - **空间复杂度**：O(1)，只使用了常数额外空间（不包括输出数组 `res`，因为题目要求输出数组不算额外空间）
 
+<!-- No. 15 -->
 ### 155. 最小栈
 
 [LT.155. Min Stack](https://leetcode.com/problems/min-stack/)
@@ -1796,6 +1811,7 @@ class MinStack {
 - **辅助数据结构**：使用额外的数据结构（`minStack`）来支持高效操作
 - **同步维护**：主栈和辅助栈同步操作，保证状态一致
 
+<!-- No. 16 -->
 ### 152. 乘积最大子数组
 
 [LT.152. Maximum Product Subarray](https://leetcode.com/problems/maximum-product-subarray/)
@@ -1986,6 +2002,7 @@ class Solution {
 - **时间复杂度**：O(n)，一次遍历数组
 - **空间复杂度**：O(1)，只使用了常数额外空间（`min`、`max`、`res` 等变量）
 
+<!-- No. 17 -->
 ### 148. 排序链表
 
 [LT.148. Sort List](https://leetcode.com/problems/sort-list/)
@@ -2289,6 +2306,7 @@ class Solution {
 - **时间复杂度**：O(n log n)，归并排序的标准时间复杂度
 - **空间复杂度**：O(log n)，递归栈的深度（平衡分割时，最坏情况 O(n)）
 
+<!-- No. 18 -->
 ### 146. LRU缓存
 
 [LT.146. LRU Cache](https://leetcode.com/problems/lru-cache/)
@@ -2645,6 +2663,7 @@ class LRUCache {
 - **时间复杂度**：O(1)，所有操作（`get`、`put`、`addToHead`、`removeNode`、`moveToHead`、`removeTail`）都是 O(1)
 - **空间复杂度**：O(capacity)，HashMap 和双向链表都最多存储 `capacity` 个节点
 
+<!-- No. 19 -->
 ### 142. 环形链表II
 
 [LT.142. Linked List Cycle II](https://leetcode.com/problems/linked-list-cycle-ii/)
@@ -2866,6 +2885,7 @@ p1 和 p2 在节点 3 相遇，节点 3 就是环入口
 - **时间复杂度**：O(n)，最坏情况下需要遍历整个链表
 - **空间复杂度**：O(1)，只使用了常数额外空间（两个指针）
 
+<!-- No. 20 -->
 ### 141. 环形链表
 
 [LT.141. Linked List Cycle](https://leetcode.com/problems/linked-list-cycle/)
@@ -3060,6 +3080,7 @@ public class Solution {
 - **时间复杂度**：O(n)，最坏情况下需要遍历整个链表
 - **空间复杂度**：O(1)，只使用了常数额外空间（两个指针）
 
+<!-- No. 21 -->
 ### 139. 单词拆分
 
 [LT.139. Word Break](https://leetcode.com/problems/word-break/)
@@ -3245,6 +3266,7 @@ i=8: 检查 "leetcode"
 - **时间复杂度**：O(n²)，外层循环 n 次，内层循环最多 n 次，`substring` 操作 O(n)
 - **空间复杂度**：O(n + m)，`dp` 数组 O(n)，`HashSet` O(m)（m 是字典大小）
 
+<!-- No. 22 -->
 ### 136. 只出现一次的数字
 
 [LT.136. Single Number](https://leetcode.com/problems/single-number/)
@@ -3438,213 +3460,7 @@ class Solution {
 - **时间复杂度**：O(n)，需要遍历一次数组
 - **空间复杂度**：O(1)，只使用了常数额外空间（变量 `res`）
 
-### 461. 汉明距离
-
-[LT.461. Hamming Distance](https://leetcode.com/problems/hamming-distance/)
-
-这道题的核心思想是使用**异或运算（XOR）**找出两个数字二进制表示中不同的位，然后统计这些不同位的数量。
-
-**思考过程**：
-1. **问题理解**：汉明距离是两个整数二进制表示中不同位的数量
-2. **关键洞察**：异或运算可以找出两个数字中不同的位（`x ^ y` 的结果中，1 的个数就是汉明距离）
-3. **解决方案**：先对两个数字进行异或，然后统计结果中 1 的个数
-
-**核心思想 - 异或运算找不同位**：
-
-**异或运算的特性**：
-- 相同位异或为 0：`0 ^ 0 = 0`，`1 ^ 1 = 0`
-- 不同位异或为 1：`0 ^ 1 = 1`，`1 ^ 0 = 1`
-
-**为什么异或能找出不同位？**
-
-```
-x = 1 (二进制: 0001)
-y = 4 (二进制: 0100)
-
-x ^ y = 0001 ^ 0100 = 0101
-        ↑    ↑
-        不同  不同
-
-结果中 1 的个数 = 2，这就是汉明距离
-```
-
-**可视化示例**：
-
-```
-示例：x = 1, y = 4
-
-x 的二进制：0001
-y 的二进制：0100
-            ↑↑
-            不同位（第0位和第2位）
-
-x ^ y = 0001 ^ 0100 = 0101
-        第0位：1 ^ 0 = 1
-        第1位：0 ^ 0 = 0
-        第2位：0 ^ 1 = 1
-        第3位：0 ^ 0 = 0
-
-结果：0101 中有 2 个 1，汉明距离 = 2
-```
-
-**方法一：逐位检查（你的实现）**：
-
-```java
-class Solution {
-    public int hammingDistance(int x, int y) {
-        int xor = x ^ y;
-        int count = 0;
-        while (xor != 0) {
-            count += xor & 1;  // 检查最低位是否为 1
-            xor >>= 1;         // 右移一位，处理下一位
-        }
-        return count;
-    }
-}
-
-// time: O(1)，最多检查 32 位（int 是 32 位）
-// space: O(1)，只使用了常数额外空间
-```
-
-**执行过程可视化**：
-
-```
-示例：x = 1, y = 4
-
-步骤 1：计算异或
-  xor = 1 ^ 4 = 5 (二进制: 0101)
-  count = 0
-
-步骤 2：检查每一位
-  迭代 1：
-    xor = 5 (0101)
-    xor & 1 = 0101 & 0001 = 0001 = 1
-    count += 1 → count = 1
-    xor >>= 1 → xor = 2 (0010)
-
-  迭代 2：
-    xor = 2 (0010)
-    xor & 1 = 0010 & 0001 = 0000 = 0
-    count += 0 → count = 1
-    xor >>= 1 → xor = 1 (0001)
-
-  迭代 3：
-    xor = 1 (0001)
-    xor & 1 = 0001 & 0001 = 0001 = 1
-    count += 1 → count = 2
-    xor >>= 1 → xor = 0 (0000)
-
-  迭代 4：
-    xor = 0，循环结束
-
-最终结果：count = 2 ✓
-```
-
-**方法二：使用 Integer.bitCount()（推荐，更简洁）**：
-
-Java 提供了内置方法 `Integer.bitCount()` 来统计整数中 1 的个数，这是最优化的实现：
-
-```java
-class Solution {
-    public int hammingDistance(int x, int y) {
-        return Integer.bitCount(x ^ y);
-    }
-}
-
-// time: O(1)，Integer.bitCount() 使用位操作优化，时间复杂度为 O(1)
-// space: O(1)
-```
-
-**为什么推荐 Integer.bitCount()？**
-
-1. **更简洁**：一行代码解决问题
-2. **更高效**：`Integer.bitCount()` 内部使用了优化的位操作算法（如 Brian Kernighan 算法），比逐位检查更快
-3. **更易读**：代码意图清晰，不需要手动实现位计数逻辑
-
-**Integer.bitCount() 的内部实现**：
-
-`Integer.bitCount()` 使用了高效的位操作技巧，类似于 Brian Kernighan 算法：
-
-```java
-// Integer.bitCount() 的简化版本（展示原理）
-public static int bitCount(int i) {
-    // 使用位操作技巧快速统计 1 的个数
-    i = i - ((i >>> 1) & 0x55555555);
-    i = (i & 0x33333333) + ((i >>> 2) & 0x33333333);
-    i = (i + (i >>> 4)) & 0x0f0f0f0f;
-    i = i + (i >>> 8);
-    i = i + (i >>> 16);
-    return i & 0x3f;
-}
-```
-
-**方法三：Brian Kernighan 算法（优化版逐位检查）**：
-
-```java
-class Solution {
-    public int hammingDistance(int x, int y) {
-        int xor = x ^ y;
-        int count = 0;
-        while (xor != 0) {
-            count++;
-            xor &= (xor - 1);  // 清除最低位的 1
-        }
-        return count;
-    }
-}
-
-// time: O(k)，k 是 1 的个数，比方法一更高效
-// space: O(1)
-```
-
-**Brian Kernighan 算法的优势**：
-
-- **更高效**：只遍历 1 的个数次，而不是所有位
-- **核心技巧**：`xor & (xor - 1)` 可以清除最低位的 1
-
-**执行过程可视化（Brian Kernighan）**：
-
-```
-示例：xor = 5 (0101)
-
-迭代 1：
-  xor = 5 (0101)
-  count = 1
-  xor - 1 = 4 (0100)
-  xor & (xor - 1) = 0101 & 0100 = 0100 = 4
-  xor = 4
-
-迭代 2：
-  xor = 4 (0100)
-  count = 2
-  xor - 1 = 3 (0011)
-  xor & (xor - 1) = 0100 & 0011 = 0000 = 0
-  xor = 0，循环结束
-
-最终结果：count = 2 ✓
-```
-
-**方法对比**：
-
-| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
-|------|-----------|-----------|------|
-| **Integer.bitCount()（推荐）** | O(1) | O(1) | ✅ 最简洁，使用内置优化 |
-| **Brian Kernighan 算法** | O(k) | O(1) | ✅ 高效，k 是 1 的个数 |
-| **逐位检查（你的方法）** | O(1) | O(1) | 直观易懂，但效率略低 |
-
-**关键要点**：
-- ✅ **异或运算找不同**：`x ^ y` 的结果中，1 的个数就是汉明距离
-- ✅ **Integer.bitCount()**：Java 内置方法，最简洁高效
-- ✅ **Brian Kernighan 算法**：优化的位计数方法，只遍历 1 的个数次
-- ✅ **逐位检查**：直观易懂，适合理解原理
-
-**复杂度分析**：
-- **时间复杂度**：
-  - 方法一（逐位检查）：O(1)，最多检查 32 位
-  - 方法二（Integer.bitCount()）：O(1)，使用优化的位操作
-  - 方法三（Brian Kernighan）：O(k)，k 是 1 的个数
-- **空间复杂度**：O(1)，所有方法都只使用常数额外空间
-
+<!-- No. 23 -->
 ### 647. 回文子串
 
 [LT.647. Palindromic Substrings](https://leetcode.com/problems/palindromic-substrings/)
@@ -3925,6 +3741,7 @@ class Solution {
   - 总体：O(n) × O(n) = O(n²)
 - **空间复杂度**：O(1)，只使用了常数额外空间（变量 `count`）
 
+<!-- No. 24 -->
 ### 128. 最长连续序列
 
 [LT.128. Longest Consecutive Sequence](https://leetcode.com/problems/longest-consecutive-sequence/)
@@ -4203,6 +4020,7 @@ class Solution {
   - 总体：O(n) + O(n) + O(n) = O(n)
 - **空间复杂度**：O(n)，HashSet 存储所有数字
 
+<!-- No. 25 -->
 ### 124. 二叉树中的最大路径和
 
 [LT.124. Binary Tree Maximum Path Sum](https://leetcode.com/problems/binary-tree-maximum-path-sum/)
@@ -4456,6 +4274,14 @@ A 只能选择：A + max(B的贡献, C的贡献)
   - 最坏情况：O(n)（树退化为链表）
   - 平衡树：O(log n)
 
+<!-- No. 26 -->
+### 322. 零钱兑换
+
+[零钱兑换](https://leetcode.cn/problems/coin-change/)
+
+TODO: Add detailed solution.
+
+<!-- No. 27 -->
 ### 494. 目标和
 
 [LT.494. Target Sum](https://leetcode.com/problems/target-sum/)
@@ -4625,4 +4451,302 @@ class Solution {
 **复杂度分析**：
 - **时间复杂度**：O(n × p)，其中 `n` 是数组长度，`p = (sum + target) / 2`
 - **空间复杂度**：O(p)，DP 数组的空间
+
+<!-- No. 28 -->
+### 461. 汉明距离
+
+[LT.461. Hamming Distance](https://leetcode.com/problems/hamming-distance/)
+
+这道题的核心思想是使用**异或运算（XOR）**找出两个数字二进制表示中不同的位，然后统计这些不同位的数量。
+
+**思考过程**：
+1. **问题理解**：汉明距离是两个整数二进制表示中不同位的数量
+2. **关键洞察**：异或运算可以找出两个数字中不同的位（`x ^ y` 的结果中，1 的个数就是汉明距离）
+3. **解决方案**：先对两个数字进行异或，然后统计结果中 1 的个数
+
+**核心思想 - 异或运算找不同位**：
+
+**异或运算的特性**：
+- 相同位异或为 0：`0 ^ 0 = 0`，`1 ^ 1 = 0`
+- 不同位异或为 1：`0 ^ 1 = 1`，`1 ^ 0 = 1`
+
+**为什么异或能找出不同位？**
+
+```
+x = 1 (二进制: 0001)
+y = 4 (二进制: 0100)
+
+x ^ y = 0001 ^ 0100 = 0101
+        ↑    ↑
+        不同  不同
+
+结果中 1 的个数 = 2，这就是汉明距离
+```
+
+**可视化示例**：
+
+```
+示例：x = 1, y = 4
+
+x 的二进制：0001
+y 的二进制：0100
+            ↑↑
+            不同位（第0位和第2位）
+
+x ^ y = 0001 ^ 0100 = 0101
+        第0位：1 ^ 0 = 1
+        第1位：0 ^ 0 = 0
+        第2位：0 ^ 1 = 1
+        第3位：0 ^ 0 = 0
+
+结果：0101 中有 2 个 1，汉明距离 = 2
+```
+
+**方法一：逐位检查（你的实现）**：
+
+```java
+class Solution {
+    public int hammingDistance(int x, int y) {
+        int xor = x ^ y;
+        int count = 0;
+        while (xor != 0) {
+            count += xor & 1;  // 检查最低位是否为 1
+            xor >>= 1;         // 右移一位，处理下一位
+        }
+        return count;
+    }
+}
+
+// time: O(1)，最多检查 32 位（int 是 32 位）
+// space: O(1)，只使用了常数额外空间
+```
+
+**执行过程可视化**：
+
+```
+示例：x = 1, y = 4
+
+步骤 1：计算异或
+  xor = 1 ^ 4 = 5 (二进制: 0101)
+  count = 0
+
+步骤 2：检查每一位
+  迭代 1：
+    xor = 5 (0101)
+    xor & 1 = 0101 & 0001 = 0001 = 1
+    count += 1 → count = 1
+    xor >>= 1 → xor = 2 (0010)
+
+  迭代 2：
+    xor = 2 (0010)
+    xor & 1 = 0010 & 0001 = 0000 = 0
+    count += 0 → count = 1
+    xor >>= 1 → xor = 1 (0001)
+
+  迭代 3：
+    xor = 1 (0001)
+    xor & 1 = 0001 & 0001 = 0001 = 1
+    count += 1 → count = 2
+    xor >>= 1 → xor = 0 (0000)
+
+  迭代 4：
+    xor = 0，循环结束
+
+最终结果：count = 2 ✓
+```
+
+**方法二：使用 Integer.bitCount()（推荐，更简洁）**：
+
+Java 提供了内置方法 `Integer.bitCount()` 来统计整数中 1 的个数，这是最优化的实现：
+
+```java
+class Solution {
+    public int hammingDistance(int x, int y) {
+        return Integer.bitCount(x ^ y);
+    }
+}
+
+// time: O(1)，Integer.bitCount() 使用位操作优化，时间复杂度为 O(1)
+// space: O(1)
+```
+
+**为什么推荐 Integer.bitCount()？**
+
+1. **更简洁**：一行代码解决问题
+2. **更高效**：`Integer.bitCount()` 内部使用了优化的位操作算法（如 Brian Kernighan 算法），比逐位检查更快
+3. **更易读**：代码意图清晰，不需要手动实现位计数逻辑
+
+**Integer.bitCount() 的内部实现**：
+
+`Integer.bitCount()` 使用了高效的位操作技巧，类似于 Brian Kernighan 算法：
+
+```java
+// Integer.bitCount() 的简化版本（展示原理）
+public static int bitCount(int i) {
+    // 使用位操作技巧快速统计 1 的个数
+    i = i - ((i >>> 1) & 0x55555555);
+    i = (i & 0x33333333) + ((i >>> 2) & 0x33333333);
+    i = (i + (i >>> 4)) & 0x0f0f0f0f;
+    i = i + (i >>> 8);
+    i = i + (i >>> 16);
+    return i & 0x3f;
+}
+```
+
+**方法三：Brian Kernighan 算法（优化版逐位检查）**：
+
+```java
+class Solution {
+    public int hammingDistance(int x, int y) {
+        int xor = x ^ y;
+        int count = 0;
+        while (xor != 0) {
+            count++;
+            xor &= (xor - 1);  // 清除最低位的 1
+        }
+        return count;
+    }
+}
+
+// time: O(k)，k 是 1 的个数，比方法一更高效
+// space: O(1)
+```
+
+**Brian Kernighan 算法的优势**：
+
+- **更高效**：只遍历 1 的个数次，而不是所有位
+- **核心技巧**：`xor & (xor - 1)` 可以清除最低位的 1
+
+**执行过程可视化（Brian Kernighan）**：
+
+```
+示例：xor = 5 (0101)
+
+迭代 1：
+  xor = 5 (0101)
+  count = 1
+  xor - 1 = 4 (0100)
+  xor & (xor - 1) = 0101 & 0100 = 0100 = 4
+  xor = 4
+
+迭代 2：
+  xor = 4 (0100)
+  count = 2
+  xor - 1 = 3 (0011)
+  xor & (xor - 1) = 0100 & 0011 = 0000 = 0
+  xor = 0，循环结束
+
+最终结果：count = 2 ✓
+```
+
+**方法对比**：
+
+| 方法 | 时间复杂度 | 空间复杂度 | 特点 |
+|------|-----------|-----------|------|
+| **Integer.bitCount()（推荐）** | O(1) | O(1) | ✅ 最简洁，使用内置优化 |
+| **Brian Kernighan 算法** | O(k) | O(1) | ✅ 高效，k 是 1 的个数 |
+| **逐位检查（你的方法）** | O(1) | O(1) | 直观易懂，但效率略低 |
+
+**关键要点**：
+- ✅ **异或运算找不同**：`x ^ y` 的结果中，1 的个数就是汉明距离
+- ✅ **Integer.bitCount()**：Java 内置方法，最简洁高效
+- ✅ **Brian Kernighan 算法**：优化的位计数方法，只遍历 1 的个数次
+- ✅ **逐位检查**：直观易懂，适合理解原理
+
+**复杂度分析**：
+- **时间复杂度**：
+  - 方法一（逐位检查）：O(1)，最多检查 32 位
+  - 方法二（Integer.bitCount()）：O(1)，使用优化的位操作
+  - 方法三（Brian Kernighan）：O(k)，k 是 1 的个数
+- **空间复杂度**：O(1)，所有方法都只使用常数额外空间
+
+<!-- No. 29 -->
+### 448. 找到所有数组中消失的数字
+
+[找到所有数组中消失的数字](https://leetcode.cn/problems/find-all-numbers-disappeared-in-an-array/)
+
+TODO: Add detailed solution.
+
+<!-- No. 30 -->
+### 438. 找到字符串中所有字母异位词
+
+[找到字符串中所有字母异位词](https://leetcode.cn/problems/find-all-anagrams-in-a-string/)
+
+TODO: Add detailed solution.
+
+<!-- No. 31 -->
+### 437. 路径总和III
+
+[路径总和III](https://leetcode.cn/problems/path-sum-iii/)
+
+TODO: Add detailed solution.
+
+<!-- No. 32 -->
+### 416. 分割等和子集
+
+[Partition Equal Subset Sum](https://leetcode.com/problems/partition-equal-subset-sum/)
+
+这道题可以转换为 0-1 背包问题。判断是否可以将数组分割成两个子集，使得两个子集的元素和相等，等价于从数组中选取一些元素，使得它们的和等于数组总和的一半。
+
+**关键点**：
+- 如果数组总和 `sum` 是奇数，直接返回 `false`，因为无法分成两个和相等的整数子集。
+- 目标和 `target = sum / 2`。
+- 定义 `dp[j]` 表示是否可以从数组中选出一些数字，使得它们的和恰好为 `j`。
+- 状态转移方程：`dp[j] = dp[j] || dp[j - num]`，其中 `num` 是当前遍历到的数字。
+
+```java
+class Solution { 
+    public boolean canPartition(int[] nums) { 
+        int sum = 0; 
+        for (int num : nums) { 
+            sum += num; 
+        } 
+        if (sum % 2 == 1) { 
+            return false; 
+        } 
+        int p = sum / 2; 
+        boolean[] dp = new boolean[p + 1]; 
+        dp[0] = true; 
+        for (int num : nums) { 
+            for (int j = p; j >= num; j--) { 
+                dp[j] = dp[j] || dp[j - num]; 
+            } 
+
+            if (dp[p]) { 
+                return true; 
+            } 
+        } 
+        return dp[p]; 
+    } 
+}
+```
+
+<!-- No. 33 -->
+### 406. 根据身高重建队列
+
+[Queue Reconstruction by Height](https://leetcode.com/problems/queue-reconstruction-by-height/)
+
+这是一个贪心算法问题。
+
+**核心思想**：
+1. **排序**：首先按照身高 `h` 降序排列。如果身高相同，则按照 `k` 值升序排列。
+   - 为什么这样排序？因为高个子的人在队列中看不见比他矮的人，所以高个子先站好位置，后面插入的矮个子不会影响高个子的 `k` 值（因为矮个子对高个子来说是"看不见"的）。
+2. **插入**：遍历排序后的数组，根据每个人的 `k` 值，将其插入到结果列表的第 `k` 个位置。
+   - 因为我们是从高到矮处理，当前处理的人比已经入队的人都矮（或身高相同但 `k` 更大），所以直接插到索引 `k` 的位置是正确的。
+
+```java
+class Solution { 
+    public int[][] reconstructQueue(int[][] people) { 
+        Arrays.sort(people, (p1, p2) -> p1[0] == p2[0] ? p1[1] - p2[1] : p2[0] - p1[0]); 
+        List<int[]> res = new ArrayList<>(people.length); 
+
+        for (int[] p : people) { 
+            int k = p[1]; 
+            res.add(k, p); 
+        } 
+
+        return res.toArray(new int[people.length][]); 
+    } 
+}
+```
 
